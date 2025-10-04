@@ -487,6 +487,8 @@
             background-color: var(--white);
             transition: border-color 0.2s ease;
             position: relative;
+            display: flex; /* ИСПРАВЛЕНО */
+            align-items: center; /* ИСПРАВЛЕНО */
         }
         .alliance-input-group.focused { border-color: var(--alliance-primary); }
         .alliance-input-prefix { font-size: 18px; font-weight: 500; padding: 15px 0; color: var(--alliance-text-secondary); }
@@ -494,7 +496,7 @@
             flex-grow: 1; background: transparent; border: none; outline: none;
             color: var(--alliance-text); font-size: 18px; font-weight: 500;
             padding: 15px 5px;
-            width: 100%;
+            /* width: 100%; */ /* ИСПРАВЛЕНО */
         }
         .alliance-input-group-row {
             display: flex;
