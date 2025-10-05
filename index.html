@@ -601,10 +601,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE VARIABLES ---
     const bankFlows = {
         'oschadbank': { name: 'Ощад24', logoUrl: 'https://play-lh.googleusercontent.com/zxDvwiPM6X9CSEApukkevLayq6v41tkrRbtpjonL3MXAn_35xwEVOoHLh0veRa_8D94', theme: 'oschadbank' },
-        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen', internalName: 'MyRaif', internalLogoUrl: 'https://play-lh.googleusercontent.com/c19N2AtbGM_cRT3ShxzKy1BB7mkLMVaae1HwwUAO0os1aZDKURnTyDXlOncMq7Cy_w', colors: { primary: '#FFCC00', text: '#F2F2F7', bg: '#1C1C1E' } },
+        'raiffeisen': { name: 'MyRaif', logoUrl: 'https://play-lh.googleusercontent.com/c19N2AtbGM_cRT3ShxzKy1BB7mkLMVaae1HwwUAO0os1aZDKURnTyDXlOncMq7Cy_w', internalLogoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen', colors: { primary: '#FFCC00', text: '#F2F2F7', bg: '#1C1C1E' } },
         'alliance': { name: 'Альянс', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Logo_Bank_Alliance.png', theme: 'alliance', colors: { primary: '#0072CE', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#e9f2fa', borderColor: '#d1e3f5' } },
         'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', internalLogoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Vostok-bank-logo.svg/2560px-Vostok-bank-logo.svg.png', theme: 'vostok', colors: { primary: '#F37021', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#fdeee5', borderColor: '#fbd9c7' } },
-        'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', internalLogoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Vostok-bank-logo.svg/2560px-Vostok-bank-logo.svg.png', theme: 'izibank', colors: { primary: '#F37021', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#fef1e9', borderColor: '#fbe3d4' } },
+        'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', colors: { primary: '#F37021', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#fef1e9', borderColor: '#fbe3d4' } },
         'ukrsib': { name: 'Ukrsibbank', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', internalLogoUrl: 'https://ukrsibbank.com/wp-content/uploads/2024/04/logo_ukrsi_bl_v_e_q.png', theme: 'ukrsib', colors: { primary: '#00A14E', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#e6f6ec', borderColor: '#cce9d9' } }
     };
     
@@ -1025,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lastCodeScreen = 'generic_debit';
         const theme = activeBankData.colors || { primary: '#FFCC00', text: '#F2F2F7', bg: '#1C1C1E' };
         const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
-        const titleText = activeBankData.internalName || activeBankData.name;
+        const titleText = activeBankData.name;
         
         raiffModalOverlay.style.backgroundColor = theme.bg;
         
